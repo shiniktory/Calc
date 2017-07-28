@@ -18,7 +18,7 @@
 
 <StackPane focusTraversable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="350.0" minWidth="200.0" onKeyPressed="#keyEventHandler" prefHeight="569.0" prefWidth="330.0" stylesheets="@winCalc.css" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.CalculatorProject.controller.CalculatorController">
    <children>
-      <GridPane focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="350.0" minWidth="200.0" prefHeight="569.0" prefWidth="330.0" stylesheets="@winCalc.css">
+      <GridPane focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="350.0" minWidth="200.0" prefHeight="569.0" prefWidth="330.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -55,112 +55,112 @@
                           <Font name="Georgia Bold" size="17.0" />
                       </font>
                   </Button>
-                  <Button id="unary_operations" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="𝑥²" textAlignment="CENTER" GridPane.columnIndex="2">
+                  <Button id="unary_operations" fx:id="square" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="𝑥²" textAlignment="CENTER" GridPane.columnIndex="2">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Button>
-                  <Button id="unary_operations" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="¹⁄𝑥" textAlignment="CENTER" GridPane.columnIndex="3">
+                  <Button id="unary_operations" fx:id="reverse" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="¹⁄𝑥" textAlignment="CENTER" GridPane.columnIndex="3">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cleanAll" text="CE" textAlignment="CENTER" GridPane.rowIndex="1">
+                  <Button id="numbers" fx:id="ce" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cleanAll" text="CE" textAlignment="CENTER" GridPane.rowIndex="1">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cleanCurrent" text="C" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <Button id="numbers" fx:id="c" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#cleanCurrent" text="C" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="15.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#deleteLastNumber" text="⌫" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                  <Button id="numbers" fx:id="le" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#deleteLastNumber" text="⌫" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <font>
                         <Font name="Arial Unicode MS" size="20.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="÷" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                  <Button id="numbers" fx:id="divide" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="÷" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1">
                      <font>
                         <Font name="Times New Roman Italic" size="30.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="7" textAlignment="CENTER" GridPane.rowIndex="2">
+                  <Button id="numbers" fx:id="numSeven" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="7" textAlignment="CENTER" GridPane.rowIndex="2">
                    <font>
                        <Font name="Arial Unicode MS" size="23.0" />
                    </font>
                   </Button>
-                   <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="8" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                   <Button id="numbers" fx:id="numEight" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="8" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="9" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                  <Button id="numbers" fx:id="numNine" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="9" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="☓" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                  <Button id="numbers" fx:id="multiply" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="☓" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <font>
                         <Font name="Times New Roman Bold" size="16.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="4" textAlignment="CENTER" GridPane.rowIndex="3">
+                  <Button id="numbers" fx:id="numFour" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="4" textAlignment="CENTER" GridPane.rowIndex="3">
                      <font>
                         <Font name="Arial Unicode MS" size="24.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="5" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                  <Button id="numbers" fx:id="numFive" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="5" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="6" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                  <Button id="numbers" fx:id="numSix" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="6" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="−" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                  <Button id="numbers" fx:id="subtract" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="−" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="3">
                      <font>
                         <Font name="Times New Roman" size="24.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="1" textAlignment="CENTER" GridPane.rowIndex="4">
+                  <Button id="numbers" fx:id="numOne" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="1" textAlignment="CENTER" GridPane.rowIndex="4">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="2" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <Button id="numbers" fx:id="numTwo" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="2" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
                      <font>
                         <Font name="Arial Unicode MS" size="22.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="3" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                  <Button id="numbers" fx:id="numThree" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="3" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="+" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                  <Button id="numbers" fx:id="add" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="+" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="4">
                      <font>
                         <Font name="Georgia Bold Italic" size="26.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="±" textAlignment="CENTER" GridPane.rowIndex="5">
+                  <Button id="numbers" fx:id="negate" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationsHandler" text="±" textAlignment="CENTER" GridPane.rowIndex="5">
                                  <font>
                         <Font name="Segoe UI" size="26.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                  <Button id="numbers" fx:id="numZero" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#readCurrentNumber" text="0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
                      <font>
                         <Font name="Arial Unicode MS" size="23.0" />
                      </font>
                   </Button>
-                  <Button id="numbers" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addPoint" text="." textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5">
+                  <Button id="point" fx:id="point" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addPoint" text="." textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5">
                      <font>
                         <Font name="Georgia" size="26.0" />
                      </font>
                   </Button>
-                  <Button id="result_button" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#calculateResult" text="=" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
+                  <Button id="result_button" fx:id="resultButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#calculateResult" text="=" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
                      <font>
                         <Font name="Arial Unicode MS" size="27.0" />
                      </font>
@@ -310,7 +310,7 @@
                 <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="110.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TextField fx:id="currentNumberText" alignment="TOP_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.rowIndex="1">
+                  <TextField fx:id="currentNumberText" alignment="TOP_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.rowIndex="1">
                      <font>
                         <Font name="Malgun Gothic Bold" size="42.0" />
                      </font>
@@ -330,7 +330,7 @@
                         <Cursor fx:constant="DEFAULT" />
                      </cursor>
                   </TextField>
-                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" pickOnBounds="false" prefHeight="40.0" prefWidth="330.0">
+                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="40.0" prefWidth="330.0">
                      <font>
                         <Font name="Segoe UI" size="14.0" />
                      </font>

@@ -53,7 +53,7 @@
     -fx-background-color: #e6e6e6;
 }
 
-#numbers, #result_button {
+#numbers, #result_button, #point {
     -fx-border-color: #f2f2f2;
     -fx-border-radius: 0;
     -fx-background-color: #f2f2f2;
@@ -61,17 +61,17 @@
     -fx-content-display: center;
 }
 
-#numbers:hover {
+#numbers:hover, #point:hover {
     -fx-border-color: #dadada;
     -fx-background-color: #dadada;
 }
 
-#numbers:pressed, #numbers:armed {
+#numbers:pressed, #numbers:armed, #point:pressed, #point:armed {
     -fx-border-color: #bbbbbb;
     -fx-background-color: #bbbbbb;
 }
 
-#numbers:disabled {
+#numbers:disabled, #point:disabled {
     -fx-border-color: #e0e0e0;
     -fx-border-radius: 0;
     -fx-background-color: #e0e0e0;

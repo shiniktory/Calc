@@ -36,8 +36,6 @@ public class InputValueProcessor {
     private Calculator calculator;
 
 
-
-
     public String getLastNumber() throws CalculationException {
         return addGroupDelimiters(lastNumber);
     }

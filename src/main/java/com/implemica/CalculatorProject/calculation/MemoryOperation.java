@@ -10,7 +10,7 @@ package com.implemica.CalculatorProject.calculation;
 public enum MemoryOperation {
 
     MEMORY_CLEAN("MC"), MEMORY_RECALL("MR"), MEMORY_ADD("M+"), MEMORY_SUBTRACT("M-"), MEMORY_STORE("MS"),
-    MEMORY_SHOW("M&#129171;");
+    MEMORY_SHOW("M\uD83E\uDC93");
 
     /**
      * A string representation of the operation.

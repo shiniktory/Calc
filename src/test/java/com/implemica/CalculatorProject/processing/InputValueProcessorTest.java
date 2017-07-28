@@ -258,7 +258,7 @@ public class InputValueProcessorTest {
     @Test
     public void testOperationSequences() throws CalculationException {
 
-        // test case when in expression more than one binary operation
+        // testViewPanel case when in expression more than one binary operation
         testBinaryOperationSequence("0", "0", ADD, "0", ADD, "0");
         testBinaryOperationSequence("10", "2", ADD, "3", ADD, "5");
         testBinaryOperationSequence("0.01", "0", ADD, "5", DIVIDE, "500");
@@ -286,7 +286,7 @@ public class InputValueProcessorTest {
 
         processor.cleanAll();
 
-        // test case when in expression more than one unary operation
+        // testViewPanel case when in expression more than one unary operation
         testUnaryOperationSequence("0", "0", SQUARE, SQUARE);
         testUnaryOperationSequence("0.000000000625", "0.005", SQUARE, SQUARE);
         testUnaryOperationSequence("0", "0", SQUARE, SQUARE);
@@ -320,7 +320,7 @@ public class InputValueProcessorTest {
         processor.executeMathOperation(MULTIPLY);
         processor.executeMathOperation(ADD);
         enterNumber("10");
-        assertEquals("35", processor.calculateResult());  // TODO test binary after unary
+        assertEquals("35", processor.calculateResult());  // TODO testViewPanel binary after unary
     }
 
     private void testBinaryOperationSequence(String expected, String number1, MathOperation operation1, String number2, MathOperation operation2, String number3) throws CalculationException {
@@ -405,7 +405,7 @@ public class InputValueProcessorTest {
         testMemoryOperation("0.555555", "0.555555", MEMORY_STORE);
         testMemoryOperation("-99,999,999,999", "-99999999999", MEMORY_STORE);
 
-        // test with null operation - expected no changes :
+        // testViewPanel with null operation - expected no changes :
         // clean memory
         processor.executeMemoryOperation(MEMORY_CLEAN);
         // recall memorized value. expected zero as default

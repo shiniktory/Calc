@@ -6,6 +6,7 @@ import com.implemica.CalculatorProject.exception.CalculationException;
 import com.implemica.CalculatorProject.processing.InputValueProcessor;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -91,15 +92,7 @@ public class CalculatorController {
 
     private boolean isErrorOccurred = false;
 
-    protected TextField getCurrentNumberText() {
-        return currentNumberText;
-    }
-
-    protected TextField getPrevOperationsText() {
-        return prevOperationsText;
-    }
-
-    protected void searchAndFireButton(String code) {
+    private void searchAndFireButton(String code) {
         numbersAndOperations.requestFocus();
         String keyCode = code;
         if (code.contains(NUMPAD_PREFIX)) {
@@ -130,19 +123,10 @@ public class CalculatorController {
 
     private void addButtonClickedEffect(Button button) {
         button.arm();
-        Task<Void> sleeper = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-                return null;
-            }
-        };
-        sleeper.setOnSucceeded(event1 -> button.disarm());
-        new Thread(sleeper).start();
+        // add delay to view a button pressed effect
+        PauseTransition pause = new PauseTransition(Duration.millis(50));
+        pause.setOnFinished(event1 -> button.disarm());
+        pause.play();
     }
 
     /**
@@ -488,25 +472,14 @@ public class CalculatorController {
                     new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), 0.0))
             );
             timeline.play();
-            Task<Void> sleeper = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    try {
-                        Thread.sleep(ANIMATION_DURATION);
-                    } catch (InterruptedException e) {
-                        //ignore
-                    }
-                    return null;
-                }
-            };
-            sleeper.setOnSucceeded(event1 -> viewPanel.setVisible(false));
-            new Thread(sleeper).start();
+            PauseTransition pause = new PauseTransition(Duration.millis(ANIMATION_DURATION));
+            pause.setOnFinished(event1 -> viewPanel.setVisible(false));
+            pause.play();
             isViewPanelShown = false;
         }
         numbersAndOperations.requestFocus();
     }
 
 
-    // TODO try to change font to Arial Unicode ms
     // TODO make font scale with window size
 }
