@@ -1,0 +1,189 @@
+.root {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+}
+
+.text-field {
+    -fx-border-radius: 0;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-insets: 0, 5, 0, 0;
+    -fx-border-insets: 0, 5, 0, 0;
+}
+
+#currentNumberText {
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+}
+
+#currentNumberText:focused {
+    -fx-border-color: black;
+    -fx-border-radius: 0;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+}
+
+.text-field .content {
+    -fx-border-radius: 0;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-color: white;
+    -fx-background-insets: 0, 5, 0, 0;
+    -fx-border-insets: 0, 5, 0, 0;
+}
+
+.button {
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-background-color: white;
+    -fx-alignment: center;
+    -fx-content-display: center;
+}
+
+.button:hover {
+    -fx-border-color: #e6e6e6;
+    -fx-background-color: #e6e6e6;
+}
+
+.button:pressed, .button:armed {
+    -fx-border-color: #e6e6e6;
+    -fx-background-color: #e6e6e6;
+}
+
+#numbers, #result_button {
+    -fx-border-color: #f2f2f2;
+    -fx-border-radius: 0;
+    -fx-background-color: #f2f2f2;
+    -fx-alignment: center;
+    -fx-content-display: center;
+}
+
+#numbers:hover {
+    -fx-border-color: #dadada;
+    -fx-background-color: #dadada;
+}
+
+#numbers:pressed, #numbers:armed {
+    -fx-border-color: #bbbbbb;
+    -fx-background-color: #bbbbbb;
+}
+
+#numbers:disabled {
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-background-color: #e0e0e0;
+}
+
+#memoryButtonsPane {
+    -fx-border-color: #e6e6e6;
+    -fx-border-bottom: 2px;
+    -fx-background-color: white;
+}
+
+#mr_buttons, #unary_operations, #mode, #history {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+}
+
+#history {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+    -fx-background-image: url("/history.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+#mr_buttons:disabled, #unary_operations:disabled, #history:disabled {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+}
+
+#mr_buttons:hover, #unary_operations:hover, #mode:hover, #history:hover {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #e6e6e6;
+}
+
+#mr_buttons:pressed, #unary_operations:pressed, #unary_operations:armed, #mode:pressed, #history:pressed {
+    -fx-background-color: #cccccc;
+    -fx-border-color: #cccccc;
+}
+
+#result_button:hover {
+    -fx-border-color: #0078d7;
+    -fx-background-color: #0078d7;
+}
+
+#result_button:pressed, #result_button:armed {
+    -fx-border-color: #489cdf;
+    -fx-background-color: #489cdf;
+}
+
+.tooltip {
+    -fx-background-color: #e0e0e0;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-text-fill: black;
+    -fx-effect: none;
+}
+
+.list-view {
+    -fx-background-color: #e0e0e0;
+}
+
+#viewPanel, .list-cell {
+    -fx-font-size: 16;
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 11px;
+}
+
+.list-cell:hover {
+    -fx-background-color: #cacaca;
+}
+
+.list-cell:selected {
+    -fx-background-color: #86b6dc;
+    -fx-text-fill: black;
+}
+
+#modeClose {
+    -fx-border-color: #e0e0e0;
+    -fx-background-color: #e0e0e0;
+    -fx-border-radius: 1;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+#infoButton {
+    -fx-border-color: #cacaca;
+    -fx-background-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+}
+
+#modeClose:hover, #infoButton:hover {
+    -fx-border-color: #cacaca;
+    -fx-background-color: #cacaca;
+}
+
+#modeClose:pressed, #infoButton:pressed {
+    -fx-border-color: #b3b3b3;
+    -fx-background-color: #b3b3b3;
+}
+
+#viewPanel {
+    -fx-padding: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-border-color: #e0e0e0;
+}
+
