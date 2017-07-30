@@ -197,6 +197,9 @@ public class InputValueProcessor {
         if (lastNumber.length() == 1) {
             lastNumber = ZERO_VALUE;
         }
+        if (lastNumber.length() == 2 && lastNumber.startsWith(MINUS)) {
+            lastNumber = ZERO_VALUE;
+        }
         if (lastNumber.length() > 1) {
             lastNumber = lastNumber.substring(0, lastNumber.length() - 1);
         }
@@ -223,5 +226,6 @@ public class InputValueProcessor {
             case MEMORY_STORE:
                 memorizedNumber = formatToMathView(lastNumber);
         }
+        isNewNumber = true;
     }
 }

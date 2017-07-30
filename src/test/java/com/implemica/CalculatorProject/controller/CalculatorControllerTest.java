@@ -1,28 +1,37 @@
 package com.implemica.CalculatorProject.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
+
+import java.util.concurrent.TimeoutException;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
-import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_EVERYTHING;
+import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
+import static com.implemica.CalculatorProject.util.OutputFormatter.EMPTY_VALUE;
 import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.Assert.*;
@@ -36,6 +45,8 @@ public class CalculatorControllerTest extends ApplicationTest {
     private static final String ICON_FILE = "/icon3.png";
 
     private static final String APPLICATION_NAME = "Calculator";
+
+    private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
 
     private FxRobot robot = new FxRobot();
 
@@ -57,8 +68,9 @@ public class CalculatorControllerTest extends ApplicationTest {
         stage.setTitle(APPLICATION_NAME);
         stage.getIcons().add(new Image(ICON_FILE));
         stage.setResizable(true);
-        stage.show();
         stage.toFront();
+        FxToolkit.registerPrimaryStage();
+        stage.show();
     }
 
     @Before
@@ -81,7 +93,7 @@ public class CalculatorControllerTest extends ApplicationTest {
 
         // buttons with math operations
         point = find("#point");
-        resultButton = find(DIVIDE.getCode());
+        resultButton = find(EQUAL.getCode());
         negate = find(NEGATE.getCode());
         add = find(ADD.getCode());
         subtract = find(SUBTRACT.getCode());
@@ -101,8 +113,8 @@ public class CalculatorControllerTest extends ApplicationTest {
         memory = find(MEMORY_SHOW.getCode());
 
         // buttons with editing operations
-        cleanAll = find(CLEAN_EVERYTHING.getCode());
-        cleanCurrent = find(CLEAN.getCode());
+        cleanAll = find(CLEAN.getCode());
+        cleanCurrent = find(CLEAN_CURRENT.getCode());
         leftErase = find(LEFT_ERASE.getCode());
 
         // other buttons
@@ -114,7 +126,7 @@ public class CalculatorControllerTest extends ApplicationTest {
         viewPanel = find("#viewPanel");
     }
 
-    private  <T extends Node> T find(final String query) {
+    private <T extends Node> T find(final String query) {
         return lookup(query).query();
     }
 
@@ -122,63 +134,61 @@ public class CalculatorControllerTest extends ApplicationTest {
     public void testElementsExist() {
 
         // text fields
-        testExistAndVisible(currentNumberText, true, false);
-        testExistAndVisible(prevOperationsText, true, false);
+        testExistAndActive(currentNumberText, true, false);
+        testExistAndActive(prevOperationsText, true, false);
 
         // buttons with numbers
-        testExistAndVisible(numZero, true, false);
-        testExistAndVisible(numOne, true, false);
-        testExistAndVisible(numTwo, true, false);
-        testExistAndVisible(numThree, true, false);
-        testExistAndVisible(numFour, true, false);
-        testExistAndVisible(numFive, true, false);
-        testExistAndVisible(numSix, true, false);
-        testExistAndVisible(numSeven, true, false);
-        testExistAndVisible(numEight, true, false);
-        testExistAndVisible(numNine, true, false);
+        testExistAndActive(numZero, true, false);
+        testExistAndActive(numOne, true, false);
+        testExistAndActive(numTwo, true, false);
+        testExistAndActive(numThree, true, false);
+        testExistAndActive(numFour, true, false);
+        testExistAndActive(numFive, true, false);
+        testExistAndActive(numSix, true, false);
+        testExistAndActive(numSeven, true, false);
+        testExistAndActive(numEight, true, false);
+        testExistAndActive(numNine, true, false);
 
         // buttons with math operations
-        testExistAndVisible(negate, true, false);
-        testExistAndVisible(point, true, false);
-        testExistAndVisible(resultButton, true, false);
-        testExistAndVisible(add, true, false);
-        testExistAndVisible(subtract, true, false);
-        testExistAndVisible(multiply, true, false);
-        testExistAndVisible(divide, true, false);
-        testExistAndVisible(reverse, true, false);
-        testExistAndVisible(square, true, false);
-        testExistAndVisible(squareRoot, true, false);
-        testExistAndVisible(percent, true, false);
+        testExistAndActive(negate, true, false);
+        testExistAndActive(point, true, false);
+        testExistAndActive(resultButton, true, false);
+        testExistAndActive(add, true, false);
+        testExistAndActive(subtract, true, false);
+        testExistAndActive(multiply, true, false);
+        testExistAndActive(divide, true, false);
+        testExistAndActive(reverse, true, false);
+        testExistAndActive(square, true, false);
+        testExistAndActive(squareRoot, true, false);
+        testExistAndActive(percent, true, false);
 
         // buttons with editing operations
-        testExistAndVisible(cleanAll, true, false);
-        testExistAndVisible(cleanCurrent, true, false);
-        testExistAndVisible(leftErase, true, false);
+        testExistAndActive(cleanAll, true, false);
+        testExistAndActive(cleanCurrent, true, false);
+        testExistAndActive(leftErase, true, false);
 
         // buttons with memory operations
-        testExistAndVisible(memoryClean, true, true);
-        testExistAndVisible(memoryRecall, true, true);
-        testExistAndVisible(memoryPlus, true, false);
-        testExistAndVisible(memoryMinus, true, false);
-        testExistAndVisible(memoryStore, true, false);
-        testExistAndVisible(memory, true, true);
+        testExistAndActive(memoryClean, true, true);
+        testExistAndActive(memoryRecall, true, true);
+        testExistAndActive(memoryPlus, true, false);
+        testExistAndActive(memoryMinus, true, false);
+        testExistAndActive(memoryStore, true, false);
+        testExistAndActive(memory, true, true);
 
-        // other buttons
-        testExistAndVisible(mode, true, false);
-//        testExistAndVisible(modeClose, false, false); // TODO figure out with visibility. Must me visible = false
-//        testExistAndVisible(infoButton, false, false);
-        testExistAndVisible(history, true, true);
-
-
-        testExistAndVisible(viewPanel, false, false);
+        // other elements
+        testExistAndActive(mode, true, false);
+        testExistAndActive(modeClose, false, false);
+        testExistAndActive(infoButton, false, false);
+        testExistAndActive(history, true, true);
+        testExistAndActive(viewPanel, false, false);
     }
 
-    private void testExistAndVisible(Node element, boolean expectedVisible, boolean expectedDisable) {
+    private void testExistAndActive(Node element, boolean expectedVisible, boolean expectedDisable) {
         assertNotNull(element);
         if (expectedVisible) {
-            assertTrue(element.isVisible());
+            assertTrue(FXTestUtils.isNodeVisible(element));
         } else {
-            assertFalse(element.isVisible());
+            assertFalse(FXTestUtils.isNodeVisible(element));
         }
         if (expectedDisable) {
             assertTrue(element.isDisable());
@@ -190,10 +200,20 @@ public class CalculatorControllerTest extends ApplicationTest {
     @Test
     public void testViewPanel() {
         assertFalse(viewPanel.isVisible());
-        FxRobot robot = new FxRobot();
         robot.clickOn(mode);
+        WaitForAsyncUtils.waitForFxEvents();
         assertTrue(viewPanel.isVisible());
+
+        final ListView typesList = find("#viewTypes");
+        assertNotNull(typesList);
+        robot.clickOn(typesList);
+        robot.scroll(VerticalDirection.DOWN);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        robot.clickOn(infoButton);
+
         robot.clickOn(modeClose);
+        WaitForAsyncUtils.waitForFxEvents();
         assertFalse(viewPanel.isVisible());
     }
 
@@ -209,6 +229,74 @@ public class CalculatorControllerTest extends ApplicationTest {
         numOne.setVisible(false);
         testButtonClicked("123", numOne);
         testButtonClicked("1,233", numThree);
+        testButtonClicked("0", cleanAll);
+        numOne.setVisible(true);
+
+        // test subtract operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", subtract);
+        testExpression("5 " + SUBTRACT.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("-4", resultButton);
+        testExpression(EMPTY_VALUE);
+
+
+        // test multiply operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", multiply);
+        testExpression("5 " + MULTIPLY.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("45", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test divide operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", divide);
+        testExpression("5 " + DIVIDE.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("0.5555555555555556", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test percentage
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", add);
+        testExpression("5 " + ADD.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("0.45", percent);
+        testButtonClicked("5.45", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test square root operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", add);
+        testExpression("5 " + ADD.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("3", squareRoot);
+        testButtonClicked("8", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test square operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", add);
+        testExpression("5 " + ADD.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("81", square);
+        testButtonClicked("86", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test reverse operation
+        testButtonClicked("5", numFive);
+        testButtonClicked("5", add);
+        testExpression("5 " + ADD.getCode());
+        testButtonClicked("9", numNine);
+        testButtonClicked("0.1111111111111111", reverse);
+        testButtonClicked("5.111111111111111", resultButton);
+        testExpression(EMPTY_VALUE);
+
+        // test negate operation
+        testButtonClicked("1", numOne);
+        testButtonClicked("-1", negate);
+        testButtonClicked("0", leftErase);
     }
 
     private void testButtonClicked(String expectedText, Node button) {
@@ -216,6 +304,32 @@ public class CalculatorControllerTest extends ApplicationTest {
         assertEquals(expectedText, currentNumberText.getText());
     }
 
+    @Test
+    public void testMemoryOperations() {
+        // with empty memorized value these buttons must be disabled
+        assertTrue(memoryClean.isDisabled());
+        assertTrue(memoryRecall.isDisabled());
+        assertTrue(memory.isDisabled());
+
+        // enter the number and add it to memory
+        testButtonClicked("9", numNine);
+        testButtonClicked("9", memoryPlus);
+
+        // check buttons became enable
+        assertFalse(memoryClean.isDisabled());
+        assertFalse(memoryRecall.isDisabled());
+        assertFalse(memory.isDisabled());
+
+        // enter new number and recall memorized value
+        testButtonClicked("5", numFive);
+        testButtonClicked("9", memoryRecall);
+
+        // clean memory and check buttons became disable
+        testButtonClicked("9", memoryClean);
+        assertTrue(memoryClean.isDisabled());
+        assertTrue(memoryRecall.isDisabled());
+        assertTrue(memory.isDisabled());
+    }
 
     @Test
     public void testKeyPressed() {
@@ -235,6 +349,7 @@ public class CalculatorControllerTest extends ApplicationTest {
         // press an operation
         testKeyPressed("1,234,567,890", new KeyCodeCombination(KeyCode.EQUALS, DOWN,
                 UP, UP, UP, UP));
+        testExpression("1234567890 " + ADD.getCode());
 
         // enter new number
         testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
@@ -254,6 +369,52 @@ public class CalculatorControllerTest extends ApplicationTest {
         testKeyPressed("2,222,222,211.09", new KeyCodeCombination(KeyCode.ENTER));
         testKeyPressed("3,209,876,532.18", new KeyCodeCombination(KeyCode.ENTER));
         testKeyPressed("4,197,530,853.27", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+
+        // test subtract operation
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.DIGIT5));
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.MINUS));
+        testExpression("5 " + SUBTRACT.getCode());
+        testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
+        testKeyPressed("-4", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.BACK_SPACE));
+
+        // test multiply operation
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.DIGIT5));
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.MULTIPLY));
+        testExpression("5 " + MULTIPLY.getCode());
+        testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
+        testKeyPressed("45", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+        testKeyPressed("4", new KeyCodeCombination(KeyCode.BACK_SPACE));
+
+        // test divide operation
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.DIGIT5));
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.DIVIDE));
+        testExpression("5 " + DIVIDE.getCode());
+        testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
+        testKeyPressed("0.5555555555555556", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+
+        // test percentage
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.DIGIT5));
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.ADD));
+        testExpression("5 " + ADD.getCode());
+        testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
+        testKeyPressed("0.45", new KeyCodeCombination(KeyCode.DIGIT5, DOWN, UP, UP, UP, UP));
+        testKeyPressed("5.45", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+
+        // test square root operation
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.NUMPAD5));
+        testKeyPressed("5", new KeyCodeCombination(KeyCode.ADD));
+        testExpression("5 " + ADD.getCode());
+        testKeyPressed("9", new KeyCodeCombination(KeyCode.DIGIT9));
+        testKeyPressed("3", new KeyCodeCombination(KeyCode.DIGIT2, DOWN, UP, UP, UP, UP));
+        testKeyPressed("8", new KeyCodeCombination(KeyCode.ENTER));
+        testExpression(EMPTY_VALUE);
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.BACK_SPACE));
     }
 
     private void testKeyPressed(String expectedText, KeyCodeCombination combination) {
@@ -261,7 +422,9 @@ public class CalculatorControllerTest extends ApplicationTest {
         assertEquals(expectedText, currentNumberText.getText());
     }
 
-    private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
+    private void testExpression(String expected) {
+        assertEquals(expected, prevOperationsText.getText());
+    }
 
     @Test
     public void testPressDisabledButtons() {
@@ -310,15 +473,8 @@ public class CalculatorControllerTest extends ApplicationTest {
                 UP, UP, UP, UP));
     }
 
-    @Test
-    public void testWindowMove() {
-        double startX = robot.targetWindow().getX();
-        double startY = robot.targetWindow().getY();
-
-        robot.moveBy(50, 50);
-
-        assertNotEquals(startX, robot.targetWindow().getX());
-        assertNotEquals(startY, robot.targetWindow().getY());
+    @After
+    public void tearDown() throws TimeoutException {
+        Platform.runLater(() -> FxToolkit.toolkitContext().getRegisteredStage().close());
     }
-
 }

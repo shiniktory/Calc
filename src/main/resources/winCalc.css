@@ -41,6 +41,9 @@
     -fx-background-color: white;
     -fx-alignment: center;
     -fx-content-display: center;
+    -fx-fit-to-width: true;
+    -fx-border-insets: 0;
+    -fx-border-image-insets: 0;
 }
 
 .button:hover {
@@ -59,6 +62,9 @@
     -fx-background-color: #f2f2f2;
     -fx-alignment: center;
     -fx-content-display: center;
+    -fx-fit-to-width: true;
+    -fx-border-insets: 0;
+    -fx-border-image-insets: 0;
 }
 
 #numbers:hover, #point:hover {
@@ -81,6 +87,11 @@
     -fx-border-color: #e6e6e6;
     -fx-border-bottom: 2px;
     -fx-background-color: white;
+    -fx-fit-to-width: true;
+}
+
+#numbersAndOperations {
+    -fx-fit-to-height: true;
 }
 
 #mr_buttons, #unary_operations, #mode, #history {
@@ -89,6 +100,10 @@
     -fx-border-radius: 0;
     -fx-border-insets: 0;
     -fx-padding: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-border-image-insets: 0;
 }
 
 #history {
@@ -161,6 +176,10 @@
     -fx-border-radius: 1;
     -fx-padding: 0;
     -fx-border-width: 0;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-border-insets: 0;
+    -fx-border-image-insets: 0;
 }
 
 #infoButton {
@@ -168,6 +187,7 @@
     -fx-background-color: #e0e0e0;
     -fx-border-radius: 0;
     -fx-border-width: 1;
+    -fx-alignment: center-left;
 }
 
 #modeClose:hover, #infoButton:hover {

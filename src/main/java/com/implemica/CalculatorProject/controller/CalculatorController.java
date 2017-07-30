@@ -9,15 +9,13 @@ import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -51,15 +49,17 @@ public class CalculatorController {
      */
     private InputValueProcessor valueProcessor = new InputValueProcessor();
 
-    private static final Font DEFAULT_FONT = Font.font("Malgun Gothic Bold", FontWeight.BOLD, 42);
+    private static final Font DEFAULT_FONT = Font.font("Segoe UI Semibold", FontWeight.BOLD, 45);
 
     private static final String NUMPAD_PREFIX = "Numpad ";
 
 
-    private String[] types = new String[]{"\tStandard", "\tScientific", "\tProgrammer", "\tDate calculation", "\tCONVERTER", "\tVolume", "\tLength",
+    private static final String[] CALCULATOR_TYPES = new String[]{"\tStandard", "\tScientific", "\tProgrammer", "\tDate calculation", "\tCONVERTER", "\tVolume", "\tLength",
             "\tWeight and Mass", "\tTemperature", "\tEnergy", "\tArea", "\tSpeed", "\tTime", "\tPower", "\tData", "\tPressure", "\tAngle"};
 
     private static final int ANIMATION_DURATION = 75;
+
+    private static final double VIEW_PANEL_WIDTH = 257.0;
 
     private boolean isViewPanelShown = false;
 
@@ -113,7 +113,9 @@ public class CalculatorController {
 
     private boolean checkAndFire(String buttonId, Node child) {
         Button button = (Button) child;
-        if (button.getText().equals(buttonId) && !button.isDisable()) {
+        if (button.getText().equals(buttonId) &&
+                !button.isDisable() &&
+                button.isVisible()) {
             addButtonClickedEffect(button);
             button.fire();
             return true;
@@ -157,7 +159,6 @@ public class CalculatorController {
      * @return a value of input number represented as string
      */
     private String getNumberFromEvent(Event event) {
-
         if (event instanceof MouseEvent || event instanceof ActionEvent) {
             return ((Button) event.getSource()).getText();
         }
@@ -223,10 +224,8 @@ public class CalculatorController {
             searchAndFireButton(key.getName());
         } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
             searchAndFireButton(POINT);
-        } else if (key == KeyCode.SPACE) {
+        } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
             searchAndFireButton(CLEAN.getCode());
-        } else if (key == KeyCode.ESCAPE) {
-            searchAndFireButton(CLEAN_EVERYTHING.getCode());
         }
     }
 
@@ -366,10 +365,6 @@ public class CalculatorController {
     private void memoryButtonHandler(Event event) {
         String operationCode = ((Button) event.getSource()).getText();
         MemoryOperation operation = MemoryOperation.getOperation(operationCode);
-        if (operation == MEMORY_CLEAN) {
-            disableMemoryButtons();
-            return;
-        }
         String textToSet;
         try {
             valueProcessor.executeMemoryOperation(operation);
@@ -377,6 +372,9 @@ public class CalculatorController {
             enableMemoryButtons();
         } catch (CalculationException e) {
             textToSet = e.getMessage();
+        }
+        if (operation == MEMORY_CLEAN) {
+            disableMemoryButtons();
         }
         fitText(textToSet);
         currentNumberText.setText(textToSet);
@@ -424,7 +422,6 @@ public class CalculatorController {
         }
     }
 
-
     private void fitText(String currentText) {
         currentNumberText.setFont(DEFAULT_FONT);
 
@@ -450,13 +447,13 @@ public class CalculatorController {
 
     @FXML
     private void showViewPanel() {
-        viewTypes.setItems(FXCollections.observableArrayList(types));
+        viewTypes.setItems(FXCollections.observableArrayList(CALCULATOR_TYPES));
         viewTypes.getSelectionModel().select(0);
 
         viewPanel.setVisible(true);
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(viewPanel.prefWidthProperty(), 0.0)),
-                new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), 257.0))
+                new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), VIEW_PANEL_WIDTH))
         );
 
         timeline.play();
@@ -464,11 +461,12 @@ public class CalculatorController {
         numbersAndOperations.requestFocus();
     }
 
+
     @FXML
     private void hideViewPanel() {
         if (isViewPanelShown) {
             Timeline timeline = new Timeline(
-                    new KeyFrame(Duration.ZERO, new KeyValue(viewPanel.prefWidthProperty(), 257.0)),
+                    new KeyFrame(Duration.ZERO, new KeyValue(viewPanel.prefWidthProperty(), VIEW_PANEL_WIDTH)),
                     new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), 0.0))
             );
             timeline.play();

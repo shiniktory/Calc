@@ -31,6 +31,10 @@ public class CalcApplication extends Application {
      */
     private static final String APPLICATION_NAME = "Calculator";
 
+    private static final double MIN_HEIGHT = 370.0;
+    private static final double MIN_WIDTH = 220.0;
+
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -44,8 +48,10 @@ public class CalcApplication extends Application {
             primaryStage.setScene(scene);
             primaryStage.setTitle(APPLICATION_NAME);
             primaryStage.getIcons().add(new Image(ICON_FILE));
+            primaryStage.setMinHeight(MIN_HEIGHT);
+            primaryStage.setMinWidth(MIN_WIDTH);
+            primaryStage.setIconified(false);
             primaryStage.show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
