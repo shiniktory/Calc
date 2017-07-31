@@ -5,8 +5,6 @@ import com.implemica.CalculatorProject.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.calculation.MathOperation;
 import com.implemica.CalculatorProject.calculation.MemoryOperation;
 import com.implemica.CalculatorProject.exception.CalculationException;
-import javafx.fxml.FXML;
-import javafx.scene.layout.Pane;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -35,6 +33,10 @@ public class InputValueProcessor {
 
     public static final String ZERO_VALUE = "0";
 
+    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
+    private static final String OVERFLOW_ERROR = "Overflow";
+    private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
+
     private Calculator calculator;
 
 
@@ -51,7 +53,7 @@ public class InputValueProcessor {
         return builder.toString().trim().toLowerCase();
     }
 
-    public void updateCurrentNumber(String digit) throws CalculationException {
+    public void updateCurrentNumber(String digit) {
         if (!isDigit(digit)) {
             return;
         }
@@ -79,7 +81,7 @@ public class InputValueProcessor {
 
     public String executeMathOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == null) {
-            throw new CalculationException("No such operation found");
+            throw new CalculationException(NO_SUCH_OPERATION_FOUND);
         }
         if (currentOperation == PERCENT) {
             lastNumber = getResult(PERCENT, previousNumber, lastNumber);
@@ -150,6 +152,9 @@ public class InputValueProcessor {
     private String getResult(MathOperation operation, String... arguments) throws CalculationException {
         calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
         BigDecimal result = calculator.calculate();
+        if (MAX_NUMBER.compareTo(result) <= 0) {
+            throw new CalculationException(OVERFLOW_ERROR);
+        }
         return formatToMathView(result);
     }
 
@@ -207,7 +212,6 @@ public class InputValueProcessor {
         }
         return formatNumberForDisplaying(lastNumber);
     }
-
 
 
     public void executeMemoryOperation(MemoryOperation operation) throws CalculationException {

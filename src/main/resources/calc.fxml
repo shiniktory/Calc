@@ -338,7 +338,7 @@
                         <ColorAdjust contrast="0.21" hue="0.07" />
                      </effect>
                   </TextField>
-                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" centerShape="false" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
                      <font>
                         <Font name="Segoe UI" size="14.0" />
                      </font>

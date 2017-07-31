@@ -30,7 +30,6 @@ import javafx.util.Duration;
 import java.awt.*;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.*;
-import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_CLEAN;
 import static com.implemica.CalculatorProject.util.OutputFormatter.EMPTY_VALUE;
@@ -159,15 +158,8 @@ public class CalculatorController {
         hideViewPanel();
         resetAfterError();
         String buttonValue = getNumberFromEvent(event);
-        try {
-            valueProcessor.updateCurrentNumber(buttonValue);
-            updateCurrentNumberField();
-        } catch (CalculationException e) {
-            fitText(e.getMessage());
-            currentNumberText.setText(e.getMessage());
-            disableAllOperations();
-            isErrorOccurred = true;
-        }
+        valueProcessor.updateCurrentNumber(buttonValue);
+        updateCurrentNumberField();
     }
 
     /**
@@ -236,7 +228,7 @@ public class CalculatorController {
 
         } else if (key == KeyCode.EQUALS) {
             searchAndFireButton(EQUAL.getCode());
-        }else if (key == KeyCode.ENTER) {
+        } else if (key == KeyCode.ENTER) {
             searchAndFireButton(EQUAL.getCode());
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
@@ -278,6 +270,7 @@ public class CalculatorController {
         fitText(textToSet);
         currentNumberText.setText(textToSet);
         prevOperationsText.setText(valueProcessor.getExpression());
+        prevOperationsText.end();
         if (isErrorOccurred) {
             valueProcessor.cleanAll();
         }

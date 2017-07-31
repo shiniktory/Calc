@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.util.OutputFormatter.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.formatNumberForDisplaying;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

@@ -3,7 +3,6 @@ package com.implemica.CalculatorProject.validation;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
 import static org.junit.Assert.assertFalse;

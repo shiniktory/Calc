@@ -5,7 +5,6 @@ import com.implemica.CalculatorProject.exception.CalculationException;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.util.OutputFormatter.removeGroupDelimiters;
-import static com.implemica.CalculatorProject.validation.DataValidator.isEmptyString;
 import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
 
 public class ValueTransformerUtil {

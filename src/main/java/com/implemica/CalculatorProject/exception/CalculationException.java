@@ -9,9 +9,4 @@ public class CalculationException extends Exception {
     public CalculationException(String message) {
         super(message);
     }
-
-    @Override
-    public String getMessage() {
-        return super.getMessage();
-    }
 }
