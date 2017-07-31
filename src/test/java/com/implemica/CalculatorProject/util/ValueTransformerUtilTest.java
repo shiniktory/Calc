@@ -21,29 +21,29 @@ public class ValueTransformerUtilTest {
 
         testGetBigDecimalValues(new BigDecimal[0]);
 
-        BigDecimal[] nums1 = new BigDecimal[]{new BigDecimal(Integer.MIN_VALUE), new BigDecimal(Integer.MAX_VALUE)};
-        String[] numStrs1 = new String[]{"-2147483648", "2147483647"};
-        testGetBigDecimalValues(nums1, numStrs1);
+        BigDecimal[] numbers1 = new BigDecimal[]{new BigDecimal(Integer.MIN_VALUE), new BigDecimal(Integer.MAX_VALUE)};
+        String[] stringValues1 = new String[]{"-2147483648", "2147483647"};
+        testGetBigDecimalValues(numbers1, stringValues1);
 
-        BigDecimal[] nums2 = new BigDecimal[]{new BigDecimal(0.17177171717171777778), new BigDecimal(-0.999999999999)};
-        String[] numStrs2 = new String[]{"0.17177171717171777778", "-0.999999999999"};
-        testGetBigDecimalValues(nums2, numStrs2);
+        BigDecimal[] numbers2 = new BigDecimal[]{new BigDecimal(0.17177171717171777778), new BigDecimal(-0.999999999999)};
+        String[] stringValues2 = new String[]{"0.17177171717171777778", "-0.999999999999"};
+        testGetBigDecimalValues(numbers2, stringValues2);
 
-        BigDecimal[] nums3 = new BigDecimal[]{new BigDecimal(1), new BigDecimal(0)};
-        String[] numStrs3 = new String[]{"1", "0"};
-        testGetBigDecimalValues(nums3, numStrs3);
+        BigDecimal[] numbers3 = new BigDecimal[]{new BigDecimal(1), new BigDecimal(0)};
+        String[] stringValues3 = new String[]{"1", "0"};
+        testGetBigDecimalValues(numbers3, stringValues3);
 
-        BigDecimal[] nums4 = new BigDecimal[]{new BigDecimal(1.00000000001), new BigDecimal(555555)};
-        String[] numStrs4 = new String[]{"1.00000000001", "555555"};
-        testGetBigDecimalValues(nums4, numStrs4);
+        BigDecimal[] numbers4 = new BigDecimal[]{new BigDecimal(1.00000000001), new BigDecimal(555555)};
+        String[] stringValues4 = new String[]{"1.00000000001", "555555"};
+        testGetBigDecimalValues(numbers4, stringValues4);
 
-        BigDecimal[] nums5 = new BigDecimal[]{new BigDecimal(2.e-1), new BigDecimal(9999999999999999L)};
-        String[] numStrs5 = new String[]{"2.e-1", "9999999999999999"};
-        testGetBigDecimalValues(nums5, numStrs5);
+        BigDecimal[] numbers5 = new BigDecimal[]{new BigDecimal(2.e-1), new BigDecimal(9999999999999999L)};
+        String[] stringValues5 = new String[]{"2.e-1", "9999999999999999"};
+        testGetBigDecimalValues(numbers5, stringValues5);
 
-        BigDecimal[] nums6 = new BigDecimal[]{new BigDecimal(5.e+17), new BigDecimal(-77777.8888888888)};
-        String[] numStrs6 = new String[]{"5.e+17", "-77777.8888888888"};
-        testGetBigDecimalValues(nums6, numStrs6);
+        BigDecimal[] numbers6 = new BigDecimal[]{new BigDecimal(5.e+17), new BigDecimal(-77777.8888888888)};
+        String[] stringValues6 = new String[]{"5.e+17", "-77777.8888888888"};
+        testGetBigDecimalValues(numbers6, stringValues6);
 
     }
 

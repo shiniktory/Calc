@@ -473,6 +473,17 @@ public class CalculatorControllerTest extends ApplicationTest {
                 UP, UP, UP, UP));
     }
 
+    @Test
+    public void testFontResize() {
+        double initialFontSize = currentNumberText.getFont().getSize();
+
+        for (int i = 0; i < 15; i++) { // If text in field is too large font size must become smaller
+            robot.push(KeyCode.DIGIT5);
+        }
+
+        assertNotEquals(initialFontSize, currentNumberText.getFont().getSize());
+    }
+
     @After
     public void tearDown() throws TimeoutException {
         Platform.runLater(() -> FxToolkit.toolkitContext().getRegisteredStage().close());

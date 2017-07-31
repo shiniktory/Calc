@@ -19,6 +19,9 @@ public class InputValueProcessorTest {
     @Test
     public void testUpdatingCurrentNumber() throws CalculationException {
 
+        // TODO to structure this method with entering too long numbers: long, with minus, zero with point, one with point
+        // TODO and test here ce, c and le operations
+
         // Add digit to the number
         testUpdateCurrentNumber("0", "");
         testUpdateCurrentNumber("0", "0");
@@ -320,7 +323,7 @@ public class InputValueProcessorTest {
         processor.executeMathOperation(MULTIPLY);
         processor.executeMathOperation(ADD);
         enterNumber("10");
-        assertEquals("35", processor.calculateResult());  // TODO testViewPanel binary after unary
+        assertEquals("35", processor.calculateResult());
     }
 
     private void testBinaryOperationSequence(String expected, String number1, MathOperation operation1, String number2, MathOperation operation2, String number3) throws CalculationException {

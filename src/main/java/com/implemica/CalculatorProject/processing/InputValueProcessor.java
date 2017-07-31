@@ -5,6 +5,8 @@ import com.implemica.CalculatorProject.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.calculation.MathOperation;
 import com.implemica.CalculatorProject.calculation.MemoryOperation;
 import com.implemica.CalculatorProject.exception.CalculationException;
+import javafx.fxml.FXML;
+import javafx.scene.layout.Pane;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -205,6 +207,8 @@ public class InputValueProcessor {
         }
         return formatNumberForDisplaying(lastNumber);
     }
+
+
 
     public void executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         if (operation == null) {

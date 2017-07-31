@@ -20,6 +20,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -49,18 +50,35 @@ public class CalculatorController {
      */
     private InputValueProcessor valueProcessor = new InputValueProcessor();
 
-    private static final Font DEFAULT_FONT = Font.font("Segoe UI Semibold", FontWeight.BOLD, 45);
+    /**
+     * The value of a default font for the text field with current number.
+     */
+    private static final Font DEFAULT_FONT = Font.font("Segoe UI Semibold", FontWeight.BOLD, 42);
 
+    /**
+     * The string value of a prefix for numpad digits.
+     */
     private static final String NUMPAD_PREFIX = "Numpad ";
 
-
+    /**
+     * The list of calculator types.
+     */
     private static final String[] CALCULATOR_TYPES = new String[]{"\tStandard", "\tScientific", "\tProgrammer", "\tDate calculation", "\tCONVERTER", "\tVolume", "\tLength",
             "\tWeight and Mass", "\tTemperature", "\tEnergy", "\tArea", "\tSpeed", "\tTime", "\tPower", "\tData", "\tPressure", "\tAngle"};
 
+    /**
+     * The count of milliseconds for animation duration.
+     */
     private static final int ANIMATION_DURATION = 75;
 
+    /**
+     * The value of width for panel with calculator types.
+     */
     private static final double VIEW_PANEL_WIDTH = 257.0;
 
+    /**
+     * The flag variable shows is panel with calculator types shown right now.
+     */
     private boolean isViewPanelShown = false;
 
     /**
@@ -216,8 +234,13 @@ public class CalculatorController {
         } else if (key == KeyCode.BACK_SPACE) {
             searchAndFireButton(LEFT_ERASE.getCode());
 
-        } else if (key == KeyCode.EQUALS || key == KeyCode.ENTER) {
+        } else if (key == KeyCode.EQUALS) {
             searchAndFireButton(EQUAL.getCode());
+        }else if (key == KeyCode.ENTER) {
+            searchAndFireButton(EQUAL.getCode());
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
+            }
 
             // Digits and point
         } else if (key.isDigitKey()) {
@@ -226,6 +249,9 @@ public class CalculatorController {
             searchAndFireButton(POINT);
         } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
             searchAndFireButton(CLEAN.getCode());
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
+            }
         }
     }
 
@@ -381,7 +407,7 @@ public class CalculatorController {
         numbersAndOperations.requestFocus();
     }
 
-    private void enableMemoryButtons() { // TODO change with using MemoryPane
+    private void enableMemoryButtons() {
         mr.setDisable(false);
         mc.setDisable(false);
         m.setDisable(false);
@@ -430,7 +456,7 @@ public class CalculatorController {
         currentNumberText.applyCss();
 
         double width = text.getLayoutBounds().getWidth();
-        double scale = currentNumberText.getBoundsInLocal().getWidth() / width;
+        double scale = currentNumberText.getBoundsInLocal().getWidth() / width - 0.05;
         if (scale < 1.0) {
             currentNumberText.setFont(new Font(currentNumberText.getFont().getSize() * scale));
         }
@@ -478,6 +504,24 @@ public class CalculatorController {
         numbersAndOperations.requestFocus();
     }
 
+    @FXML
+    private Pane memoryStorage;
 
-    // TODO make font scale with window size
+    private boolean isMemoryStorageShown = false;
+
+    @FXML
+    private void showOrHideMemoryPane() {
+        if (isMemoryStorageShown) {
+            memoryStorage.setVisible(false);
+            isMemoryStorageShown = false;
+            enableAllOperations();
+            mc.setDisable(false);
+            mr.setDisable(false);
+        } else {
+            memoryStorage.setVisible(true);
+            disableAllOperations();
+            m.setDisable(false);
+            isMemoryStorageShown = true;
+        }
+    }
 }
