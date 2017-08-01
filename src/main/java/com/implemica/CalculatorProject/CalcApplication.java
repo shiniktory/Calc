@@ -1,13 +1,22 @@
 package com.implemica.CalculatorProject;
 
+import com.implemica.CalculatorProject.calculation.EditOperation;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+
+import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 
 /**
  * The class is an entry point to the application.
@@ -31,7 +40,7 @@ public class CalcApplication extends Application {
      */
     private static final String APPLICATION_NAME = "Calculator";
 
-    private static final double MIN_HEIGHT = 370.0;
+    private static final double MIN_HEIGHT = 385.0;
     private static final double MIN_WIDTH = 220.0;
 
 
@@ -51,6 +60,32 @@ public class CalcApplication extends Application {
             primaryStage.setMinHeight(MIN_HEIGHT);
             primaryStage.setMinWidth(MIN_WIDTH);
             primaryStage.setIconified(false);
+
+            primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
+                if (Double.isNaN(oldValue.doubleValue()) || Double.isNaN(newValue.doubleValue())) {
+                    return;
+                }
+                double scale = newValue.doubleValue() / oldValue.doubleValue();
+                changeFontSize(root, scale);
+            });
+
+            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
+                GridPane pane = (GridPane) root.lookup("#numbers_operations");
+
+                for (Node node : pane.getChildren()) {
+                    Button button = (Button) node;
+
+                    double newFontSize = button.getFont().getSize();
+                    Text buttonContent = new Text(button.getText());
+                    buttonContent.setFont(button.getFont());
+
+                    if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
+                        newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.7) / buttonContent.getLayoutBounds().getHeight());
+                    }
+                    button.setFont(new Font(button.getFont().getFamily(), newFontSize));
+                }
+            });
+
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -67,4 +102,56 @@ public class CalcApplication extends Application {
         FXMLLoader loader = new FXMLLoader();
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
     }
+
+
+    private void changeFontSize(Parent root, double scale) {
+        GridPane pane = (GridPane) root.lookup("#numbers_operations");
+
+        for (Node node : pane.getChildren()) {
+            Button button = (Button) node;
+
+            double minFontSize = 16.0;
+            double maxFontSize = 25.0;
+
+            if (ADD.getCode().equals(button.getText()) || SUBTRACT.getCode().equals(button.getText()) ||
+                    DIVIDE.getCode().equals(button.getText()) || EQUAL.getCode().equals(button.getText()) ||
+                    NEGATE.getCode().equals(button.getText())) {
+
+                minFontSize = 20.0;
+                maxFontSize = 42.0;
+            }
+
+            if (EditOperation.CLEAN.getCode().equals(button.getText()) ||
+                    EditOperation.CLEAN_CURRENT.getCode().equals(button.getText())) {
+
+                minFontSize = 14.0;
+                maxFontSize = 23.0;
+            }
+
+            double newFontSize = button.getFont().getSize() * scale;
+            Text buttonContent = new Text(button.getText());
+            buttonContent.setFont(button.getFont());
+
+            if (newFontSize > maxFontSize) {
+                newFontSize = maxFontSize;
+            }
+
+            if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
+                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.7) / buttonContent.getLayoutBounds().getHeight());
+            }
+            if (buttonContent.getLayoutBounds().getWidth() > (button.getBoundsInLocal().getWidth() * 0.7)) {
+                newFontSize = newFontSize * ((button.getBoundsInLocal().getWidth() * 0.7) / buttonContent.getLayoutBounds().getWidth());
+            }
+
+            if (newFontSize < minFontSize) {
+                newFontSize = minFontSize;
+            }
+            button.setFont(new Font(button.getFont().getFamily(), newFontSize));
+        }
+
+        TextField currentNumberText = (TextField) root.lookup("#currentNumberText");
+        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), currentNumberText.getHeight() * scale * 0.42));
+    }
+
+    // TODO replace standard application bar by own
 }

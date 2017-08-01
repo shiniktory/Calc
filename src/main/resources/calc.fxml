@@ -24,13 +24,13 @@
           <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="108.0" minHeight="40.0" prefHeight="47.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="378.0" minHeight="70.0" prefHeight="109.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="401.0" minHeight="25.0" prefHeight="33.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="391.0" minHeight="195.0" prefHeight="380.0" valignment="TOP" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="108.0" minHeight="35.0" prefHeight="47.0" vgrow="NEVER" />
+          <RowConstraints maxHeight="170.0" minHeight="70.0" prefHeight="109.0" valignment="TOP" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="401.0" minHeight="25.0" prefHeight="33.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="215.0" prefHeight="380.0" valignment="BOTTOM" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <StackPane GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" GridPane.vgrow="SOMETIMES">
+            <StackPane alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" GridPane.vgrow="SOMETIMES">
                <children>
                   <GridPane id="numbers_operations" fx:id="numbersAndOperations" alignment="TOP_CENTER" cache="true" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0">
                     <columnConstraints>
@@ -40,12 +40,12 @@
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints maxHeight="57.0" minHeight="30.0" prefHeight="57.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="67.0" minHeight="30.0" prefHeight="56.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="105.0" minHeight="30.0" prefHeight="63.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="84.0" minHeight="30.0" prefHeight="61.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="94.0" minHeight="30.0" prefHeight="64.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="62.0" minHeight="30.0" prefHeight="62.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="30.0" prefHeight="57.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="30.0" prefHeight="56.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="30.0" prefHeight="63.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="30.0" prefHeight="61.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="30.0" prefHeight="64.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="30.0" prefHeight="62.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <Button id="unary_operations" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="\%" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
@@ -80,15 +80,15 @@
                         </Button>
                         <Button id="numbers" fx:id="le" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#deleteLastNumber" text="⌫" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                            <font>
-                              <Font name="Arial Unicode MS" size="19.0" />
+                              <Font name="Arial Unicode MS" size="18.0" />
                            </font>
                         </Button>
                         <Button id="numbers" fx:id="divide" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="÷" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
                            <font>
-                              <Font name="Times New Roman Italic" size="33.0" />
+                              <Font name="Times New Roman Italic" size="29.0" />
                            </font>
                         </Button>
-                        <Button id="numbers" fx:id="numSeven" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="7" textAlignment="CENTER" textOverrun="CLIP" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                        <Button id="numbers" fx:id="numSeven" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#readCurrentNumber" onKeyPressed="#readCurrentNumber" text="7" textAlignment="CENTER" textOverrun="CENTER_WORD_ELLIPSIS" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                          <font>
                              <Font name="Segoe UI Semibold" size="23.0" />
                          </font>
@@ -143,14 +143,14 @@
                               <Font name="Segoe UI Semibold" size="23.0" />
                            </font>
                         </Button>
-                        <Button id="numbers" fx:id="add" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="+" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                        <Button id="numbers" fx:id="add" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="+" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                            <font>
-                              <Font name="Segoe UI Semilight Italic" size="33.0" />
+                              <Font name="Segoe UI Light" size="30.0" />
                            </font>
                         </Button>
-                        <Button id="numbers" fx:id="negate" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="±" textAlignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                        <Button id="numbers" fx:id="negate" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="±" textAlignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
                                        <font>
-                              <Font name="Segoe UI Semilight" size="29.0" />
+                              <Font name="Segoe UI Semilight" size="27.0" />
                            </font>
                         </Button>
                         <Button id="numbers" fx:id="numZero" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#readCurrentNumber" text="0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.valignment="CENTER">
@@ -193,14 +193,14 @@
                   </BorderPane>
                </children>
             </StackPane>
-            <GridPane id="memoryButtonsPane" fx:id="memoryButtonsPane" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="SOMETIMES">
+            <GridPane id="memoryButtonsPane" fx:id="memoryButtonsPane" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="71.0" minWidth="10.0" prefWidth="47.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="84.0" minWidth="10.0" prefWidth="56.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="85.0" minWidth="10.0" prefWidth="51.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="74.0" minWidth="10.0" prefWidth="52.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="56.0" minWidth="10.0" prefWidth="56.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="97.0" minWidth="10.0" prefWidth="66.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="47.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="51.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="52.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="66.0" />
               </columnConstraints>
                 <children>
                     <Button id="mr_buttons" fx:id="mc" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#memoryButtonHandler" text="MC" textAlignment="CENTER">
@@ -213,6 +213,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Clear all memory" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                     <Button id="mr_buttons" fx:id="mr" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#memoryButtonHandler" onMouseClicked="#memoryButtonHandler" text="MR" textAlignment="CENTER" GridPane.columnIndex="1">
                      <GridPane.margin>
@@ -221,6 +224,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory recall" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                     <Button id="mr_buttons" fx:id="mPlus" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#memoryButtonHandler" text="M+" textAlignment="CENTER" GridPane.columnIndex="2">
                      <GridPane.margin>
@@ -229,6 +235,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory add" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                     <Button id="mr_buttons" fx:id="mMinus" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#memoryButtonHandler" text="M-" textAlignment="CENTER" GridPane.columnIndex="3">
                      <GridPane.margin>
@@ -237,6 +246,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" onShowing="#setTooltipPosition" text="Memory subtract" x="-15.0" y="20.0" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                     <Button id="mr_buttons" fx:id="ms" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#memoryButtonHandler" prefHeight="29.0" prefWidth="48.0" text="MS" textAlignment="CENTER" GridPane.columnIndex="4">
                      <GridPane.margin>
@@ -245,6 +257,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory store" textAlignment="CENTER" x="-50.0" y="-90.0" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                     <Button id="mr_buttons" fx:id="m" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showOrHideMemoryPane" text="M🢓" textAlignment="CENTER" GridPane.columnIndex="5">
                      <GridPane.margin>
@@ -253,6 +268,9 @@
                      <tooltip>
                         <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory" textAlignment="CENTER" />
                      </tooltip>
+                     <font>
+                        <Font size="13.0" />
+                     </font>
                   </Button>
                 </children>
               <rowConstraints>
@@ -268,7 +286,7 @@
                   <Point3D />
                </rotationAxis>
             </GridPane>
-            <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" prefHeight="48.0" prefWidth="200.0" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+            <BorderPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" prefHeight="48.0" prefWidth="200.0" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
                <center>
                   <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="40.0" minWidth="110.0" prefHeight="40.0" prefWidth="110.0" text="STANDARD" BorderPane.alignment="CENTER_LEFT">
                      <font>
@@ -306,7 +324,7 @@
                   </Button>
                </left>
             </BorderPane>
-            <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+            <GridPane maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
@@ -392,10 +410,11 @@
                   </GridPane>
                </top>
                <center>
-                  <ListView fx:id="viewTypes" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                  <ListView fx:id="viewTypes" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="259.0" BorderPane.alignment="CENTER">
                      <padding>
                         <Insets bottom="3.0" />
-                     </padding></ListView>
+                     </padding>
+                  </ListView>
                </center>
             </BorderPane>
          </children>

@@ -35,8 +35,6 @@
     -fx-border-insets: 0, 5, 0, 0;
 }
 
-
-
 #numbers, #result_button, #point {
     -fx-border-color: #f2f2f2;
     -fx-border-radius: 0;
@@ -150,11 +148,13 @@
 #result_button:hover {
     -fx-border-color: #0078d7;
     -fx-background-color: #0078d7;
+    -fx-text-fill: white;
 }
 
 #result_button:pressed, #result_button:armed {
     -fx-border-color: #489cdf;
     -fx-background-color: #489cdf;
+    -fx-text-fill: white;
 }
 
 .tooltip {
@@ -180,7 +180,7 @@
     -fx-background-color: #cacaca;
 }
 
-.list-cell:selected {
+.list-cell:selected, .list-cell:selected .label {
     -fx-background-color: #86b6dc;
     -fx-text-fill: black;
 }
@@ -221,4 +221,3 @@
     -fx-border-width: 1;
     -fx-border-color: #e0e0e0;
 }
-

@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -21,33 +22,38 @@ public class DataValidatorTest {
     }
 
     @Test
-    public void testIsDigitValidation() {
+    public void testDigitValidation() {
         // Valid digits
-        assertTrue(isDigit("0"));
-        assertTrue(isDigit("1"));
-        assertTrue(isDigit("2"));
-        assertTrue(isDigit("3"));
-        assertTrue(isDigit("4"));
-        assertTrue(isDigit("5"));
-        assertTrue(isDigit("6"));
-        assertTrue(isDigit("7"));
-        assertTrue(isDigit("8"));
-        assertTrue(isDigit("9"));
+        testIsDigit(true, "0");
+        testIsDigit(true, "1");
+        testIsDigit(true, "2");
+        testIsDigit(true, "3");
+        testIsDigit(true, "4");
+        testIsDigit(true, "5");
+        testIsDigit(true, "6");
+        testIsDigit(true, "7");
+        testIsDigit(true, "8");
+        testIsDigit(true, "9");
 
         // Not valid
-        assertFalse(isDigit(""));
-        assertFalse(isDigit(" "));
-        assertFalse(isDigit("55"));
-        assertFalse(isDigit("0.0"));
-        assertFalse(isDigit("-1"));
-        assertFalse(isDigit("+5"));
-        assertFalse(isDigit("e"));
-        assertFalse(isDigit("string"));
-        assertFalse(isDigit("--5"));
+        testIsDigit(false, "");
+        testIsDigit(false, " ");
+        testIsDigit(false, "55");
+        testIsDigit(false, "0.0");
+        testIsDigit(false, "-1");
+        testIsDigit(false, "+5");
+        testIsDigit(false, "e");
+        testIsDigit(false, "string");
+        testIsDigit(false, "--5");
+    }
+
+    private void testIsDigit(boolean expected, String digit) {
+        boolean validationResult = isDigit(digit);
+        assertEquals(expected, validationResult);
     }
 
     @Test
-    public void testIsNumberValidation() {
+    public void testNumberValidation() {
         // Valid values
         // Positive numbers
         assertTrue(isNumber("0"));

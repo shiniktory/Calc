@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,6 +29,8 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
@@ -80,6 +83,11 @@ public class CalculatorController {
      */
     private boolean isViewPanelShown = false;
 
+    private boolean isMemoryStorageShown = false;
+
+    private static final Font CONVERTER_FONT = Font.font("Segoi UI", FontWeight.BOLD, 15);
+
+
     /**
      * An instance of text field with a value of current number value.
      */
@@ -96,7 +104,7 @@ public class CalculatorController {
     private VBox viewPanel;
 
     @FXML
-    private ListView<String> viewTypes;
+    private ListView<Label> viewTypes;
 
     @FXML
     private GridPane numbersAndOperations;
@@ -106,6 +114,9 @@ public class CalculatorController {
 
     @FXML
     private Button mc, mr, m, mPlus, mMinus, ms;
+
+    @FXML
+    private Pane memoryStorage;
 
     private boolean isErrorOccurred = false;
 
@@ -448,8 +459,8 @@ public class CalculatorController {
         text.setFont(currentNumberText.getFont());
         currentNumberText.applyCss();
 
-        double width = text.getLayoutBounds().getWidth();
-        double scale = currentNumberText.getBoundsInLocal().getWidth() / width - 0.05;
+        double textWidth = text.getLayoutBounds().getWidth();
+        double scale = currentNumberText.getBoundsInLocal().getWidth() / textWidth - 0.05;
         if (scale < 1.0) {
             currentNumberText.setFont(new Font(currentNumberText.getFont().getSize() * scale));
         }
@@ -466,7 +477,18 @@ public class CalculatorController {
 
     @FXML
     private void showViewPanel() {
-        viewTypes.setItems(FXCollections.observableArrayList(CALCULATOR_TYPES));
+
+        List<Label> labelList = new LinkedList<>();
+
+        for (String type : CALCULATOR_TYPES) {
+            Label label = new Label(type);
+            if ("\tCONVERTER".equals(type)) {
+                label.setFont(CONVERTER_FONT);
+            }
+            labelList.add(label);
+
+        }
+        viewTypes.setItems(FXCollections.observableList(labelList));
         viewTypes.getSelectionModel().select(0);
 
         viewPanel.setVisible(true);
@@ -496,11 +518,6 @@ public class CalculatorController {
         }
         numbersAndOperations.requestFocus();
     }
-
-    @FXML
-    private Pane memoryStorage;
-
-    private boolean isMemoryStorageShown = false;
 
     @FXML
     private void showOrHideMemoryPane() {
