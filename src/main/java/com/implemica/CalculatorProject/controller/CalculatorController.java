@@ -534,4 +534,9 @@ public class CalculatorController {
             isMemoryStorageShown = true;
         }
     }
+
+    @FXML
+    private void close() {
+        System.exit(0);
+    }
 }

@@ -13,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -59,7 +60,8 @@ public class CalcApplication extends Application {
             primaryStage.getIcons().add(new Image(ICON_FILE));
             primaryStage.setMinHeight(MIN_HEIGHT);
             primaryStage.setMinWidth(MIN_WIDTH);
-            primaryStage.setIconified(false);
+            primaryStage.initStyle(StageStyle.UNDECORATED);
+            primaryStage.setResizable(true);
 
             primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
                 if (Double.isNaN(oldValue.doubleValue()) || Double.isNaN(newValue.doubleValue())) {
