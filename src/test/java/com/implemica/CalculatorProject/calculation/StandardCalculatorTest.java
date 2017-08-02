@@ -14,180 +14,150 @@ public class StandardCalculatorTest {
     private static int scale;
 
     @Test
-    public void testInitWithWrongArgumentCount() {
-        testInitForException(null);
-        testInitForException(null, new BigDecimal[1]);
-
-        // binary operation with wrong argument count
-        testInitForException(ADD);
-        testInitForException(ADD, new BigDecimal[1]);
-        testInitForException(ADD, new BigDecimal[3]);
-        testInitForException(ADD, new BigDecimal[4]);
-        testInitForException(ADD, new BigDecimal[10]);
-
-        // unary operation with wrong argument count
-        testInitForException(SQUARE_ROOT);
-        testInitForException(SQUARE_ROOT, new BigDecimal[2]);
-        testInitForException(SQUARE_ROOT, new BigDecimal[3]);
-        testInitForException(SQUARE_ROOT, new BigDecimal[4]);
-        testInitForException(SQUARE_ROOT, new BigDecimal[10]);
-    }
-
-    private void testInitForException(MathOperation operation, BigDecimal... number) {
-        try {
-            new StandardCalculator(operation, number);
-            Assert.fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count %s",
-                    operation, (number == null) ? "null" : number.length));
-        } catch (CalculationException e) {
-            // expected
-        }
-    }
-
-    @Test
     public void testAddOperation() throws CalculationException {
 
         // with zero arguments
-        testBinaryOperations("555000000", "0", ADD, "555000000");
-        testBinaryOperations("1000", "0", ADD, "1000");
-        testBinaryOperations("100", "0", ADD, "100");
-        testBinaryOperations("0.6666666666666667", "0", ADD, "0.6666666666666667");
-        testBinaryOperations("0", "0", ADD, "0");
-        testBinaryOperations("-0.6666666666666667", "0", ADD, "-0.6666666666666667");
-        testBinaryOperations("-100", "0", ADD, "-100");
-        testBinaryOperations("-1000", "0", ADD, "-1000");
-        testBinaryOperations("-555000000", "0", ADD, "-555000000");
+        testBinaryOperations("0 + 555000000 = 555000000");
+        testBinaryOperations("0 + 1000 = 1000");
+        testBinaryOperations("0 + 100 = 100");
+        testBinaryOperations("0 + 0.6666666666666667 = 0.6666666666666667");
+        testBinaryOperations("0 + 0 = 0");
+        testBinaryOperations("0 + -0.6666666666666667 = -0.6666666666666667");
+        testBinaryOperations("0 + -100 = -100");
+        testBinaryOperations("0 + -1000 = -1000");
+        testBinaryOperations("0 + -555000000 = -555000000");
 
         // with positive arguments
-        testBinaryOperations("19999999999999998", "9999999999999999", ADD, "9999999999999999");
-        testBinaryOperations("55555", "5", ADD, "55550");
-        testBinaryOperations("0.666666666666667", "0.6666666666666667", ADD, "0.0000000000000003");
-        testBinaryOperations("0.0000050000005", "0.000005", ADD, "0.0000000000005");
+        testBinaryOperations("9999999999999999 + 9999999999999999 = 19999999999999998");
+        testBinaryOperations("5 + 55550 = 55555");
+        testBinaryOperations("0.6666666666666667 + 0.0000000000000003 = 0.666666666666667");
+        testBinaryOperations("0.000005 + 0.0000000000005 = 0.0000050000005");
 
         // with positive and negative arguments
-        testBinaryOperations("0", "9999999999999999", ADD, "-9999999999999999");
-        testBinaryOperations("-48999999.5", "1000000.5", ADD, "-50000000");
-        testBinaryOperations("-49000000", "1000000", ADD, "-50000000");
-        testBinaryOperations("50", "100", ADD, "-50");
-        testBinaryOperations("0", "5", ADD, "-5");
-        testBinaryOperations("0", "0.05", ADD, "-0.05");
-        testBinaryOperations("0.0000049999995", "0.000005", ADD, "-0.0000000000005");
+        testBinaryOperations("9999999999999999 + -9999999999999999 = 0");
+        testBinaryOperations("1000000.5 + -50000000 = -48999999.5");
+        testBinaryOperations("1000000 + -50000000 = -49000000");
+        testBinaryOperations("100 + -50 = 50");
+        testBinaryOperations("5 + -5 = 0");
+        testBinaryOperations("0.05 + -0.05 = 0");
+        testBinaryOperations("0.000005 + -0.0000000000005 = 0.0000049999995");
 
         // with negative and positive arguments
-        testBinaryOperations("55545", "-5", ADD, "55550");
-        testBinaryOperations("-50", "-100", ADD, "50");
-        testBinaryOperations("-1", String.valueOf(Integer.MIN_VALUE), ADD, String.valueOf(Integer.MAX_VALUE));
+        testBinaryOperations("-5 + 55550 = 55545");
+        testBinaryOperations("-100 + 50 = -50");
+        testBinaryOperations("-2147483648 + 2147483647 = -1");
 
         // with both negative arguments
-        testBinaryOperations("-1.2", "-0.6", ADD, "-0.6");
-        testBinaryOperations("-0.0000050000005", "-0.000005", ADD, "-0.0000000000005");
-        testBinaryOperations("-0.2", "-0.1", ADD, "-0.1");
-        testBinaryOperations("-51000000", "-1000000", ADD, "-50000000");
-        testBinaryOperations("-51000000.5", "-1000000", ADD, "-50000000.5");
-        testBinaryOperations("-19999999999999998", "-9999999999999999", ADD, "-9999999999999999");
+        testBinaryOperations("-0.6 + -0.6 = -1.2");
+        testBinaryOperations("-0.000005 + -0.0000000000005 = -0.0000050000005");
+        testBinaryOperations("-0.1 + -0.1 = -0.2");
+        testBinaryOperations("-1000000 + -50000000 = -51000000");
+        testBinaryOperations("-1000000 + -50000000.5 = -51000000.5");
+        testBinaryOperations("-9999999999999999 + -9999999999999999 = -19999999999999998");
     }
 
     @Test
     public void testSubtractOperation() throws CalculationException {
 
         // with zero arguments
-        testBinaryOperations("-555000000", "0", SUBTRACT, "555000000");
-        testBinaryOperations("-1000", "0", SUBTRACT, "1000");
-        testBinaryOperations("-100", "0", SUBTRACT, "100");
-        testBinaryOperations("-0.6666666666666667", "0", SUBTRACT, "0.6666666666666667");
-        testBinaryOperations("0", "0", SUBTRACT, "0");
-        testBinaryOperations("0.6666666666666667", "0", SUBTRACT, "-0.6666666666666667");
-        testBinaryOperations("100", "0", SUBTRACT, "-100");
-        testBinaryOperations("1000", "0", SUBTRACT, "-1000");
-        testBinaryOperations("555000000", "0", SUBTRACT, "-555000000");
+        testBinaryOperations("0 − 555000000 = -555000000");
+        testBinaryOperations("0 − 1000 = -1000");
+        testBinaryOperations("0 − 100 = -100");
+        testBinaryOperations("0 − 0.6666666666666667 = -0.6666666666666667");
+        testBinaryOperations("0 − 0 = 0");
+        testBinaryOperations("0 − -0.6666666666666667 = 0.6666666666666667");
+        testBinaryOperations("0 − -100 = 100");
+        testBinaryOperations("0 − -1000 = 1000");
+        testBinaryOperations("0 − -555000000 = 555000000");
 
         // with positive arguments
-        testBinaryOperations("0", "9999999999999999", SUBTRACT, "9999999999999999");
-        testBinaryOperations("19999999999999998", "9999999999999999", SUBTRACT, "-9999999999999999");
-        testBinaryOperations("0", String.valueOf(Integer.MAX_VALUE), SUBTRACT, String.valueOf(Integer.MAX_VALUE));
-        testBinaryOperations("-55545", "5", SUBTRACT, "55550");
-        testBinaryOperations("0.6666666666666664", "0.6666666666666667", SUBTRACT, "0.0000000000000003");
-        testBinaryOperations("0.0000049999995", "0.000005", SUBTRACT, "0.0000000000005");
+        testBinaryOperations("9999999999999999 − 9999999999999999 = 0");
+        testBinaryOperations("9999999999999999 − -9999999999999999 = 19999999999999998");
+        testBinaryOperations("2147483647 − 2147483647 = 0");
+        testBinaryOperations("5 − 55550 = -55545");
+        testBinaryOperations("0.6666666666666667 − 0.0000000000000003 = 0.6666666666666664");
+        testBinaryOperations("0.000005 − 0.0000000000005 = 0.0000049999995");
 
         //with positive and negative arguments
-        testBinaryOperations("51000000.5", "1000000.5", SUBTRACT, "-50000000");
-        testBinaryOperations("51000000", "1000000", SUBTRACT, "-50000000");
-        testBinaryOperations("150", "100", SUBTRACT, "-50");
-        testBinaryOperations("10", "5", SUBTRACT, "-5");
-        testBinaryOperations("0.1", "0.05", SUBTRACT, "-0.05");
-        testBinaryOperations("0.0000050000005", "0.000005", SUBTRACT, "-0.0000000000005");
+        testBinaryOperations("1000000.5 − -50000000 = 51000000.5");
+        testBinaryOperations("1000000 − -50000000 = 51000000");
+        testBinaryOperations("100 − -50 = 150");
+        testBinaryOperations("5 − -5 = 10");
+        testBinaryOperations("0.05 − -0.05 = 0.1");
+        testBinaryOperations("0.000005 − -0.0000000000005 = 0.0000050000005");
 
         // with negative and positive arguments
-        testBinaryOperations("-55555", "-5", SUBTRACT, "55550");
-        testBinaryOperations("-51000000.5", "-1000000.5", SUBTRACT, "50000000");
-        testBinaryOperations("-51000000", "-1000000", SUBTRACT, "50000000");
-        testBinaryOperations("-150", "-100", SUBTRACT, "50");
-        testBinaryOperations("-10", "-5", SUBTRACT, "5");
-        testBinaryOperations("-0.1", "-0.05", SUBTRACT, "0.05");
-        testBinaryOperations("-0.0000050000005", "-0.000005", SUBTRACT, "0.0000000000005");
+        testBinaryOperations("-5 − 55550 = -55555");
+        testBinaryOperations("-1000000.5 − 50000000 = -51000000.5");
+        testBinaryOperations("-1000000 − 50000000 = -51000000");
+        testBinaryOperations("-100 − 50 = -150");
+        testBinaryOperations("-5 − 5 = -10");
+        testBinaryOperations("-0.05 − 0.05 = -0.1");
+        testBinaryOperations("-0.000005 − 0.0000000000005 = -0.0000050000005");
 
         // with negative arguments
-        testBinaryOperations("0", "-0.6", SUBTRACT, "-0.6");
-        testBinaryOperations("-0.0000049999995", "-0.000005", SUBTRACT, "-0.0000000000005");
-        testBinaryOperations("0", "-0.1", SUBTRACT, "-0.1");
-        testBinaryOperations("49000000", "-1000000", SUBTRACT, "-50000000");
-        testBinaryOperations("49000000.5", "-1000000", SUBTRACT, "-50000000.5");
-        testBinaryOperations("0", "-9999999999999999", SUBTRACT, "-9999999999999999");
+        testBinaryOperations("-0.6 − -0.6 = 0");
+        testBinaryOperations("-0.000005 − -0.0000000000005 = -0.0000049999995");
+        testBinaryOperations("-0.1 − -0.1 = 0");
+        testBinaryOperations("-1000000 − -50000000 = 49000000");
+        testBinaryOperations("-1000000 − -50000000.5 = 49000000.5");
+        testBinaryOperations("-9999999999999999 − -9999999999999999 = 0");
     }
 
     @Test
     public void testMultiplyOperation() throws CalculationException {
 
         // with zero arguments
-        testBinaryOperations("0", "0", MULTIPLY, "555000000");
-        testBinaryOperations("0", "0", MULTIPLY, "1000");
-        testBinaryOperations("0", "0", MULTIPLY, "100");
-        testBinaryOperations("0", "0", MULTIPLY, "0.6666666666666667");
-        testBinaryOperations("0", "0", MULTIPLY, "0");
-        testBinaryOperations("0", "0", MULTIPLY, "-0.6666666666666667");
-        testBinaryOperations("0", "0", MULTIPLY, "-100");
-        testBinaryOperations("0", "0", MULTIPLY, "-1000");
-        testBinaryOperations("0", "0", MULTIPLY, "-555000000");
+        testBinaryOperations("0 ☓ 555000000 = 0");
+        testBinaryOperations("0 ☓ 1000 = 0");
+        testBinaryOperations("0 ☓ 100 = 0");
+        testBinaryOperations("0 ☓ 0.6666666666666667 = 0");
+        testBinaryOperations("0 ☓ 0 = 0");
+        testBinaryOperations("0 ☓ -0.6666666666666667 = 0");
+        testBinaryOperations("0 ☓ -100 = 0");
+        testBinaryOperations("0 ☓ -1000 = 0");
+        testBinaryOperations("0 ☓ -555000000 = 0");
 
         // positive argument on positive
-        testBinaryOperations("50000025000000", "1000000.5", MULTIPLY, "50000000");
-        testBinaryOperations("50000000000000", "1000000", MULTIPLY, "50000000");
-        testBinaryOperations("5000", "100", MULTIPLY, "50");
-        testBinaryOperations("277750", "5", MULTIPLY, "55550");
-        testBinaryOperations("25", "5", MULTIPLY, "5");
-        testBinaryOperations("0.0000000000000002", "0.6666666666666667", MULTIPLY, "0.0000000000000003");
-        testBinaryOperations("0.0025", "0.05", MULTIPLY, "0.05");
-        testBinaryOperations("2.5e-18", "0.000005", MULTIPLY, "0.0000000000005");
-        testBinaryOperations("2.5e-18", "0.000005", MULTIPLY, "0.0000000000005");
+        testBinaryOperations("1000000.5 ☓ 50000000 = 50000025000000");
+        testBinaryOperations("1000000 ☓ 50000000 = 50000000000000");
+        testBinaryOperations("100 ☓ 50 = 5000");
+        testBinaryOperations("5 ☓ 55550 = 277750");
+        testBinaryOperations("5 ☓ 5 = 25");
+        testBinaryOperations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002");
+        testBinaryOperations("0.05 ☓ 0.05 = 0.0025");
+        testBinaryOperations("0.000005 ☓ 0.0000000000005 = 2.5e-18");
+        testBinaryOperations("0.000005 ☓ 0.0000000000005 = 2.5e-18");
 
         // positive argument on negative
-        testBinaryOperations("-50000025000000", "1000000.5", MULTIPLY, "-50000000");
-        testBinaryOperations("-50000000000000", "1000000", MULTIPLY, "-50000000");
-        testBinaryOperations("-5000", "100", MULTIPLY, "-50");
-        testBinaryOperations("277750", "5", MULTIPLY, "55550");
-        testBinaryOperations("-25", "5", MULTIPLY, "-5");
-        testBinaryOperations("0.0000000000000002", "0.6666666666666667", MULTIPLY, "0.0000000000000003");
-        testBinaryOperations("-0.0025", "0.05", MULTIPLY, "-0.05");
-        testBinaryOperations("2.5e-18", "0.000005", MULTIPLY, "0.0000000000005");
-        testBinaryOperations("-2.5e-18", "0.000005", MULTIPLY, "-0.0000000000005");
+        testBinaryOperations("1000000.5 ☓ -50000000 = -50000025000000");
+        testBinaryOperations("1000000 ☓ -50000000 = -50000000000000");
+        testBinaryOperations("100 ☓ -50 = -5000");
+        testBinaryOperations("5 ☓ 55550 = 277750");
+        testBinaryOperations("5 ☓ -5 = -25");
+        testBinaryOperations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002");
+        testBinaryOperations("0.05 ☓ -0.05 = -0.0025");
+        testBinaryOperations("0.000005 ☓ 0.0000000000005 = 2.5e-18");
+        testBinaryOperations("0.000005 ☓ -0.0000000000005 = -2.5e-18");
 
         // negative on positive
-        testBinaryOperations("-277750", "-5", MULTIPLY, "55550");
-        testBinaryOperations("-5000", "-100", MULTIPLY, "50");
-        testBinaryOperations("-4.611686016279904e+18", String.valueOf(Integer.MIN_VALUE), MULTIPLY, String.valueOf(Integer.MAX_VALUE));
-        testBinaryOperations("-0.36", "-0.6", MULTIPLY, "0.6");
-        testBinaryOperations("-2.5e-18", "-0.000005", MULTIPLY, "0.0000000000005");
-        testBinaryOperations("-0.01", "-0.1", MULTIPLY, "0.1");
-        testBinaryOperations("-50000000000000", "-1000000", MULTIPLY, "50000000");
-        testBinaryOperations("-50000000500000", "-1000000", MULTIPLY, "50000000.5");
+        testBinaryOperations("-5 ☓ 55550 = -277750");
+        testBinaryOperations("-100 ☓ 50 = -5000");
+        testBinaryOperations("-2147483648 ☓ 2147483647 = -4.611686016279904e+18");
+        testBinaryOperations("-0.6 ☓ 0.6 = -0.36");
+        testBinaryOperations("-0.000005 ☓ 0.0000000000005 = -2.5e-18");
+        testBinaryOperations("-0.1 ☓ 0.1 = -0.01");
+        testBinaryOperations("-1000000 ☓ 50000000 = -50000000000000");
+        testBinaryOperations("-1000000 ☓ 50000000.5 = -50000000500000");
 
         // negative argument on negative
-        testBinaryOperations("277750", "-5", MULTIPLY, "-55550");
-        testBinaryOperations("5000", "-100", MULTIPLY, "-50");
-        testBinaryOperations("0.36", "-0.6", MULTIPLY, "-0.6");
-        testBinaryOperations("2.5e-18", "-0.000005", MULTIPLY, "-0.0000000000005");
-        testBinaryOperations("0.01", "-0.1", MULTIPLY, "-0.1");
-        testBinaryOperations("50000000000000", "-1000000", MULTIPLY, "-50000000");
-        testBinaryOperations("50000000500000", "-1000000", MULTIPLY, "-50000000.5");
+        testBinaryOperations("-5 ☓ -55550 = 277750");
+        testBinaryOperations("-100 ☓ -50 = 5000");
+        testBinaryOperations("-0.6 ☓ -0.6 = 0.36");
+        testBinaryOperations("-0.000005 ☓ -0.0000000000005 = 2.5e-18");
+        testBinaryOperations("-0.1 ☓ -0.1 = 0.01");
+        testBinaryOperations("-1000000 ☓ -50000000 = 50000000000000");
+        testBinaryOperations("-1000000 ☓ -50000000.5 = 50000000500000");
 
     }
 
@@ -195,37 +165,37 @@ public class StandardCalculatorTest {
     public void testDivideOperation() throws CalculationException {
 
         // zero by non-zero number
-        testBinaryOperations("0", "0", DIVIDE, "555000000");
-        testBinaryOperations("0", "0", DIVIDE, "1000");
-        testBinaryOperations("0", "0", DIVIDE, "100");
-        testBinaryOperations("0", "0", DIVIDE, "0.6666666666666667");
-        testBinaryOperations("0", "0", DIVIDE, "-0.6666666666666667");
-        testBinaryOperations("0", "0", DIVIDE, "-100");
-        testBinaryOperations("0", "0", DIVIDE, "-1000");
-        testBinaryOperations("0", "0", DIVIDE, "-555000000");
+        testBinaryOperations("0 ÷ 555000000 = 0");
+        testBinaryOperations("0 ÷ 1000 = 0");
+        testBinaryOperations("0 ÷ 100 = 0");
+        testBinaryOperations("0 ÷ 0.6666666666666667 = 0");
+        testBinaryOperations("0 ÷ -0.6666666666666667 = 0");
+        testBinaryOperations("0 ÷ -100 = 0");
+        testBinaryOperations("0 ÷ -1000 = 0");
+        testBinaryOperations("0 ÷ -555000000 = 0");
 
         // positive number by any non-zero number
-        testBinaryOperations("1", "9999999999999999", DIVIDE, "9999999999999999");
-        testBinaryOperations("-1", "9999999999999999", DIVIDE, "-9999999999999999");
-        testBinaryOperations("-0.02000001", "1000000.5", DIVIDE, "-50000000");
-        testBinaryOperations("-0.02", "1000000", DIVIDE, "-50000000");
-        testBinaryOperations("-2", "100", DIVIDE, "-50");
-        testBinaryOperations("9.000900090009001e-5", "5", DIVIDE, "55550");
-        testBinaryOperations("-1", "5", DIVIDE, "-5");
-        testBinaryOperations("-1", "0.05", DIVIDE, "-0.05");
-        testBinaryOperations("10000000", "0.000005", DIVIDE, "0.0000000000005");
-        testBinaryOperations("-10000000", "0.000005", DIVIDE, "-0.0000000000005");
+        testBinaryOperations("9999999999999999 ÷ 9999999999999999 = 1");
+        testBinaryOperations("9999999999999999 ÷ -9999999999999999 = -1");
+        testBinaryOperations("1000000.5 ÷ -50000000 = -0.02000001");
+        testBinaryOperations("1000000 ÷ -50000000 = -0.2");
+        testBinaryOperations("100 ÷ -50 = -2");
+        testBinaryOperations("5 ÷ 55550 = 9.000900090009001e-5");
+        testBinaryOperations("5 ÷ -5 = -1");
+        testBinaryOperations("0.05 ÷ -0.05 = -1");
+        testBinaryOperations("0.000005 ÷ 0.0000000000005 = 10000000");
+        testBinaryOperations("0.000005 ÷ -0.0000000000005 = -10000000");
 
         // negative number by any non-zero
-        testBinaryOperations("1", "-0.6", DIVIDE, "-0.6");
-        testBinaryOperations("10000000", "-0.000005", DIVIDE, "-0.0000000000005");
-        testBinaryOperations("1", "-0.1", DIVIDE, "-0.1");
-        testBinaryOperations("-9.000900090009001e-5", "-5", DIVIDE, "55550");
-        testBinaryOperations("-2", "-100", DIVIDE, "50");
-        testBinaryOperations("0.02", "-1000000", DIVIDE, "-50000000");
-        testBinaryOperations("0.0199999998", "-1000000", DIVIDE, "-50000000.5");
-        testBinaryOperations("-1.000000000465661", String.valueOf(Integer.MIN_VALUE), DIVIDE, String.valueOf(Integer.MAX_VALUE));
-        testBinaryOperations("1", "-9999999999999999", DIVIDE, "-9999999999999999");
+        testBinaryOperations("-0.6 ÷ -0.6 = 1");
+        testBinaryOperations("-0.000005 ÷ -0.0000000000005 = 10000000");
+        testBinaryOperations("-0.1 ÷ -0.1 = 1");
+        testBinaryOperations("-5 ÷ 55550 = -9.000900090009001e-5");
+        testBinaryOperations("-100 ÷ 50 = -2");
+        testBinaryOperations("-1000000 ÷ -50000000 = 0.02");
+        testBinaryOperations("-1000000 ÷ -50000000.5 = 0.0199999998");
+        testBinaryOperations("-2147483648 ÷ 2147483647 = -1.000000000465661");
+        testBinaryOperations("-9999999999999999 ÷ -9999999999999999 = 1");
     }
 
     @Test
@@ -263,6 +233,23 @@ public class StandardCalculatorTest {
         testBinaryOperations("-50", "-100", PERCENT, "50");
         testBinaryOperations("500000000000", "-1000000", PERCENT, "-50000000");
         testBinaryOperations("500000005000", "-1000000", PERCENT, "-50000000.5");
+        // TODO replace binary like "firstNumber + secondNumber = expectedResult"
+    }
+
+    private void testBinaryOperations(String expression) throws CalculationException {
+        String[] expressionParts = expression.split("\\s"); // split by white spaces
+
+        BigDecimal firstNumber = new BigDecimal(expressionParts[0]);
+        MathOperation operation = MathOperation.getOperation(expressionParts[1]);
+        BigDecimal secondNumber = new BigDecimal(expressionParts[2]);
+        // expression part with index 3 is "="
+        BigDecimal expectedNumber = new BigDecimal(expressionParts[4]);
+        scale = expectedNumber.scale();
+
+        Calculator calculator = new StandardCalculator(operation, firstNumber, secondNumber);
+        BigDecimal calculationResult = calculator.calculate().setScale(scale, BigDecimal.ROUND_HALF_UP);
+
+        Assert.assertEquals(expectedNumber, calculationResult);
     }
 
     private void testBinaryOperations(String expected, String firstValue, MathOperation operation, String secondValue) throws CalculationException {
@@ -398,6 +385,14 @@ public class StandardCalculatorTest {
         // reverse with zero base
         testOperationForException(REVERSE, "0");
         testOperationForException(REVERSE, "0.0");
+
+        // result is overflow
+        testOperationForException(DIVIDE, "1.e-9999", "10");
+        testOperationForException(DIVIDE, "1.e-9999", "100");
+        testOperationForException(DIVIDE, "1.e-9999", "1000000");
+        testOperationForException(MULTIPLY, "1.e+9999", "10");
+        testOperationForException(MULTIPLY, "1.e+9999", "100");
+        testOperationForException(MULTIPLY, "1.e+9999", "1000000");
     }
 
     private void testOperationForException(MathOperation operation, String... numbers) {
@@ -415,6 +410,36 @@ public class StandardCalculatorTest {
                         operation.toString(), numbers[0], numbers[1]);
             }
             Assert.fail(message);
+        } catch (CalculationException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInitWithWrongArgumentCount() {
+        testInitForException(null);
+        testInitForException(null, new BigDecimal[1]);
+
+        // binary operation with wrong argument count
+        testInitForException(ADD);
+        testInitForException(ADD, new BigDecimal[1]);
+        testInitForException(ADD, new BigDecimal[3]);
+        testInitForException(ADD, new BigDecimal[4]);
+        testInitForException(ADD, new BigDecimal[10]);
+
+        // unary operation with wrong argument count
+        testInitForException(SQUARE_ROOT);
+        testInitForException(SQUARE_ROOT, new BigDecimal[2]);
+        testInitForException(SQUARE_ROOT, new BigDecimal[3]);
+        testInitForException(SQUARE_ROOT, new BigDecimal[4]);
+        testInitForException(SQUARE_ROOT, new BigDecimal[10]);
+    }
+
+    private void testInitForException(MathOperation operation, BigDecimal... number) {
+        try {
+            new StandardCalculator(operation, number);
+            Assert.fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count %s",
+                    operation, (number == null) ? "null" : number.length));
         } catch (CalculationException e) {
             // expected
         }

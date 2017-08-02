@@ -50,12 +50,14 @@ public class OutputFormatterTest {
     @Test
     public void testGroupDelimitersFormatting() throws CalculationException {
 
+        // negative numbers
         testAddAndRemoveGroupDelimiters("-999999999999999", "-999,999,999,999,999");
         testAddAndRemoveGroupDelimiters("-555555", "-555,555");
-        testAddAndRemoveGroupDelimiters("-0.987654321","-0.987654321");
+        testAddAndRemoveGroupDelimiters("-0.987654321", "-0.987654321");
         testAddAndRemoveGroupDelimiters("-5.e-21", "-5.e-21");
         testAddAndRemoveGroupDelimiters("0", "0");
 
+        // positive numbers
         testAddAndRemoveGroupDelimiters("5.e-21", "5.e-21");
         testAddAndRemoveGroupDelimiters("0.987654321", "0.987654321");
         testAddAndRemoveGroupDelimiters("125555.91", "125,555.91");
@@ -72,8 +74,8 @@ public class OutputFormatterTest {
     public void testFormattingToMathView() throws CalculationException {
 
         // negative number
-        testFormatToMathView("-9.999999999999999e+17", "-999999999999999900");
-        testFormatToMathView("-1.e+16", "-10000000000000000");
+        testFormatToMathView("-9.999999999999999e+17", "-999,999,999,999,999,900");
+        testFormatToMathView("-1.e+16", "-10,000,000,000,000,000");
         testFormatToMathView("-3.333333333333333", "-3.33333333333333333333333");
         testFormatToMathView("-5.55555555555555e-4", "-0.000555555555555555");
         testFormatToMathView("-5", "-5");
@@ -91,9 +93,9 @@ public class OutputFormatterTest {
         testFormatToMathView("125555.91", "125,555.91");
         testFormatToMathView("555555", "555,555");
         testFormatToMathView("9999999999999999", "9,999,999,999,999,999");
-        testFormatToMathView("1.e+16", "10000000000000000");
+        testFormatToMathView("1.e+16", "10,000,000,000,000,000");
         testFormatToMathView("1.e+16", "1.E16");
-        testFormatToMathView("9.999999999999999e+17", "999999999999999900");
+        testFormatToMathView("9.999999999999999e+17", "999,999,999,999,999,900");
     }
 
     private void testFormatToMathView(String expected, String numberString) throws CalculationException {
@@ -145,19 +147,26 @@ public class OutputFormatterTest {
 
     @Test
     public void testInvalidInput() {
-        testForException("");
-        testForException(" ");
-        testForException("--1");
-        testForException("1...1");
-        testForException("1eee-10");
-        testForException("1.e+-10");
-        testForException("+40");
-        testForException("some string");
+        testFormattingForException("");
+        testFormattingForException(" ");
+        testFormattingForException(".");
+        testFormattingForException("...");
+        testFormattingForException("--1");
+        testFormattingForException("1--");
+        testFormattingForException("1...1");
+        testFormattingForException("1eee-10");
+        testFormattingForException("1.e+-10");
+        testFormattingForException("1.e+10.");
+        testFormattingForException("+40");
+        testFormattingForException("40+");
+        testFormattingForException("40.+");
+        testFormattingForException("some string");
     }
 
-    private void testForException(String number) {
+    private void testFormattingForException(String number) {
         try {
             formatNumberForDisplaying(number);
+            formatToMathView(number);
             fail("Expected CalculationException with input not a number. Your input is " + number);
         } catch (CalculationException e) {
             //expected

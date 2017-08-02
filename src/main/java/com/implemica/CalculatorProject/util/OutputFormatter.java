@@ -186,7 +186,8 @@ public class OutputFormatter {
         }
         if (number.startsWith(MINUS + "0.")) {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 1;
-        } else if (number.startsWith(MINUS)) {
+        }
+        if (number.startsWith(MINUS)) {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 2;
         }
         if (number.startsWith("0.")) {

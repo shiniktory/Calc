@@ -17,86 +17,113 @@ public class InputValueProcessorTest {
     private InputValueProcessor processor = new InputValueProcessor();
 
     @Test
-    public void testUpdatingCurrentNumber() throws CalculationException {
+    public void testEnteringTooLongNumbers() throws CalculationException {
+        testEnterDigit("0", ""); // read initial value from text field
 
-        // TODO to structure this method with entering too long numbers: long, with minus, zero with point, one with point
-        // TODO and test here ce, c and le operations
+        // enter long number with max length and try to add more digits
+        enterNumber("9999999999999999");
+        testEnterDigit("9,999,999,999,999,999", "0");
+        testEnterDigit("9,999,999,999,999,999", "1");
+        testEnterDigit("9,999,999,999,999,999", "2");
+        testEnterDigit("9,999,999,999,999,999", "3");
 
-        // Add digit to the number
-        testUpdateCurrentNumber("0", "");
-        testUpdateCurrentNumber("0", "0");
-        testUpdateCurrentNumber("1", "1");
-        testUpdateCurrentNumber("12", "2");
-        testUpdateCurrentNumber("123", "3");
-        testUpdateCurrentNumber("1,234", "4");
-        testUpdateCurrentNumber("12,345", "5");
-        testUpdateCurrentNumber("123,456", "6");
-        testUpdateCurrentNumber("1,234,567", "7");
-        testUpdateCurrentNumber("12,345,678", "8");
-        testUpdateCurrentNumber("123,456,789", "9");
-        testUpdateCurrentNumber("1,234,567,890", "0");
+        // negate number and try to add more digits
+        processor.executeMathOperation(NEGATE);
+        testEnterDigit("-9,999,999,999,999,999", "0");
+        testEnterDigit("-9,999,999,999,999,999", "1");
+        testEnterDigit("-9,999,999,999,999,999", "2");
+        testEnterDigit("-9,999,999,999,999,999", "3");
 
-        // Add not valid values
-        testUpdateCurrentNumber("1,234,567,890", null);
-        testUpdateCurrentNumber("1,234,567,890", "");
-        testUpdateCurrentNumber("1,234,567,890", "some string");
-        testUpdateCurrentNumber("1,234,567,890", "0..5");
-        testUpdateCurrentNumber("1,234,567,890", "--3");
-        testUpdateCurrentNumber("1,234,567,890", "-3");
-        testUpdateCurrentNumber("1,234,567,890", "e");
-        testUpdateCurrentNumber("1,234,567,890", "35");
+        processor.cleanAll();
 
-        // Add fraction part
+        // enter double number less than one and try to add more digits
+        enterNumber("0.8888888888888888");
+        testEnterDigit("0.8888888888888888", "0");
+        testEnterDigit("0.8888888888888888", "1");
+        testEnterDigit("0.8888888888888888", "2");
+        testEnterDigit("0.8888888888888888", "3");
+
+        // try to add one more point
         processor.addPoint();
-        testUpdateCurrentNumber("1,234,567,890.", "");
-        processor.addPoint();
-        testUpdateCurrentNumber("1,234,567,890.", "");
-        testUpdateCurrentNumber("1,234,567,890.1", "1");
-        testUpdateCurrentNumber("1,234,567,890.12", "2");
-        testUpdateCurrentNumber("1,234,567,890.123", "3");
-        testUpdateCurrentNumber("1,234,567,890.1234", "4");
-        testUpdateCurrentNumber("1,234,567,890.12345", "5");
-        testUpdateCurrentNumber("1,234,567,890.123450", "0");
+        testEnterDigit("0.8888888888888888", "0");
+        testEnterDigit("0.8888888888888888", "1");
+        testEnterDigit("0.8888888888888888", "2");
+        testEnterDigit("0.8888888888888888", "3");
 
-        // Add digit over max number length
-        testUpdateCurrentNumber("1,234,567,890.123450", "1");
-        testUpdateCurrentNumber("1,234,567,890.123450", "2");
-        testUpdateCurrentNumber("1,234,567,890.123450", "3");
-        testUpdateCurrentNumber("1,234,567,890.123450", "0");
+        // negate number and try to add more digits
+        processor.executeMathOperation(NEGATE);
+        testEnterDigit("-0.8888888888888888", "0");
+        testEnterDigit("-0.8888888888888888", "1");
+        testEnterDigit("-0.8888888888888888", "2");
+        testEnterDigit("-0.8888888888888888", "3");
+
+        processor.cleanAll();
+
+        // enter double number greater than one and try to add more digits
+        enterNumber("1.888888888888888");
+        testEnterDigit("1.888888888888888", "0");
+        testEnterDigit("1.888888888888888", "1");
+        testEnterDigit("1.888888888888888", "2");
+        testEnterDigit("1.888888888888888", "3");
+
+        // try to add one more point
+        processor.addPoint();
+        testEnterDigit("1.888888888888888", "0");
+        testEnterDigit("1.888888888888888", "1");
+        testEnterDigit("1.888888888888888", "2");
+        testEnterDigit("1.888888888888888", "3");
+
+        // negate number and try to add more digits
+        processor.executeMathOperation(NEGATE);
+        testEnterDigit("-1.888888888888888", "0");
+        testEnterDigit("-1.888888888888888", "1");
+        testEnterDigit("-1.888888888888888", "2");
+        testEnterDigit("-1.888888888888888", "3");
+    }
+
+    @Test
+    public void testCleanOperations() throws CalculationException {
+
+       enterNumber("1,234,567,890.123450");
 
         // Delete last digit
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("1,234,567,890.12345", "");
+        testEnterDigit("1,234,567,890.12345", "");
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("1,234,567,890.1234", "");
+        testEnterDigit("1,234,567,890.1234", "");
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("1,234,567,890.123", "");
+        testEnterDigit("1,234,567,890.123", "");
 
         // Reset number
         processor.cleanCurrent();
-        testUpdateCurrentNumber("0", "");
-        testUpdateCurrentNumber("5", "5");
+        testEnterDigit("0", "");
 
         // Delete last digit in number that contains only one digit
+        testEnterDigit("5", "5");
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("0", "");
+        testEnterDigit("0", "");
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("0", "");
+        testEnterDigit("0", "");
+
+        processor.cleanCurrent();
+
+        // Delete last digit in number that contains minus and only one digit
+        enterNumber("-5");
         processor.deleteLastDigit();
-        testUpdateCurrentNumber("0", "0");
+        testEnterDigit("0", "");
 
         // Reset all
-        testUpdateCurrentNumber("0", "");
-        testUpdateCurrentNumber("0", "0");
-        testUpdateCurrentNumber("1", "1");
-        testUpdateCurrentNumber("12", "2");
-        testUpdateCurrentNumber("123", "3");
-        testUpdateCurrentNumber("1,234", "4");
+        testEnterDigit("0", "");
+        testEnterDigit("0", "0");
+        testEnterDigit("1", "1");
+        testEnterDigit("12", "2");
+        testEnterDigit("123", "3");
+        testEnterDigit("1,234", "4");
         processor.cleanAll();
-        testUpdateCurrentNumber("0", "");
+        testEnterDigit("0", "");
     }
 
-    private void testUpdateCurrentNumber(String expected, String digit) throws CalculationException {
+    private void testEnterDigit(String expected, String digit) throws CalculationException {
         processor.updateCurrentNumber(digit);
         assertEquals(expected, processor.getLastNumber());
     }
@@ -105,6 +132,7 @@ public class InputValueProcessorTest {
     public void testBinaryOperations() throws CalculationException {
 
         // Binary operations
+        // Add operation
         testBinary("5", "2", ADD, "3");
         testBinary("2.5", "2.5", ADD, "0");
         testBinary("9.999", "9", ADD, "0.999");
@@ -114,6 +142,7 @@ public class InputValueProcessorTest {
         testBinary("-2.5", "-2.5", ADD, "0");
         testBinary("-8.001", "-9", ADD, "0.999");
 
+        // Subtract operation
         testBinary("-1", "2", SUBTRACT, "3");
         testBinary("2.5", "2.5", SUBTRACT, "0");
         testBinary("8.001", "9", SUBTRACT, "0.999");
@@ -123,6 +152,7 @@ public class InputValueProcessorTest {
         testBinary("-2.5", "-2.5", SUBTRACT, "0");
         testBinary("-9.999", "-9", SUBTRACT, "0.999");
 
+        // Multiply operation
         testBinary("6", "2", MULTIPLY, "3");
         testBinary("0", "2.5", MULTIPLY, "0");
         testBinary("8.991", "9", MULTIPLY, "0.999");
@@ -132,6 +162,7 @@ public class InputValueProcessorTest {
         testBinary("0", "-2.5", MULTIPLY, "0");
         testBinary("-8.991", "-9", MULTIPLY, "0.999");
 
+        // Divide operation
         testBinary("0.6666666666666667", "2", DIVIDE, "3");
         testBinary("0.25", "2.5", DIVIDE, "10");
         testBinary("9.009009009009009", "9", DIVIDE, "0.999");
@@ -173,7 +204,7 @@ public class InputValueProcessorTest {
 
     private void enterNumber(String fullNumber) throws CalculationException {
         int i = 0;
-        if (fullNumber.startsWith(MINUS)) {
+        if (fullNumber.startsWith(MINUS)) { // skip minus
             i++;
         }
 
@@ -185,7 +216,7 @@ public class InputValueProcessorTest {
                 processor.updateCurrentNumber(currentChar);
             }
         }
-        if (fullNumber.startsWith(MINUS)) {
+        if (fullNumber.startsWith(MINUS)) { // add minus
             processor.executeMathOperation(NEGATE);
         }
     }
@@ -206,49 +237,49 @@ public class InputValueProcessorTest {
     @Test
     public void testUnaryOperation() throws CalculationException {
         // Negate
-        testUnary("0", "0", NEGATE);
-        testUnary("-0.25", "0.25", NEGATE);
-        testUnary("-1", "1", NEGATE);
-        testUnary("-9,999,999,999,999,999", "9999999999999999", NEGATE);
-        testUnary("-0.6666666666666666", "0.6666666666666666", NEGATE);
-        testUnary("0.25", "-0.25", NEGATE);
-        testUnary("1", "-1", NEGATE);
-        testUnary("9,999,999,999,999,999", "-9999999999999999", NEGATE);
+        testUnary("0", NEGATE, "0");
+        testUnary("-0.25", NEGATE, "0.25");
+        testUnary("-1", NEGATE, "1");
+        testUnary("-9,999,999,999,999,999",  NEGATE,"9999999999999999");
+        testUnary("-0.6666666666666666",  NEGATE,"0.6666666666666666");
+        testUnary("0.25",  NEGATE,"-0.25");
+        testUnary("1", NEGATE, "-1");
+        testUnary("9,999,999,999,999,999", NEGATE, "-9999999999999999");
 
         // Square root
-        testUnary("0", "0", SQUARE_ROOT);
-        testUnary("0.5", "0.25", SQUARE_ROOT);
-        testUnary("1", "1", SQUARE_ROOT);
-        testUnary("31,622,776.60168378", "999999999999999", SQUARE_ROOT);
-        testUnary("0.816496580927726", "0.6666666666666666", SQUARE_ROOT);
-        testUnary("7,453.559887731499", "55555555", SQUARE_ROOT);
-        testUnary("10", "100", SQUARE_ROOT);
-        testUnary("500.2499375312305", "250250", SQUARE_ROOT);
+        testUnary("0", SQUARE_ROOT, "0");
+        testUnary("0.5", SQUARE_ROOT, "0.25");
+        testUnary("1", SQUARE_ROOT, "1");
+        testUnary("31,622,776.60168378", SQUARE_ROOT, "999999999999999");
+        testUnary("0.816496580927726", SQUARE_ROOT, "0.6666666666666666");
+        testUnary("7,453.559887731499", SQUARE_ROOT, "55555555");
+        testUnary("10", SQUARE_ROOT, "100");
+        testUnary("500.2499375312305", SQUARE_ROOT, "250250");
 
         // Square
-        testUnary("0", "0", SQUARE);
-        testUnary("0.0625", "0.25", SQUARE);
-        testUnary("1", "1", SQUARE);
-        testUnary("9.999999999999998e+31", "9999999999999999", SQUARE);
-        testUnary("0.4444444444444436", "0.666666666666666", SQUARE);
-        testUnary("0.0625", "-0.25", SQUARE);
-        testUnary("1", "-1", SQUARE);
-        testUnary("9.999999999999998e+31", "-9999999999999999", SQUARE);
+        testUnary("0", SQUARE, "0");
+        testUnary("0.0625", SQUARE, "0.25");
+        testUnary("1", SQUARE, "1");
+        testUnary("9.999999999999998e+31", SQUARE, "9999999999999999");
+        testUnary("0.4444444444444436", SQUARE, "0.666666666666666");
+        testUnary("0.0625", SQUARE, "-0.25");
+        testUnary("1", SQUARE, "-1");
+        testUnary("9.999999999999998e+31", SQUARE, "-9999999999999999");
 
         // Reverse
-        testUnary("10", "0.1", REVERSE);
-        testUnary("4", "0.25", REVERSE);
-        testUnary("1", "1", REVERSE);
-        testUnary("1.000000000000001e-15", "999999999999999", REVERSE);
-        testUnary("1.500000000000002", "0.666666666666666", REVERSE);
-        testUnary("-4", "-0.25", REVERSE);
-        testUnary("-1", "-1", REVERSE);
-        testUnary("-1.000000000000001e-15", "-999999999999999", REVERSE);
+        testUnary("10", REVERSE, "0.1");
+        testUnary("4", REVERSE, "0.25");
+        testUnary("1", REVERSE, "1");
+        testUnary("1.000000000000001e-15", REVERSE, "999999999999999");
+        testUnary("1.500000000000002", REVERSE, "0.666666666666666");
+        testUnary("-4", REVERSE, "-0.25");
+        testUnary("-1", REVERSE, "-1");
+        testUnary("-1.000000000000001e-15", REVERSE, "-999999999999999");
 
         processor.cleanAll();
     }
 
-    private void testUnary(String expected, String number, MathOperation operation) throws CalculationException {
+    private void testUnary(String expected, MathOperation operation, String number) throws CalculationException {
         processor.cleanAll();
         // Enter number
         enterNumber(number);
@@ -261,7 +292,7 @@ public class InputValueProcessorTest {
     @Test
     public void testOperationSequences() throws CalculationException {
 
-        // testViewPanel case when in expression more than one binary operation
+        // test case when in expression more than one binary operation
         testBinaryOperationSequence("0", "0", ADD, "0", ADD, "0");
         testBinaryOperationSequence("10", "2", ADD, "3", ADD, "5");
         testBinaryOperationSequence("0.01", "0", ADD, "5", DIVIDE, "500");
@@ -380,7 +411,7 @@ public class InputValueProcessorTest {
             enterNumber(firstNumber);
             processor.executeMathOperation(operation);
             enterNumber(secondNumber);
-            processor.calculateResult();
+            System.out.println(processor.calculateResult());
             fail(String.format("Expected CalculationException with wrong arguments for operations. " +
                     "Your first number = %s, operation = %s, second number = %s", firstNumber, operation, secondNumber));
         } catch (CalculationException e) {

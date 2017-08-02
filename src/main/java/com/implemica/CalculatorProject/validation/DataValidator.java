@@ -22,7 +22,7 @@ public class DataValidator {
     public static final int MAX_LENGTH_WITH_POINT_AND_MINUS = 19;
 
     private static final String PATTERN_FOR_DIGIT = "\\d";
-    private static final String PATTERN_FOR_NUMBERS = "[-]?\\d+[.]?[\\d]*[Ee]?[-+]?\\d*";
+    private static final String PATTERN_FOR_NUMBERS = "[-]?\\d+[.]?[\\d]*[Ee]?([-+]?\\d+)?";
 
     private static final BigDecimal MIN_VALUE = new BigDecimal(0.0000000000000001);
     private static final BigDecimal MAX_VALUE = new BigDecimal(9999999999999999L);
@@ -81,9 +81,13 @@ public class DataValidator {
                 number.length() <= MAX_LENGTH_WITH_MINUS) {
             return true;
         }
-        if (number.contains(POINT) &&
-                number.startsWith(MINUS) &&
+        if (number.startsWith(MINUS + ZERO_VALUE + POINT) &&
                 number.length() <= MAX_LENGTH_WITH_POINT_AND_MINUS) {
+            return true;
+        }
+        if (number.startsWith(MINUS) &&
+                number.contains(POINT) &&
+                number.length() < MAX_LENGTH_WITH_POINT_AND_MINUS) {
             return true;
         }
         if (!number.contains(POINT) &&

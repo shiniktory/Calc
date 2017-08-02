@@ -2,7 +2,7 @@ package com.implemica.CalculatorProject;
 
 import com.implemica.CalculatorProject.calculation.StandardCalculatorTest;
 import com.implemica.CalculatorProject.calculation.OperationTest;
-import com.implemica.CalculatorProject.controller.CalculatorControllerTest;
+import com.implemica.CalculatorProject.controller.ControllerAndViewTest;
 import com.implemica.CalculatorProject.processing.InputValueProcessorTest;
 import com.implemica.CalculatorProject.util.OutputFormatterTest;
 import com.implemica.CalculatorProject.util.ValueTransformerUtilTest;
@@ -17,7 +17,7 @@ import org.junit.runners.Suite;
         DataValidatorTest.class,
         OutputFormatterTest.class,
         InputValueProcessorTest.class,
-//        CalculatorControllerTest.class
+        ControllerAndViewTest.class
 })
 @RunWith(Suite.class)
 public class AllTests {

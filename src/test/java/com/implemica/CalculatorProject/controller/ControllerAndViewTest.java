@@ -1,30 +1,23 @@
 package com.implemica.CalculatorProject.controller;
 
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
+import com.implemica.CalculatorProject.CalcApplication;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import javafx.stage.Window;
+import org.junit.*;
 import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
-import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
-
-import java.util.concurrent.TimeoutException;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
@@ -36,15 +29,7 @@ import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.Assert.*;
 
-public class CalculatorControllerTest extends ApplicationTest {
-
-    private static final String CALCULATOR_VIEW_FILE = "/calc.fxml";
-
-    private static final String CSS_FILE = "/winCalc.css";
-
-    private static final String ICON_FILE = "/icon3.png";
-
-    private static final String APPLICATION_NAME = "Calculator";
+public class ControllerAndViewTest extends ApplicationTest {
 
     private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
 
@@ -59,128 +44,77 @@ public class CalculatorControllerTest extends ApplicationTest {
 
     private VBox viewPanel;
 
+    @BeforeClass
+    public static void setUpInit() throws Exception {
+        launch(CalcApplication.class);
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = new FXMLLoader().load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(CSS_FILE);
-        stage.setScene(scene);
-        stage.setTitle(APPLICATION_NAME);
-        stage.getIcons().add(new Image(ICON_FILE));
-        stage.setResizable(true);
-        stage.toFront();
-        FxToolkit.registerPrimaryStage();
-        stage.show();
+        // Stage is already launched
     }
 
     @Before
-    public void setUp() {
+    public void initElements() {
         // text fields
-        currentNumberText = find("#currentNumberText");
-        prevOperationsText = find("#prevOperationsText");
+        currentNumberText = findAndVerify("#currentNumberText", true, false);
+        prevOperationsText = findAndVerify("#prevOperationsText", true, false);
 
         // buttons with numbers
-        numZero = find("0");
-        numOne = find("1");
-        numTwo = find("2");
-        numThree = find("3");
-        numFour = find("4");
-        numFive = find("5");
-        numSix = find("6");
-        numSeven = find("7");
-        numEight = find("8");
-        numNine = find("9");
+        numZero = findAndVerify("0", true, false);
+        numOne = findAndVerify("1", true, false);
+        numTwo = findAndVerify("2", true, false);
+        numThree = findAndVerify("3", true, false);
+        numFour = findAndVerify("4", true, false);
+        numFive = findAndVerify("5", true, false);
+        numSix = findAndVerify("6", true, false);
+        numSeven = findAndVerify("7", true, false);
+        numEight = findAndVerify("8", true, false);
+        numNine = findAndVerify("9", true, false);
 
         // buttons with math operations
-        point = find("#point");
-        resultButton = find(EQUAL.getCode());
-        negate = find(NEGATE.getCode());
-        add = find(ADD.getCode());
-        subtract = find(SUBTRACT.getCode());
-        multiply = find(MULTIPLY.getCode());
-        divide = find(DIVIDE.getCode());
-        reverse = find(REVERSE.getCode());
-        square = find(SQUARE.getCode());
-        squareRoot = find(SQUARE_ROOT.getCode());
-        percent = find(PERCENT.getCode());
+        point = findAndVerify("#point", true, false);
+        resultButton = findAndVerify(EQUAL.getCode(), true, false);
+        negate = findAndVerify(NEGATE.getCode(), true, false);
+        add = findAndVerify(ADD.getCode(), true, false);
+        subtract = findAndVerify(SUBTRACT.getCode(), true, false);
+        multiply = findAndVerify(MULTIPLY.getCode(), true, false);
+        divide = findAndVerify(DIVIDE.getCode(), true, false);
+        reverse = findAndVerify(REVERSE.getCode(), true, false);
+        square = findAndVerify(SQUARE.getCode(), true, false);
+        squareRoot = findAndVerify(SQUARE_ROOT.getCode(), true, false);
+        percent = findAndVerify(PERCENT.getCode(), true, false);
 
         // buttons with memory operations
-        memoryClean = find(MEMORY_CLEAN.getCode());
-        memoryRecall = find(MEMORY_RECALL.getCode());
-        memoryPlus = find(MEMORY_ADD.getCode());
-        memoryMinus = find(MEMORY_SUBTRACT.getCode());
-        memoryStore = find(MEMORY_STORE.getCode());
-        memory = find(MEMORY_SHOW.getCode());
+        memoryClean = findAndVerify(MEMORY_CLEAN.getCode(), true, true);
+        memoryRecall = findAndVerify(MEMORY_RECALL.getCode(), true, true);
+        memoryPlus = findAndVerify(MEMORY_ADD.getCode(), true, false);
+        memoryMinus = findAndVerify(MEMORY_SUBTRACT.getCode(), true, false);
+        memoryStore = findAndVerify(MEMORY_STORE.getCode(), true, false);
+        memory = findAndVerify(MEMORY_SHOW.getCode(), true, true);
 
         // buttons with editing operations
-        cleanAll = find(CLEAN.getCode());
-        cleanCurrent = find(CLEAN_CURRENT.getCode());
-        leftErase = find(LEFT_ERASE.getCode());
+        cleanAll = findAndVerify(CLEAN.getCode(), true, false);
+        cleanCurrent = findAndVerify(CLEAN_CURRENT.getCode(), true, false);
+        leftErase = findAndVerify(LEFT_ERASE.getCode(), true, false);
 
         // other buttons
-        mode = find("#mode");
-        modeClose = find("#modeClose");
-        infoButton = find("#infoButton");
-        history = find("#history");
+        mode = findAndVerify("#mode", true, false);
+        modeClose = findAndVerify("#modeClose", false, false);
+        infoButton = findAndVerify("#infoButton", false, false);
+        history = findAndVerify("#history", true, true);
 
-        viewPanel = find("#viewPanel");
+        viewPanel = findAndVerify("#viewPanel", false, false);
+    }
+
+    private <T extends Node> T findAndVerify(final String query, boolean visible, boolean disable) {
+        T node = find(query);
+        testExistAndActive(node, visible, disable);
+        return node;
     }
 
     private <T extends Node> T find(final String query) {
         return lookup(query).query();
-    }
-
-    @Test
-    public void testElementsExist() {
-
-        // text fields
-        testExistAndActive(currentNumberText, true, false);
-        testExistAndActive(prevOperationsText, true, false);
-
-        // buttons with numbers
-        testExistAndActive(numZero, true, false);
-        testExistAndActive(numOne, true, false);
-        testExistAndActive(numTwo, true, false);
-        testExistAndActive(numThree, true, false);
-        testExistAndActive(numFour, true, false);
-        testExistAndActive(numFive, true, false);
-        testExistAndActive(numSix, true, false);
-        testExistAndActive(numSeven, true, false);
-        testExistAndActive(numEight, true, false);
-        testExistAndActive(numNine, true, false);
-
-        // buttons with math operations
-        testExistAndActive(negate, true, false);
-        testExistAndActive(point, true, false);
-        testExistAndActive(resultButton, true, false);
-        testExistAndActive(add, true, false);
-        testExistAndActive(subtract, true, false);
-        testExistAndActive(multiply, true, false);
-        testExistAndActive(divide, true, false);
-        testExistAndActive(reverse, true, false);
-        testExistAndActive(square, true, false);
-        testExistAndActive(squareRoot, true, false);
-        testExistAndActive(percent, true, false);
-
-        // buttons with editing operations
-        testExistAndActive(cleanAll, true, false);
-        testExistAndActive(cleanCurrent, true, false);
-        testExistAndActive(leftErase, true, false);
-
-        // buttons with memory operations
-        testExistAndActive(memoryClean, true, true);
-        testExistAndActive(memoryRecall, true, true);
-        testExistAndActive(memoryPlus, true, false);
-        testExistAndActive(memoryMinus, true, false);
-        testExistAndActive(memoryStore, true, false);
-        testExistAndActive(memory, true, true);
-
-        // other elements
-        testExistAndActive(mode, true, false);
-        testExistAndActive(modeClose, false, false);
-        testExistAndActive(infoButton, false, false);
-        testExistAndActive(history, true, true);
-        testExistAndActive(viewPanel, false, false);
     }
 
     private void testExistAndActive(Node element, boolean expectedVisible, boolean expectedDisable) {
@@ -228,8 +162,17 @@ public class CalculatorControllerTest extends ApplicationTest {
         // try to click invisible button
         numOne.setVisible(false);
         testButtonClicked("123", numOne);
-        testButtonClicked("1,233", numThree);
-        testButtonClicked("0", cleanAll);
+        // continue typing
+        testButtonClicked("1,234", numFour);
+        testButtonClicked("12,345", numFive);
+        testButtonClicked("123,456", numSix);
+        testButtonClicked("1,234,567", numSeven);
+        testButtonClicked("12,345,678", numEight);
+        testButtonClicked("123,456,789", numNine);
+        testButtonClicked("1,234,567,890", numZero);
+
+        // reset
+        testButtonClicked("0", cleanCurrent);
         numOne.setVisible(true);
 
         // test subtract operation
@@ -239,7 +182,6 @@ public class CalculatorControllerTest extends ApplicationTest {
         testButtonClicked("9", numNine);
         testButtonClicked("-4", resultButton);
         testExpression(EMPTY_VALUE);
-
 
         // test multiply operation
         testButtonClicked("5", numFive);
@@ -480,12 +422,58 @@ public class CalculatorControllerTest extends ApplicationTest {
         for (int i = 0; i < 15; i++) { // If text in field is too large font size must become smaller
             robot.push(KeyCode.DIGIT5);
         }
-
         assertNotEquals(initialFontSize, currentNumberText.getFont().getSize());
     }
 
-    @After
-    public void tearDown() throws TimeoutException {
-        Platform.runLater(() -> FxToolkit.toolkitContext().getRegisteredStage().close());
+    @Test
+    public void testWindowResize() {
+        Window windowBeforeResize = robot.targetWindow();
+
+        // remember initial parameters
+        double startX = windowBeforeResize.getX();
+        double startY = windowBeforeResize.getY();
+        double initWidth = windowBeforeResize.getWidth();
+        double initHeight = windowBeforeResize.getHeight();
+
+        robot.drag(startX, startY, MouseButton.PRIMARY);
+        robot.moveBy(100, 100);
+        robot.drop();
+
+        Window windowAfterResize = robot.targetWindow();
+        assertNotEquals(initWidth, windowAfterResize.getWidth());
+        assertNotEquals(initHeight, windowAfterResize.getHeight());
+
+        // resize one more time
+        initWidth = windowAfterResize.getWidth();
+        initHeight = windowAfterResize.getHeight();
+
+        robot.drag(windowAfterResize.getX(), windowAfterResize.getY(), MouseButton.PRIMARY);
+        robot.moveBy(-170, -100);
+        robot.drop();
+
+        assertNotEquals(initWidth, robot.targetWindow().getWidth());
+        assertNotEquals(initHeight, robot.targetWindow().getHeight());
+    }
+
+    @Test
+    public void testWindowMove() {
+        Window windowBeforeMove = robot.targetWindow();
+        // remember initial parameters
+        double startX = windowBeforeMove.getX();
+        double startY = windowBeforeMove.getY();
+        double initWidth = windowBeforeMove.getWidth();
+        double initHeight = windowBeforeMove.getHeight();
+
+        robot.drag(startX + 70, startY + 10, MouseButton.PRIMARY);
+        robot.moveBy(100, 100);
+        robot.drop();
+
+        Window windowAfterMove = robot.targetWindow();
+
+        // Assert that window coordinates changed but window width and height still the same
+        assertNotEquals(startX, windowAfterMove.getX());
+        assertNotEquals(startY, windowAfterMove.getY());
+        assertEquals(initWidth, windowAfterMove.getWidth(), 0.0001);
+        assertEquals(initHeight, windowAfterMove.getHeight(), 0.0001);
     }
 }

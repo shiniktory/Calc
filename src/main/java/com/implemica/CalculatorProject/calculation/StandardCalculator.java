@@ -6,6 +6,7 @@ import com.implemica.CalculatorProject.exception.CalculationException;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.isZero;
+import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
 
@@ -50,7 +51,11 @@ public class StandardCalculator implements Calculator {
     /**
      * Scale of the {@code BigDecimal} quotient to be returned for result of the division.
      */
-    private static final int SCALE = 1000;
+    private static final int SCALE = 10100;
+
+    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
+    private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
+    private static final String OVERFLOW_ERROR = "Overflow";
 
     /**
      * The value of 100 represented as {@link BigDecimal} number.
@@ -94,30 +99,57 @@ public class StandardCalculator implements Calculator {
      *                              invalid argument for an operation
      */
     public BigDecimal calculate() throws CalculationException {
+        BigDecimal result;
         switch (operation) {
             // Binary operations
             case ADD:
-                return add(numbers[0], numbers[1]);
+                result = add(numbers[0], numbers[1]);
+                break;
             case SUBTRACT:
-                return subtract(numbers[0], numbers[1]);
+                result= subtract(numbers[0], numbers[1]);
+                break;
             case MULTIPLY:
-                return multiply(numbers[0], numbers[1]);
+                result =  multiply(numbers[0], numbers[1]);
+                break;
             case DIVIDE:
-                return divide(numbers[0], numbers[1]);
+                result =  divide(numbers[0], numbers[1]);
+                break;
             case PERCENT:
-                return percent(numbers[0], numbers[1]);
+                result = percent(numbers[0], numbers[1]);
+                break;
 
             // Unary operations
             case NEGATE:
-                return negate(numbers[0]);
+                result = negate(numbers[0]);
+                break;
             case SQUARE_ROOT:
-                return sqrt(numbers[0]);
+                result = sqrt(numbers[0]);
+                break;
             case SQUARE:
-                return square(numbers[0]);
+                result = square(numbers[0]);
+                break;
             case REVERSE:
-                return reverse(numbers[0]);
+                result = reverse(numbers[0]);
+                break;
             default:
                 throw new CalculationException(NO_SUCH_OPERATION_ERROR);
+        }
+        checkResultForOverflow(result);
+        return result;
+    }
+
+    /**
+     * Checks if absolute result value is greater than {@link StandardCalculator#MAX_NUMBER} or less than
+     * {@link StandardCalculator#MIN_NUMBER}.
+     *
+     * @param result the value of result to check
+     * @throws CalculationException if result is too large or too small
+     */
+    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
+        BigDecimal absResult = result.abs();
+        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
+                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
+            throw new CalculationException(OVERFLOW_ERROR);
         }
     }
 
@@ -150,7 +182,7 @@ public class StandardCalculator implements Calculator {
      * @param secondNumber a value of the second argument for multiplication
      * @return the multiplication of two specified numbers
      */
-    private BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) throws CalculationException {
         return firstNumber.multiply(secondNumber);
     }
 
@@ -222,7 +254,7 @@ public class StandardCalculator implements Calculator {
      * @param percent a count of percents to calculate
      * @return the number that is a specified percentage calculated for the given number
      */
-    private BigDecimal percent(BigDecimal base, BigDecimal percent) {
+    private BigDecimal percent(BigDecimal base, BigDecimal percent) throws CalculationException {
         if (isZero(base) || isZero(percent)) {
             return ZERO.setScale(0);
         }
@@ -242,6 +274,6 @@ public class StandardCalculator implements Calculator {
         if (isZero(base)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }
-        return BigDecimal.ONE.divide(base, SCALE, ROUND_HALF_UP).stripTrailingZeros();
+        return ONE.divide(base, SCALE, ROUND_HALF_UP).stripTrailingZeros();
     }
 }

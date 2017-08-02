@@ -249,7 +249,7 @@ public class CalculatorController {
         } else if (key.isDigitKey()) {
             searchAndFireButton(key.getName());
         } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
-            searchAndFireButton(POINT);
+            addPoint();
         } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
             searchAndFireButton(CLEAN.getCode());
             if (isMemoryStorageShown) {
@@ -280,6 +280,7 @@ public class CalculatorController {
         }
         fitText(textToSet);
         currentNumberText.setText(textToSet);
+        currentNumberText.end();
         prevOperationsText.setText(valueProcessor.getExpression());
         prevOperationsText.end();
         if (isErrorOccurred) {
@@ -325,6 +326,7 @@ public class CalculatorController {
         }
         fitText(textToSet);
         currentNumberText.setText(textToSet);
+        currentNumberText.end();
         if (!isErrorOccurred) {
             prevOperationsText.clear();
         }
@@ -343,8 +345,17 @@ public class CalculatorController {
      */
     @FXML
     private void addPoint() {
-        valueProcessor.addPoint();
-        updateCurrentNumberField();
+        String textToSet;
+        try {
+            textToSet = valueProcessor.addPoint();
+        } catch (CalculationException e) {
+            textToSet = e.getMessage();
+            valueProcessor.cleanAll();
+            disableAllOperations();
+            isErrorOccurred = true;
+        }
+        fitText(textToSet);
+        currentNumberText.setText(textToSet);
     }
 
     /**
