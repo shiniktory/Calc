@@ -4,8 +4,10 @@ import com.implemica.CalculatorProject.exception.CalculationException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static com.implemica.CalculatorProject.util.ValueTransformerUtil.getBigDecimalValues;
+import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.valueOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -50,18 +52,22 @@ public class ValueTransformerUtilTest {
 
     private void testGetBigDecimalValues(BigDecimal[] expected, String... stringValues) throws CalculationException {
         BigDecimal[] transformedArray = getBigDecimalValues(stringValues);
-        if (expected == null && transformedArray == null) {
+        if (expected == null && transformedArray == null) { // if both arrays are null - no error
             assertTrue(true);
             return;
         }
         if (expected == null || stringValues == null) {
-            fail("One of arguments is null");
+            fail(String.format("One of arguments is null. Input array is null: %s, expected array with numbers is null: %s",
+                    stringValues == null, expected == null));
         }
+
+        // verify that expected and resulted arrays' lengths are equal
         assertTrue(expected.length == transformedArray.length);
 
+        // verify that appropriate values are equal
         for (int i = 0; i < expected.length; i++) {
-            BigDecimal expectedNumber = expected[i].setScale(SCALE, BigDecimal.ROUND_HALF_UP);
-            BigDecimal transformedNumber = transformedArray[i].setScale(SCALE, BigDecimal.ROUND_HALF_UP);
+            BigDecimal expectedNumber = expected[i].setScale(SCALE, ROUND_HALF_UP);
+            BigDecimal transformedNumber = transformedArray[i].setScale(SCALE, ROUND_HALF_UP);
             assertEquals(expectedNumber, transformedNumber);
         }
     }
@@ -69,17 +75,21 @@ public class ValueTransformerUtilTest {
     @Test
     public void testWithWrongArguments() {
         testForException("", "");
-        testForException("not a number", "not a number too");
+        testForException(" ", " ");
+        testForException(".", "_");
         testForException("--5", "0");
         testForException("0..5", "5555");
         testForException("5Ee");
+        testForException("5E-");
+        testForException("5e +50");
         testForException("99", "e+-9");
+        testForException("not a number", "not a number too");
     }
 
     private void testForException(String... stringValues) {
         try {
             getBigDecimalValues(stringValues);
-            fail("Expected CalculationException caused by wrong arguments");
+            fail("Expected CalculationException caused by wrong arguments. Your arguments are: " + Arrays.toString(stringValues));
         } catch (CalculationException e) {
             // expected
         }

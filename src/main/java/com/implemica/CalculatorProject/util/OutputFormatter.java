@@ -220,13 +220,12 @@ public class OutputFormatter {
     /*
     MathOperation      In expression    In current number text field
 
-    Square root ->      √ (x)        ->      result
+    Square root ->      √(x)         ->      result
     Square      ->      sqr(x)       ->      result
     Reverse     ->      1/(x)        ->      result
     Percentage  ->      y + result   ->      result
     Negate      ->      none         ->      result
  */
-
 
     public static String formatUnaryOperation(MathOperation operation, String argument) {
         switch (operation) {

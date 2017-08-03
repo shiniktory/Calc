@@ -24,27 +24,21 @@ public class DataValidatorTest {
     @Test
     public void testDigitValidation() {
         // Valid digits
-        testIsDigit(true, "0");
-        testIsDigit(true, "1");
-        testIsDigit(true, "2");
-        testIsDigit(true, "3");
-        testIsDigit(true, "4");
-        testIsDigit(true, "5");
-        testIsDigit(true, "6");
-        testIsDigit(true, "7");
-        testIsDigit(true, "8");
-        testIsDigit(true, "9");
+        for (int i = 0; i < 10; i++) {
+            testIsDigit(true, String.valueOf(i));
+        }
 
         // Not valid
         testIsDigit(false, "");
         testIsDigit(false, " ");
         testIsDigit(false, "55");
+        testIsDigit(false, "0.");
         testIsDigit(false, "0.0");
         testIsDigit(false, "-1");
         testIsDigit(false, "+5");
+        testIsDigit(false, "--5");
         testIsDigit(false, "e");
         testIsDigit(false, "string");
-        testIsDigit(false, "--5");
     }
 
     private void testIsDigit(boolean expected, String digit) {
@@ -149,11 +143,11 @@ public class DataValidatorTest {
         testNumberLength(false, "5656565656565656565656565");
 
         // Positive double numbers
-        testNumberLength(false, "56565.5666666666666");
         testNumberLength(false, "0.565655666666666666");
         testNumberLength(false, "0.5656556666666666667");
         testNumberLength(false, "1.56565566666666666");
         testNumberLength(false, "1.5656556666666666667");
+        testNumberLength(false, "56565.5666666666666");
         testNumberLength(false, "9999999999999999.90");
 
         // Negative numbers
@@ -165,12 +159,12 @@ public class DataValidatorTest {
         testNumberLength(false, "-5555555555555555599999");
 
         // Negative double numbers
+        testNumberLength(false, "-999999999999999.9199999999");
         testNumberLength(false, "-9999999999999999.91");
         testNumberLength(false, "-9999999999999999.911");
         testNumberLength(false, "-9999999999999999.9111");
         testNumberLength(false, "-9999999999999999.91111");
         testNumberLength(false, "-9999999999999999.911111");
-        testNumberLength(false, "-999999999999999.9199999999");
     }
 
     private void testNumberLength(boolean expected, String number) {
@@ -191,12 +185,13 @@ public class DataValidatorTest {
         testIsZero(true, "0000.000");
 
         // not zero
-        testIsZero(false, "0.1");
-        testIsZero(false, "0.000000000000000000001");
-        testIsZero(false, "-0.0000000000000000000001");
-        testIsZero(false, "5");
-        testIsZero(false, "-5");
         testIsZero(false, "9999999999999999");
+        testIsZero(false, "5");
+        testIsZero(false, "0.1");
+        testIsZero(false, "0.0000000000000000000001");
+        testIsZero(false, "-0.0000000000000000000001");
+        testIsZero(false, "-0.1");
+        testIsZero(false, "-5");
         testIsZero(false, "-9999999999999999");
     }
 
@@ -207,37 +202,53 @@ public class DataValidatorTest {
 
     @Test
     public void testExponentValidation() {
-        // need formatting to exponential view
-        testExponentNeed(true, "0.000000000000000099");
+        // Need formatting to exponential view
+        // positive numbers
         testExponentNeed(true, "0.00000000000000000000005");
-        testExponentNeed(true, "0.00099999999999999999");
+        testExponentNeed(true, "0.000000000000000099");
         testExponentNeed(true, "0.00000055632559999999");
         testExponentNeed(true, "0.000016666666666667");
-        testExponentNeed(true, "-0.00001000005000009");
-        testExponentNeed(true, "-0.000000000000000099");
-        testExponentNeed(true, "-555555555555555599");
-        testExponentNeed(true, "-9999999999999999.91");
+        testExponentNeed(true, "0.00099999999999999999");
         testExponentNeed(true, "10000000000000000");
         testExponentNeed(true, "19999999999999999");
-        testExponentNeed(true, "-990000000000000111.00000001");
         testExponentNeed(true, "165145454687943158");
         testExponentNeed(true, "15151546479754244444444444.4444449");
 
-        // no need formatting to exponential view
-        testExponentNeed(false, "-56565.56666666666666");
-        testExponentNeed(false, "0.01");
-        testExponentNeed(false, "-0.01");
-        testExponentNeed(false, "599");
-        testExponentNeed(false, "-599");
-        testExponentNeed(false, "9999999");
-        testExponentNeed(false, "-912930444");
-        testExponentNeed(false, "0");
-        testExponentNeed(false, "0.00");
-        testExponentNeed(false, "15555");
+        // negative numbers
+        testExponentNeed(true, "-0.00000000000000000000005");
+        testExponentNeed(true, "-0.000000000000000099");
+        testExponentNeed(true, "-0.00000055632559999999");
+        testExponentNeed(true, "-0.00001000005000009");
+        testExponentNeed(true, "-9999999999999999.91");
+        testExponentNeed(true, "-165145454687943158");
+        testExponentNeed(true, "-555555555555555599");
+        testExponentNeed(true, "-990000000000000111.00000001");
+        testExponentNeed(true, "-15151546479754244444444444.4444449");
+
+        // No need formatting to exponential view
+        // positive numbers
         testExponentNeed(false, "9999999999");
-        testExponentNeed(false, "-1333.3");
-        testExponentNeed(false, "0.00001524");
+        testExponentNeed(false, "9999999");
+        testExponentNeed(false, "15555");
+        testExponentNeed(false, "599");
+        testExponentNeed(false, "0.01");
         testExponentNeed(false, "0.00005555525");
+        testExponentNeed(false, "0.00001524");
+
+        // zeroes
+        testExponentNeed(false, "0");
+        testExponentNeed(false, "0.0");
+        testExponentNeed(false, "0.00");
+        testExponentNeed(false, "0.000");
+
+        // negative numbers
+        testExponentNeed(false, "-0.01");
+        testExponentNeed(false, "-599");
+        testExponentNeed(false, "-1333.3");
+        testExponentNeed(false, "-56565.56666666666666");
+        testExponentNeed(false, "-9999999");
+        testExponentNeed(false, "-912930444");
+        testExponentNeed(false, "-9999999999");
     }
 
     private void testExponentNeed(boolean expected, String stringValue) {

@@ -5,13 +5,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.util.ValueTransformerUtil.getBigDecimalValues;
 import static java.lang.String.format;
+import static java.math.BigDecimal.ROUND_HALF_UP;
+import static org.junit.Assert.assertEquals;
 
 public class StandardCalculatorTest {
 
     private static int scale;
+
+    private static final String ARGUMENT_DELIMITERS = "\\s+[=%\\s]*";
 
     @Test
     public void testAddOperation() throws CalculationException {
@@ -178,7 +184,7 @@ public class StandardCalculatorTest {
         testBinaryOperations("9999999999999999 ÷ 9999999999999999 = 1");
         testBinaryOperations("9999999999999999 ÷ -9999999999999999 = -1");
         testBinaryOperations("1000000.5 ÷ -50000000 = -0.02000001");
-        testBinaryOperations("1000000 ÷ -50000000 = -0.2");
+        testBinaryOperations("1000000 ÷ -50000000 = -0.02");
         testBinaryOperations("100 ÷ -50 = -2");
         testBinaryOperations("5 ÷ 55550 = 9.000900090009001e-5");
         testBinaryOperations("5 ÷ -5 = -1");
@@ -202,159 +208,156 @@ public class StandardCalculatorTest {
     public void testPercentOperation() throws CalculationException {
 
         // percentage for base zero and any percent
-        testBinaryOperations("0", "0", PERCENT, "555000000");
-        testBinaryOperations("0", "0", PERCENT, "1000");
-        testBinaryOperations("0", "0", PERCENT, "100");
-        testBinaryOperations("0", "0", PERCENT, "0.6666666666666667");
-        testBinaryOperations("0", "0", PERCENT, "0");
-        testBinaryOperations("0", "0", PERCENT, "-0.6666666666666667");
-        testBinaryOperations("0", "0", PERCENT, "-100");
-        testBinaryOperations("0", "0", PERCENT, "-1000");
-        testBinaryOperations("0", "0", PERCENT, "-555000000");
+        testBinaryOperations("0 % 555000000 = 0");
+        testBinaryOperations("0 % 1000 = 0");
+        testBinaryOperations("0 % 100 = 0");
+        testBinaryOperations("0 % 0.6666666666666667 = 0");
+        testBinaryOperations("0 % 0 = 0");
+        testBinaryOperations("0 % -0.6666666666666667 = 0");
+        testBinaryOperations("0 % -100 = 0");
+        testBinaryOperations("0 % -1000 = 0");
+        testBinaryOperations("0 % -555000000 = 0");
 
         // percentage for positive base
-        testBinaryOperations("-500000250000", "1000000.5", PERCENT, "-50000000");
-        testBinaryOperations("-500000000000", "1000000", PERCENT, "-50000000");
-        testBinaryOperations("-50", "100", PERCENT, "-50");
-        testBinaryOperations("2777.5", "5", PERCENT, "55550");
-        testBinaryOperations("-0.25", "5", PERCENT, "-5");
-        testBinaryOperations("2.e-18", "0.6666666666666667", PERCENT, "0.0000000000000003");
-        testBinaryOperations("0", "0.6666666666666667", PERCENT, "0");
-        testBinaryOperations("-0.000025", "0.05", PERCENT, "-0.05");
-        testBinaryOperations("2.5e-20", "0.000005", PERCENT, "0.0000000000005");
-        testBinaryOperations("-2.5e-20", "0.000005", PERCENT, "-0.0000000000005");
+        testBinaryOperations("1000000.5 % -50000000 = -500000250000");
+        testBinaryOperations("1000000 % -50000000 = -500000000000");
+        testBinaryOperations("100 % -50 = -50");
+        testBinaryOperations("5 % 55550 = 2777.5");
+        testBinaryOperations("5 % -5 = -0.25");
+        testBinaryOperations("0.6666666666666667 % 0.0000000000000003 = 2.e-18");
+        testBinaryOperations("0.6666666666666667 % 0 = 0");
+        testBinaryOperations("0.05 % -0.05 = -0.000025");
+        testBinaryOperations("0.000005 % 0.0000000000005 = 2.5e-20");
+        testBinaryOperations("0.000005 % -0.0000000000005 = -2.5e-20");
 
         // percentage for negative base
-        testBinaryOperations("0.0036", "-0.6", PERCENT, "-0.6");
-        testBinaryOperations("2.5e-20", "-0.000005", PERCENT, "-0.0000000000005");
-        testBinaryOperations("0.0001", "-0.1", PERCENT, "-0.1");
-        testBinaryOperations("-2777.5", "-5", PERCENT, "55550");
-        testBinaryOperations("0", "-5", PERCENT, "0");
-        testBinaryOperations("-50", "-100", PERCENT, "50");
-        testBinaryOperations("500000000000", "-1000000", PERCENT, "-50000000");
-        testBinaryOperations("500000005000", "-1000000", PERCENT, "-50000000.5");
-        // TODO replace binary like "firstNumber + secondNumber = expectedResult"
+        testBinaryOperations("-0.6 % -0.6 = 0.0036");
+        testBinaryOperations("-0.000005 % -0.0000000000005 = 2.5e-20");
+        testBinaryOperations("-0.1 % -0.1 = 0.0001");
+        testBinaryOperations("-5 % 55550 = -2777.5");
+        testBinaryOperations("-5 % 0 = 0");
+        testBinaryOperations("-100 % 50 = -50");
+        testBinaryOperations("-1000000 % -50000000 = 500000000000");
+        testBinaryOperations("-1000000 % -50000000.5 = 500000005000");
     }
 
     private void testBinaryOperations(String expression) throws CalculationException {
-        String[] expressionParts = expression.split("\\s"); // split by white spaces
+        // Expression string has format: firstNumber operation secondNumber = expectedResult
+        // To extract these parts need to split expression by white spaces
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int index = 0;
 
-        BigDecimal firstNumber = new BigDecimal(expressionParts[0]);
-        MathOperation operation = MathOperation.getOperation(expressionParts[1]);
-        BigDecimal secondNumber = new BigDecimal(expressionParts[2]);
-        // expression part with index 3 is "="
-        BigDecimal expectedNumber = new BigDecimal(expressionParts[4]);
+        // Extract first number, operation and second number from expression
+        BigDecimal firstNumber = new BigDecimal(expressionParts[index++]);
+        MathOperation operation = MathOperation.getOperation(expressionParts[index++]);
+        BigDecimal secondNumber = new BigDecimal(expressionParts[index++]);
+
+        // Calculate and verify result
+        BigDecimal expectedNumber = new BigDecimal(expressionParts[index]);
         scale = expectedNumber.scale();
-
         Calculator calculator = new StandardCalculator(operation, firstNumber, secondNumber);
-        BigDecimal calculationResult = calculator.calculate().setScale(scale, BigDecimal.ROUND_HALF_UP);
-
-        Assert.assertEquals(expectedNumber, calculationResult);
-    }
-
-    private void testBinaryOperations(String expected, String firstValue, MathOperation operation, String secondValue) throws CalculationException {
-        BigDecimal expectedNumber = new BigDecimal(expected);
-        scale = expectedNumber.scale();
-
-        BigDecimal firstNumber = new BigDecimal(firstValue);
-        BigDecimal secondNumber = new BigDecimal(secondValue);
-
-        Calculator calculator = new StandardCalculator(operation, firstNumber, secondNumber);
-        BigDecimal calculationResult = calculator.calculate().setScale(scale, BigDecimal.ROUND_HALF_UP);
-        Assert.assertEquals(expectedNumber, calculationResult);
+        BigDecimal calculationResult = calculator.calculate().setScale(scale, ROUND_HALF_UP);
+        assertEquals(expectedNumber, calculationResult);
     }
 
     @Test
     public void testNegateOperation() throws CalculationException {
-
+        // Expression format: enteredNumber = expected result after unary operation
         // with positive argument
-        testUnaryOperations("-9999999999999999", NEGATE, "9999999999999999");
-        testUnaryOperations("-1000000.5", NEGATE, "1000000.5");
-        testUnaryOperations("-1000", NEGATE, "1000");
-        testUnaryOperations("-100", NEGATE, "100");
-        testUnaryOperations("-0.6666666666666667", NEGATE, "0.6666666666666667");
-        testUnaryOperations("-0.05", NEGATE, "0.05");
-        testUnaryOperations("-0.0000000000005", NEGATE, "0.0000000000005");
+        testUnaryOperations(NEGATE, "9999999999999999 = -9999999999999999");
+        testUnaryOperations(NEGATE, "1000000.5 = -1000000.5");
+        testUnaryOperations(NEGATE, "1000 = -1000");
+        testUnaryOperations(NEGATE, "100 = -100");
+        testUnaryOperations(NEGATE, "0.6666666666666667 = -0.6666666666666667");
+        testUnaryOperations(NEGATE, "0.05 = -0.05");
+        testUnaryOperations(NEGATE, "0.0000000000005 = -0.0000000000005");
 
         // with zero
-        testUnaryOperations("0", NEGATE, "0");
+        testUnaryOperations(NEGATE, "0 = 0");
 
         // with negative argument
-        testUnaryOperations("0.0000000000005", NEGATE, "-0.0000000000005");
-        testUnaryOperations("0.05", NEGATE, "-0.05");
-        testUnaryOperations("0.6666666666666667", NEGATE, "-0.6666666666666667");
-        testUnaryOperations("100", NEGATE, "-100");
-        testUnaryOperations("1000", NEGATE, "-1000");
-        testUnaryOperations("555000000", NEGATE, "-555000000");
-        testUnaryOperations("9999999999999999", NEGATE, "-9999999999999999");
+        testUnaryOperations(NEGATE, "-0.0000000000005 = 0.0000000000005");
+        testUnaryOperations(NEGATE, "-0.05 = 0.05");
+        testUnaryOperations(NEGATE, "-0.6666666666666667 = 0.6666666666666667");
+        testUnaryOperations(NEGATE, "-100 = 100");
+        testUnaryOperations(NEGATE, "-1000 = 1000");
+        testUnaryOperations(NEGATE, "-555000000 = 555000000");
+        testUnaryOperations(NEGATE, "-9999999999999999 = 9999999999999999");
     }
 
     @Test
     public void testSquareOperation() throws CalculationException {
-
+        // Expression format: enteredNumber = expected result after unary operation
         // with positive argument
-        testUnaryOperations("1000001000000.25", SQUARE, "1000000.5");
-        testUnaryOperations("1000000", SQUARE, "1000");
-        testUnaryOperations("10000", SQUARE, "100");
-        testUnaryOperations("0.4444444444444445", SQUARE, "0.6666666666666667");
-        testUnaryOperations("0.0025", SQUARE, "0.05");
-        testUnaryOperations("2.5e-25", SQUARE, "0.0000000000005");
+        testUnaryOperations(SQUARE, "1000000.5 = 1000001000000.25");
+        testUnaryOperations(SQUARE, "1000 = 1000000");
+        testUnaryOperations(SQUARE, "100 = 10000");
+        testUnaryOperations(SQUARE, "0.6666666666666667 = 0.4444444444444445");
+        testUnaryOperations(SQUARE, "0.05 = 0.0025");
+        testUnaryOperations(SQUARE, "0.0000000000005 = 2.5e-25");
 
         // with zero
-        testUnaryOperations("0", SQUARE, "0");
+        testUnaryOperations(SQUARE, "0 = 0");
 
         // with negative argument
-        testUnaryOperations("2.5e-25", SQUARE, "-0.0000000000005");
-        testUnaryOperations("0.0025", SQUARE, "-0.05");
-        testUnaryOperations("0.4444444444444445", SQUARE, "-0.6666666666666667");
-        testUnaryOperations("10000", SQUARE, "-100");
-        testUnaryOperations("1000000", SQUARE, "-1000");
-        testUnaryOperations("3.08025e+17", SQUARE, "-555000000");
+        testUnaryOperations(SQUARE, "-0.0000000000005 = 2.5e-25");
+        testUnaryOperations(SQUARE, "-0.05 = 0.0025");
+        testUnaryOperations(SQUARE, "-0.6666666666666667 = 0.4444444444444445");
+        testUnaryOperations(SQUARE, "-100 = 10000");
+        testUnaryOperations(SQUARE, "-1000 = 1000000");
+        testUnaryOperations(SQUARE, "-555000000 = 3.08025e+17");
     }
 
     @Test
     public void testSquareRootOperation() throws CalculationException {
-
-        testUnaryOperations("99999999.999999995", SQUARE_ROOT, "9999999999999999");
-        testUnaryOperations("242045.158152358", SQUARE_ROOT, "58585858585");
-        testUnaryOperations("1000.00024999996875", SQUARE_ROOT, "1000000.5");
-        testUnaryOperations("31.62277660168379", SQUARE_ROOT, "1000");
-        testUnaryOperations("10", SQUARE_ROOT, "100");
-        testUnaryOperations("0.8164965809277261", SQUARE_ROOT, "0.6666666666666667");
-        testUnaryOperations("0.223606797749979", SQUARE_ROOT, "0.05");
-        testUnaryOperations("7.071067811865475e-7", SQUARE_ROOT, "0.0000000000005");
-        testUnaryOperations("0", SQUARE_ROOT, "0");
+        // Expression format: enteredNumber = expected result after unary operation
+        testUnaryOperations(SQUARE_ROOT, "9999999999999999 = 99999999.999999995");
+        testUnaryOperations(SQUARE_ROOT, "58585858585 = 242045.158152358");
+        testUnaryOperations(SQUARE_ROOT, "1000000.5 = 1000.00024999996875");
+        testUnaryOperations(SQUARE_ROOT, "1000 = 31.62277660168379");
+        testUnaryOperations(SQUARE_ROOT, "100 = 10");
+        testUnaryOperations(SQUARE_ROOT, "0.6666666666666667 = 0.8164965809277261");
+        testUnaryOperations(SQUARE_ROOT, "0.05 = 0.223606797749979");
+        testUnaryOperations(SQUARE_ROOT, "0.0000000000005 = 7.071067811865475e-7");
+        testUnaryOperations(SQUARE_ROOT, "0 = 0");
     }
 
     @Test
     public void testReverseOperation() throws CalculationException {
-
+        // Expression format: enteredNumber = expected result after unary operation
         // positive argument
-        testUnaryOperations("0.0000000000000001", REVERSE, "9999999999999999");
-        testUnaryOperations("1.801801801801802e-9", REVERSE, "555000000");
-        testUnaryOperations("0.001", REVERSE, "1000");
-        testUnaryOperations("0.01", REVERSE, "100");
-        testUnaryOperations("1.499999999999999925", REVERSE, "0.6666666666666667");
-        testUnaryOperations("20", REVERSE, "0.05");
+        testUnaryOperations(REVERSE, "9999999999999999 = 0.0000000000000001");
+        testUnaryOperations(REVERSE, "555000000 = 1.801801801801802e-9");
+        testUnaryOperations(REVERSE, "1000 = 0.001");
+        testUnaryOperations(REVERSE, "100 = 0.01");
+        testUnaryOperations(REVERSE, "0.6666666666666667 = 1.499999999999999925");
+        testUnaryOperations(REVERSE, "0.05 = 20");
 
         // negative argument
-        testUnaryOperations("-20", REVERSE, "-0.05");
-        testUnaryOperations("-1.499999999999999925", REVERSE, "-0.6666666666666667");
-        testUnaryOperations("-0.01", REVERSE, "-100");
-        testUnaryOperations("-0.001", REVERSE, "-1000");
-        testUnaryOperations("-1.801801801801802e-9", REVERSE, "-555000000");
-        testUnaryOperations("-0.0000000000000001", REVERSE, "-9999999999999999");
+        testUnaryOperations(REVERSE, "-0.05 = -20");
+        testUnaryOperations(REVERSE, "-0.6666666666666667 = -1.499999999999999925");
+        testUnaryOperations(REVERSE, "-100 = -0.01");
+        testUnaryOperations(REVERSE, "-1000 = -0.001");
+        testUnaryOperations(REVERSE, "-555000000 = -1.801801801801802e-9");
+        testUnaryOperations(REVERSE, "-9999999999999999 = -0.0000000000000001");
     }
 
 
-    private void testUnaryOperations(String expected, MathOperation operation, String number) throws CalculationException {
-        BigDecimal expectedNumber = new BigDecimal(expected);
-        scale = expectedNumber.scale();
-        BigDecimal base = new BigDecimal(number);
+    private void testUnaryOperations(MathOperation operation, String expression) throws CalculationException {
+        // Expression string has format "baseForOperation = expectedResult"
+        // To extract these parts need to split expression by white spaces
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int index = 0;
 
+        // Extract base and expected result from expression
+        BigDecimal base = new BigDecimal(expressionParts[index++]);
+        BigDecimal expectedNumber = new BigDecimal(expressionParts[index]);
+        scale = expectedNumber.scale();
+
+        // Calculate and verify result
         Calculator calculator = new StandardCalculator(operation, base);
-        BigDecimal calculationResult = calculator.calculate().setScale(scale, BigDecimal.ROUND_HALF_UP);
-        Assert.assertEquals(expectedNumber, calculationResult);
+        BigDecimal calculationResult = calculator.calculate().setScale(scale, ROUND_HALF_UP);
+        assertEquals(expectedNumber, calculationResult);
     }
 
     @Test
@@ -397,19 +400,10 @@ public class StandardCalculatorTest {
 
     private void testOperationForException(MathOperation operation, String... numbers) {
         try {
-            String message = "";
-            if (numbers.length == 1) {
-                testUnaryOperations("0", operation, numbers[0]);
-                message = format("Expected CalculationException caused by wrong operation argument. Your operation is %s, " +
-                        "argument is %s", operation.toString(), numbers[0]);
-            }
-            if (numbers.length == 2) {
-                testBinaryOperations("0", numbers[0], operation, numbers[1]);
-                message = format("Expected CalculationException caused by wrong operation argument. Your operation is %s," +
-                                " your first value is %s, second value is %s",
-                        operation.toString(), numbers[0], numbers[1]);
-            }
-            Assert.fail(message);
+            new StandardCalculator(operation, getBigDecimalValues(numbers)).calculate();
+
+            Assert.fail(format("Expected CalculationException caused by wrong operation argument. Your operation is %s, arguments: %s",
+                    operation.toString(), Arrays.toString(numbers)));
         } catch (CalculationException e) {
             // expected
         }

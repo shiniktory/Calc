@@ -39,12 +39,13 @@ public class OutputFormatterTest {
         testUnaryFormatting("1/(0)", REVERSE, "0");
         testUnaryFormatting("1/(-5)", REVERSE, "-5");
 
-        // negate operation that have no formatting
+        // unary operation that have no formatting for history - returns an empty string
         testUnaryFormatting("", NEGATE, "-5");
     }
 
     private void testUnaryFormatting(String expected, MathOperation operation, String input) {
-        assertEquals(expected, formatUnaryOperation(operation, input));
+        String formattedInput = formatUnaryOperation(operation, input);
+        assertEquals(expected, formattedInput);
     }
 
     @Test
@@ -53,6 +54,8 @@ public class OutputFormatterTest {
         // negative numbers
         testAddAndRemoveGroupDelimiters("-999999999999999", "-999,999,999,999,999");
         testAddAndRemoveGroupDelimiters("-555555", "-555,555");
+        testAddAndRemoveGroupDelimiters("-5555.5555", "-5,555.5555");
+        testAddAndRemoveGroupDelimiters("-12.5", "-12.5");
         testAddAndRemoveGroupDelimiters("-0.987654321", "-0.987654321");
         testAddAndRemoveGroupDelimiters("-5.e-21", "-5.e-21");
         testAddAndRemoveGroupDelimiters("0", "0");
@@ -60,32 +63,43 @@ public class OutputFormatterTest {
         // positive numbers
         testAddAndRemoveGroupDelimiters("5.e-21", "5.e-21");
         testAddAndRemoveGroupDelimiters("0.987654321", "0.987654321");
+        testAddAndRemoveGroupDelimiters("12.5", "12.5");
+        testAddAndRemoveGroupDelimiters("5555.5555", "5,555.5555");
         testAddAndRemoveGroupDelimiters("125555.91", "125,555.91");
         testAddAndRemoveGroupDelimiters("555555", "555,555");
         testAddAndRemoveGroupDelimiters("232343454565676", "232,343,454,565,676");
     }
 
     private void testAddAndRemoveGroupDelimiters(String expectedNoDelimiters, String inputWithDelimiters) throws CalculationException {
-        assertEquals(expectedNoDelimiters, removeGroupDelimiters(inputWithDelimiters));
-        assertEquals(inputWithDelimiters, addGroupDelimiters(expectedNoDelimiters));
+        // Remove group delimiter from input number string
+        String numberWithoutGroupDelimiters = removeGroupDelimiters(inputWithDelimiters);
+        assertEquals(expectedNoDelimiters, numberWithoutGroupDelimiters);
+
+        // Add group delimiters to number got before and check it's equivalence with input number
+        String numberWithGroupDelimiters = addGroupDelimiters(numberWithoutGroupDelimiters);
+        assertEquals(inputWithDelimiters, numberWithGroupDelimiters);
     }
 
     @Test
     public void testFormattingToMathView() throws CalculationException {
 
-        // negative number
+        // negative numbers
         testFormatToMathView("-9.999999999999999e+17", "-999,999,999,999,999,900");
         testFormatToMathView("-1.e+16", "-10,000,000,000,000,000");
+        testFormatToMathView("-125555.91", "-125,555.91");
+        testFormatToMathView("-555555", "-555,555");
+        testFormatToMathView("-5", "-5");
         testFormatToMathView("-3.333333333333333", "-3.33333333333333333333333");
         testFormatToMathView("-5.55555555555555e-4", "-0.000555555555555555");
-        testFormatToMathView("-5", "-5");
+        testFormatToMathView("-4.572473708276177e-4", "-0.0004572473708276177258");
         testFormatToMathView("-0.0001", "-0.00010");
+        testFormatToMathView("-0.0001", "-0.0001");
 
         // zero
         testFormatToMathView("0", "0");
         testFormatToMathView("0", "0.00");
 
-        // positive number
+        // positive numbers
         testFormatToMathView("1.e-17", "0.00000000000000001");
         testFormatToMathView("4.572473708276177e-4", "0.0004572473708276177258");
         testFormatToMathView("1.666666666666667", "1.66666666666666666666666");
@@ -108,9 +122,11 @@ public class OutputFormatterTest {
     @Test
     public void testFormattingForDisplaying() throws CalculationException {
 
-        // negative number
+        // negative numbers
         testFormatForDisplaying("-9.999999999999999e+17", "-999999999999999900");
         testFormatForDisplaying("-1.e+16", "-10000000000000000");
+        testFormatForDisplaying("-676,767", "-676767");
+        testFormatForDisplaying("-9", "-9");
         testFormatForDisplaying("-3.333333333333333", "-3.33333333333333333333333");
         testFormatForDisplaying("-5.55555555555555e-4", "-0.000555555555555555");
         testFormatForDisplaying("-5", "-5");
@@ -127,14 +143,16 @@ public class OutputFormatterTest {
         testFormatForDisplaying("0", "0.00");
         testFormatForDisplaying("0", "0.0000000000000");
 
-        // positive number
+        // positive numbers
         testFormatForDisplaying("1", "0.999999999999999999999999");
         testFormatForDisplaying("1.e-17", "0.00000000000000001");
         testFormatForDisplaying("4.572473708276177e-4", "0.0004572473708276177258");
         testFormatForDisplaying("1.666666666666667", "1.66666666666666666666666");
         testFormatForDisplaying("3.333333333333333", "3.33333333333333333333333");
+        testFormatForDisplaying("9", "9");
         testFormatForDisplaying("125,555.91", "125555.91");
         testFormatForDisplaying("555,555", "555555");
+        testFormatForDisplaying("676,767", "676767");
         testFormatForDisplaying("9,999,999,999,999,999", "9999999999999999");
         testFormatForDisplaying("1.e+16", "10000000000000000");
         testFormatForDisplaying("1.e+16", "1.E16");
