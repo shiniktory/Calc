@@ -4,11 +4,13 @@ import com.implemica.CalculatorProject.CalcApplication;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -41,8 +43,9 @@ public class ControllerAndViewTest extends ApplicationTest {
     private Button memoryClean, memoryRecall, memoryPlus, memoryMinus, memoryStore, memory;
     private Button cleanAll, cleanCurrent, leftErase;
     private Button mode, modeClose, infoButton, history;
-
+    private ListView typesList;
     private VBox viewPanel;
+    private BorderPane memoryStorage;
 
     @BeforeClass
     public static void setUpInit() throws Exception {
@@ -105,6 +108,8 @@ public class ControllerAndViewTest extends ApplicationTest {
         history = findAndVerify("#history", true, true);
 
         viewPanel = findAndVerify("#viewPanel", false, false);
+        typesList = findAndVerify("#viewTypes", false, false);
+        memoryStorage = findAndVerify("#memoryStorage", false, false);
     }
 
     private <T extends Node> T findAndVerify(final String query, boolean visible, boolean disable) {
@@ -138,15 +143,42 @@ public class ControllerAndViewTest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
         assertTrue(viewPanel.isVisible());
 
-        final ListView typesList = find("#viewTypes");
-        assertNotNull(typesList);
+        // Verify is selected item changed
+        Label firstSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         robot.clickOn(typesList);
+        Label secondSelected = (Label) typesList.getSelectionModel().getSelectedItem();
+        assertNotEquals(firstSelected, secondSelected);
         robot.scroll(VerticalDirection.DOWN);
         WaitForAsyncUtils.waitForFxEvents();
 
         robot.clickOn(infoButton);
 
         robot.clickOn(modeClose);
+        WaitForAsyncUtils.waitForFxEvents();
+        assertFalse(viewPanel.isVisible());
+    }
+
+    @Test
+    public void testViewMemoryPanel() {
+        assertFalse(memoryStorage.isVisible());
+        robot.clickOn(cleanAll);
+        robot.clickOn(memoryStore);
+
+        // show memory panel
+        robot.clickOn(memory);
+        WaitForAsyncUtils.waitForFxEvents();
+        assertTrue(memoryStorage.isVisible());
+
+        // Test key press on buttons hidden by memory storage panel. Expected no changes - default zero
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.DIGIT1));
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.DIGIT2));
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.DIGIT3));
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.DIGIT4));
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.ADD));
+        testKeyPressed("0", new KeyCodeCombination(KeyCode.BACK_SPACE));
+
+        // hide panel
+        robot.clickOn(memory);
         WaitForAsyncUtils.waitForFxEvents();
         assertFalse(viewPanel.isVisible());
     }

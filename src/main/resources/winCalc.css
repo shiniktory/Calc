@@ -72,15 +72,18 @@
     -fx-border-insets: 0;
 }
 
-#numbersAndOperations {
-    -fx-fit-to-height: true;
+#numbersAndOperations, #numbersAndOperations .text {
     -fx-border-width: 0;
-    -fx-fit-to-width: true;
     -fx-padding: 0;
+    -fx-border-radius: 0;
     -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-content-display: center;
 }
 
-#mr_buttons, #unary_operations, #mode, #history {
+#mr_buttons, #unary_operations, #history {
     -fx-border-color: #ffffff;
     -fx-background-color: #ffffff;
     -fx-border-radius: 0;
@@ -90,6 +93,21 @@
     -fx-alignment: center;
     -fx-fit-to-width: true;
     -fx-border-image-insets: 0;
+}
+
+#mode {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-border-image-insets: 0;
+    -fx-padding: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-content-display: top;
+    -fx-background-position: top;
+    -fx-fit-to-height: true;
 }
 
 #history {

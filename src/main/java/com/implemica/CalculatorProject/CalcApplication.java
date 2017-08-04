@@ -106,7 +106,7 @@ public class CalcApplication extends Application {
                     DIVIDE.getCode().equals(button.getText()) || EQUAL.getCode().equals(button.getText()) ||
                     NEGATE.getCode().equals(button.getText())) {
 
-                minFontSize = 20.0;
+                minFontSize = 22.0;
                 maxFontSize = 42.0;
             }
 
@@ -125,16 +125,21 @@ public class CalcApplication extends Application {
                 newFontSize = maxFontSize;
             }
 
-            if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.7) / buttonContent.getLayoutBounds().getHeight());
-            }
             if (buttonContent.getLayoutBounds().getWidth() > (button.getBoundsInLocal().getWidth() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getWidth() * 0.7) / buttonContent.getLayoutBounds().getWidth());
+                newFontSize = newFontSize * ((button.getBoundsInLocal().getWidth() * 0.7) /
+                        buttonContent.getLayoutBounds().getWidth());
             }
 
             if (newFontSize < minFontSize) {
                 newFontSize = minFontSize;
             }
+
+            if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
+                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.65) /
+                        buttonContent.getLayoutBounds().getHeight());
+            }
+
+
             button.setFont(new Font(button.getFont().getFamily(), newFontSize));
         }
 
@@ -153,41 +158,10 @@ public class CalcApplication extends Application {
             buttonContent.setFont(button.getFont());
 
             if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.7) / buttonContent.getLayoutBounds().getHeight());
+                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.65) /
+                        buttonContent.getLayoutBounds().getHeight());
             }
             button.setFont(new Font(button.getFont().getFamily(), newFontSize));
         }
     }
-
-    //TODO make icon transparent or make own application bar
-//    <BorderPane id="applicationBar" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" prefHeight="25.0" prefWidth="330.0" visible="false" BorderPane.alignment="TOP_CENTER">
-//         <left>
-//            <Label alignment="TOP_LEFT" contentDisplay="LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="132.0" text="Calculator" BorderPane.alignment="CENTER">
-//               <padding>
-//                  <Insets left="10.0" top="10.0" />
-//               </padding>
-//            </Label>
-//         </left>
-//         <right>
-//            <GridPane prefHeight="25.0" prefWidth="136.0" BorderPane.alignment="TOP_RIGHT">
-//               <columnConstraints>
-//                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="144.0" minWidth="10.0" prefWidth="29.0" />
-//                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="159.0" minWidth="10.0" prefWidth="29.0" />
-//                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="87.0" minWidth="10.0" prefWidth="31.0" />
-//               </columnConstraints>
-//               <rowConstraints>
-//                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-//               </rowConstraints>
-//               <children>
-//                <Button id="hide" alignment="CENTER" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="25.0" prefWidth="54.0" text="_" />
-//                  <Button id="expand" alignment="CENTER" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="□" GridPane.columnIndex="1">
-//                     <font>
-//                        <Font size="13.0" />
-//                     </font>
-//                  </Button>
-//                  <Button id="close" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#close" text="☓" textAlignment="CENTER" GridPane.columnIndex="2" />
-//               </children>
-//            </GridPane>
-//         </right>
-//      </BorderPane>
 }

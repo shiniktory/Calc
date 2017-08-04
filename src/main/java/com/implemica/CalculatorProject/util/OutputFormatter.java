@@ -125,9 +125,16 @@ public class OutputFormatter {
                     return number.setScale(scale, BigDecimal.ROUND_UP).toString();
                 }
             }
-
         }
 
+        int fractionDigitsCount = number.scale();
+        BigDecimal fractionalPart = number.remainder(BigDecimal.ONE);
+        BigDecimal correlation = new BigDecimal("5").multiply(
+                new BigDecimal("1.e-" + fractionDigitsCount));
+        if (number.longValue() > 0 && fractionalPart.compareTo(correlation) < 0) {
+            number = number.setScale(0, RoundingMode.HALF_UP);
+         // TODO solve problem with rounding. square root 700 and square
+        }
         String stringValue;
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialView(number);

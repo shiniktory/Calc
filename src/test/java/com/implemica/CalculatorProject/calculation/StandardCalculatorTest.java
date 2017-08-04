@@ -241,6 +241,8 @@ public class StandardCalculatorTest {
         testBinaryOperations("-1000000 % -50000000.5 = 500000005000");
     }
 
+    // TODO add separated method for percentage
+
     private void testBinaryOperations(String expression) throws CalculationException {
         // Expression string has format: firstNumber operation secondNumber = expectedResult
         // To extract these parts need to split expression by white spaces

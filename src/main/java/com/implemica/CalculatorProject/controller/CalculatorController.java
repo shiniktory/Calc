@@ -538,16 +538,20 @@ public class CalculatorController {
             enableAllOperations();
             mc.setDisable(false);
             mr.setDisable(false);
+            disableAllButtons(false);
         } else {
             memoryStorage.setVisible(true);
             disableAllOperations();
             m.setDisable(false);
+            disableAllButtons(true);
+
             isMemoryStorageShown = true;
         }
     }
 
-    @FXML
-    private void close() {
-        System.exit(0);
+    private void disableAllButtons(boolean disable) {
+        for (Node node : numbersAndOperations.getChildren() ) {
+            node.setDisable(disable);
+        }
     }
 }
