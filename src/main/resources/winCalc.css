@@ -19,13 +19,6 @@
     -fx-border-style: solid;
 }
 
-#currentNumberText:focused {
-    -fx-border-color: black;
-    -fx-border-radius: 0;
-    -fx-border-width: 2px;
-    -fx-border-style: solid;
-}
-
 .text-field .content {
     -fx-border-radius: 0;
     -fx-padding: 5;
@@ -104,10 +97,16 @@
     -fx-border-image-insets: 0;
     -fx-padding: 0;
     -fx-text-alignment: center;
-    -fx-alignment: top-center;
-    -fx-content-display: top;
-    -fx-background-position: top;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-background-position: center;
     -fx-fit-to-height: true;
+}
+
+#modeLabel {
+    -fx-start-margin: 2px;
+    -fx-end-margin: 2px;
+    -fx-alignment: top-center;
 }
 
 #history {
@@ -166,13 +165,15 @@
 #result_button:hover {
     -fx-border-color: #0078d7;
     -fx-background-color: #0078d7;
+}
+
+#result_button:hover .label, #result_button:pressed .label, #result_button:armed .label {
     -fx-text-fill: white;
 }
 
 #result_button:pressed, #result_button:armed {
     -fx-border-color: #489cdf;
     -fx-background-color: #489cdf;
-    -fx-text-fill: white;
 }
 
 .tooltip {

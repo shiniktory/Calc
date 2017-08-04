@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
@@ -17,6 +18,7 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
+import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 
 /**
@@ -72,6 +74,7 @@ public class CalcApplication extends Application {
             });
 
             primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
+
                 changeFontSizeForHeight(root);
             });
 
@@ -98,16 +101,42 @@ public class CalcApplication extends Application {
 
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
+            String buttonText = button.getText();
 
             double minFontSize = 16.0;
             double maxFontSize = 25.0;
 
-            if (ADD.getCode().equals(button.getText()) || SUBTRACT.getCode().equals(button.getText()) ||
-                    DIVIDE.getCode().equals(button.getText()) || EQUAL.getCode().equals(button.getText()) ||
-                    NEGATE.getCode().equals(button.getText())) {
 
-                minFontSize = 22.0;
-                maxFontSize = 42.0;
+            if (ADD.getCode().equals(buttonText) ||
+                    SUBTRACT.getCode().equals(buttonText) ||
+                    DIVIDE.getCode().equals(buttonText) ||
+                    EQUAL.getCode().equals(buttonText) ||
+                    NEGATE.getCode().equals(buttonText)) {
+
+                Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
+                double newFontSize = buttonLabel.getFont().getSize() * scale;
+
+                if (newFontSize > 42) {
+                    newFontSize = 42;
+                }
+                if (newFontSize < 24) {
+                    newFontSize = 24;
+                }
+                buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
+            }
+
+            if (MULTIPLY.getCode().equals(buttonText) ||
+                    LEFT_ERASE.getCode().equals(buttonText)) {
+                Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
+                double newFontSize = buttonLabel.getFont().getSize() * scale;
+
+                if (newFontSize > 25) {
+                    newFontSize = 25;
+                }
+                if (newFontSize < 15) {
+                    newFontSize = 15;
+                }
+                buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
             }
 
             if (EditOperation.CLEAN.getCode().equals(button.getText()) ||
@@ -144,7 +173,24 @@ public class CalcApplication extends Application {
         }
 
         TextField currentNumberText = (TextField) root.lookup("#currentNumberText");
-        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), currentNumberText.getHeight() * scale * 0.42));
+        double textFontSize =  currentNumberText.getFont().getSize() * scale; // currentNumberText.getHeight() * scale * 0.42;
+
+        Text text = new Text(currentNumberText.getText());
+        text.setFont(currentNumberText.getFont());
+
+        if (text.getLayoutBounds().getWidth() > (currentNumberText.getBoundsInLocal().getWidth())) {
+            textFontSize = textFontSize * ((currentNumberText.getBoundsInLocal().getWidth()) /
+                    text.getLayoutBounds().getWidth()) - 0.05;
+        }
+        if (textFontSize > 66) {
+            textFontSize = 66;
+        }
+
+        if (textFontSize < 16) {
+            textFontSize = 16;
+        }
+        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
+        currentNumberText.end();
     }
 
     private void changeFontSizeForHeight(Parent root) {
@@ -152,9 +198,10 @@ public class CalcApplication extends Application {
 
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
+            String buttonText = button.getText();
 
             double newFontSize = button.getFont().getSize();
-            Text buttonContent = new Text(button.getText());
+            Text buttonContent = new Text(buttonText);
             buttonContent.setFont(button.getFont());
 
             if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
@@ -163,5 +210,26 @@ public class CalcApplication extends Application {
             }
             button.setFont(new Font(button.getFont().getFamily(), newFontSize));
         }
+
+        TextField currentNumberText = (TextField) root.lookup("#currentNumberText");
+        double textFontSize = currentNumberText.getFont().getSize();
+
+        Text text = new Text(currentNumberText.getText());
+        text.setFont(currentNumberText.getFont());
+
+        if (text.getLayoutBounds().getHeight() > (currentNumberText.getBoundsInLocal().getHeight())) {
+            textFontSize = textFontSize * ((currentNumberText.getBoundsInLocal().getHeight()) /
+                    text.getLayoutBounds().getHeight()) - 0.05;
+        }
+        if (textFontSize > 66) {
+            textFontSize = 66;
+        }
+
+        if (textFontSize < 16) {
+            textFontSize = 16;
+        }
+        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
+        currentNumberText.end();
+        // TODO FONT SCALING!!!!!
     }
 }

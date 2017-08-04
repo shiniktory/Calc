@@ -473,7 +473,7 @@ public class CalculatorController {
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentNumberText.getBoundsInLocal().getWidth() / textWidth - 0.1;
         if (scale < 1.0) {
-            currentNumberText.setFont(new Font(currentNumberText.getFont().getSize() * scale));
+            currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), currentNumberText.getFont().getSize() * scale));
         }
     }
 

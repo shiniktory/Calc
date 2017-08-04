@@ -127,14 +127,18 @@ public class OutputFormatter {
             }
         }
 
-        int fractionDigitsCount = number.scale();
-        BigDecimal fractionalPart = number.remainder(BigDecimal.ONE);
-        BigDecimal correlation = new BigDecimal("5").multiply(
-                new BigDecimal("1.e-" + fractionDigitsCount));
-        if (number.longValue() > 0 && fractionalPart.compareTo(correlation) < 0) {
-            number = number.setScale(0, RoundingMode.HALF_UP);
-         // TODO solve problem with rounding. square root 700 and square
+        // remove rounding delta
+        if (numberStr.contains(POINT) && numberStr.length() == MAX_LENGTH_WITH_POINT) { // for positive double
+            int fractionDigitsCount = number.scale();
+
+            BigDecimal fractionalPart = number.remainder(BigDecimal.ONE);
+
+            BigDecimal correlation = new BigDecimal("1.e-" + fractionDigitsCount).multiply(new BigDecimal(5));
+            if (fractionalPart.compareTo(correlation) < 0) {
+                number = number.setScale(fractionDigitsCount - 1, BigDecimal.ROUND_HALF_UP);
+            }
         }
+
         String stringValue;
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialView(number);

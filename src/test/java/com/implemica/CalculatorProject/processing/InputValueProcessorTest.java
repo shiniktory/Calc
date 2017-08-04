@@ -10,6 +10,8 @@ import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
 import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.util.OutputFormatter.formatUnaryOperation;
+import static com.implemica.CalculatorProject.validation.DataValidator.isEmptyString;
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -281,55 +283,107 @@ public class InputValueProcessorTest {
 
         // Expression format: enteredNumber = expected formatted result of unary operation
         // Negate
-        testUnary(NEGATE, "0 = 0");
-        testUnary(NEGATE, "0.25 = -0.25");
-        testUnary(NEGATE, "1 = -1");
-        testUnary(NEGATE, "9999999999999999 = -9,999,999,999,999,999");
-        testUnary(NEGATE, "0.6666666666666666 = -0.6666666666666666");
-        testUnary(NEGATE, "-0.25 = 0.25");
-        testUnary(NEGATE, "-1 = 1");
-        testUnary(NEGATE, "-9999999999999999 = 9,999,999,999,999,999");
+        testUnaryOperations("± 0 = 0");
+        testUnaryOperations("± 0.25 = -0.25");
+        testUnaryOperations("± 1 = -1");
+        testUnaryOperations("± 9999999999999999 = -9,999,999,999,999,999");
+        testUnaryOperations("± 0.6666666666666666 = -0.6666666666666666");
+        testUnaryOperations("± -0.25 = 0.25");
+        testUnaryOperations("± -1 = 1");
+        testUnaryOperations("± -9999999999999999 = 9,999,999,999,999,999");
+
+        testUnaryOperations("± √ 0 = 0");
+        testUnaryOperations("± sqr 700 = 490,000");
+        testUnaryOperations("± sqr 50 = 2,500");
+        testUnaryOperations("± ± 55 = 55");
+        testUnaryOperations("± 1/ 9999999999999999 = -0.00000001");
 
         // Square root
-        testUnary(SQUARE_ROOT, "0 = 0");
-        testUnary(SQUARE_ROOT, "0.25 = 0.5");
-        testUnary(SQUARE_ROOT, "1 = 1");
-        testUnary(SQUARE_ROOT, "999999999999999 = 31,622,776.60168378");
-        testUnary(SQUARE_ROOT, "0.6666666666666666 = 0.816496580927726");
-        testUnary(SQUARE_ROOT, "55555555 = 7,453.559887731499");
-        testUnary(SQUARE_ROOT, "100 = 10");
-        testUnary(SQUARE_ROOT, "250250 = 500.2499375312305");
+        testUnaryOperations("√ 0 = 0"); // TODO what's the difference between this tests and tests in StandardCalculatorTest? Answer - formatting resulted number and history expression
+        testUnaryOperations("√ 0.25 = 0.5");
+        testUnaryOperations("√ 1 = 1");
+        testUnaryOperations("√ 999999999999999 = 31,622,776.60168378");
+        testUnaryOperations("√ 0.6666666666666666 = 0.816496580927726");
+        testUnaryOperations("√ 55555555 = 7,453.559887731499");
+        testUnaryOperations("√ 100 = 10");
+        testUnaryOperations("√ 250250 = 500.2499375312305");
+
+        testUnaryOperations("√ √ 0 = 0");
+        testUnaryOperations("√ sqr 700 = 700");
+        testUnaryOperations("√ √ 50 = 2.659147948472494");
+        testUnaryOperations("√ ± 55 = -7.416198487095663");
+        testUnaryOperations("√ 1/ 9999999999999999 = 0.00000001");
 
         // Square
-        testUnary(SQUARE, "0 = 0");
-        testUnary(SQUARE, "0.25 = 0.0625");
-        testUnary(SQUARE, "1 = 1");
-        testUnary(SQUARE, "9999999999999999 = 9.999999999999998e+31");
-        testUnary(SQUARE, "0.666666666666666 = 0.4444444444444436");
-        testUnary(SQUARE, "-0.25 = 0.0625");
-        testUnary(SQUARE, "-1 = 1");
-        testUnary(SQUARE, "-9999999999999999 = 9.999999999999998e+31");
+        testUnaryOperations("sqr 0 = 0");
+        testUnaryOperations("sqr 0.25 = 0.0625");
+        testUnaryOperations("sqr 1 = 1");
+        testUnaryOperations("sqr 9999999999999999 = 9.999999999999998e+31");
+        testUnaryOperations("sqr 0.666666666666666 = 0.4444444444444436");
+        testUnaryOperations("sqr -0.25 = 0.0625");
+        testUnaryOperations("sqr -1 = 1");
+        testUnaryOperations("sqr -9999999999999999 = 9.999999999999998e+31");
+
+        testUnaryOperations("sqr sqr 0 = 0");
+        testUnaryOperations("sqr sqr 0.005 = 0.000000000625");
+        testUnaryOperations("sqr √ 700 = 700");
+        testUnaryOperations("sqr 1/ 55 = 3.305785123966942e-4");
+        testUnaryOperations("sqr sqr 9999999999999999 = 9.999999999999996e+63");
+        testUnaryOperations("sqr ± 55 = -3,025");
+
 
         // Reverse
-        testUnary(REVERSE, "0.1 = 10");
-        testUnary(REVERSE, "0.25 = 4");
-        testUnary(REVERSE, "1 = 1");
-        testUnary(REVERSE, "999999999999999 = 1.000000000000001e-15");
-        testUnary(REVERSE, "0.666666666666666 = 1.500000000000002");
-        testUnary(REVERSE, "-0.25 = -4");
-        testUnary(REVERSE, "-1 = -1");
-        testUnary(REVERSE, "-999999999999999 = -1.000000000000001e-15");
+        testUnaryOperations("1/ 0.1 = 10");
+        testUnaryOperations("1/ 0.25 = 4");
+        testUnaryOperations("1/ 1 = 1");
+        testUnaryOperations("1/ 999999999999999 = 1.000000000000001e-15");
+        testUnaryOperations("1/ 0.666666666666666 = 1.500000000000002");
+        testUnaryOperations("1/ -0.25 = -4");
+        testUnaryOperations("1/ -1 = -1");
+        testUnaryOperations("1/ -999999999999999 = -1.000000000000001e-15");
+
+        testUnaryOperations("1/ 1/ 5 = 5");
+        testUnaryOperations("1/ 1/ -5 = -5");
+        testUnaryOperations("1/ ± -5 = 0.2");
+        testUnaryOperations("1/ √ 35 = 0.1690308509457034");
+        testUnaryOperations("1/ sqr -5 = 0.04");
     }
 
-    private void testUnary(MathOperation operation, String expression) throws CalculationException {
+    private void testUnaryOperations(String expression) throws CalculationException {
         processor.cleanAll();
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
-        int index= 0;
-        enterNumber(expressionParts[index++]);
+        int index = expressionParts.length - 1;
+        // last element is expected result and previous is base number for unary operations
+        String expectedResult = expressionParts[index--];
+        String base = expressionParts[index--];
+        enterNumber(base);
 
-        // Press operation, calculate and verify result
-        assertEquals(expressionParts[index], processor.executeMathOperation(operation));
-        assertEquals(expressionParts[index], processor.getLastNumber());
+        String history = "";
+        // execute all unary operations
+        for (int i = 0; i <= index; i++) {
+            MathOperation operation = extractOperation(expressionParts[i]);
+
+            if (operation != NEGATE && isEmptyString(history)) {
+                history = base;
+            }
+            if (operation != NEGATE) {
+                history = formatUnaryOperation(operation, history);
+            }
+            processor.executeMathOperation(operation);
+        }
+        testHistoryExpression(history);
+        assertEquals(expectedResult, processor.calculateResult());
+    }
+
+    private MathOperation extractOperation(String operation) {
+        switch (operation) {
+            case "1/":
+                return REVERSE;
+            case "sqr":
+                return SQUARE;
+            default:
+                return MathOperation.getOperation(operation);
+        }
     }
 
     @Test
@@ -397,35 +451,24 @@ public class InputValueProcessorTest {
 
         // When in expression more than one unary operation
         // Expression format: enteredNumber = expected result after executing all unary operations
-        testUnaryOperationSequence("0 = 0", SQUARE, SQUARE);
-        testUnaryOperationSequence("0.005 = 0.000000000625", SQUARE, SQUARE);
-        testUnaryOperationSequence("700 = 700", SQUARE, SQUARE_ROOT);
-        testUnaryOperationSequence("55 = 3.305785123966942e-4", SQUARE, REVERSE);
-        testUnaryOperationSequence("9999999999999999 = 9.999999999999996e+63", SQUARE, SQUARE);
-        testUnaryOperationSequence("55 = -3,025", SQUARE, NEGATE);
+        testUnaryOperations("sqr sqr 0 = 0");
+        testUnaryOperations("sqr sqr 0.005 = 0.000000000625");
+        testUnaryOperations("sqr √ 700 = 700");
+        testUnaryOperations("sqr 1/ 55 = 3.305785123966942e-4");
+        testUnaryOperations("sqr sqr 9999999999999999 = 9.999999999999996e+63");
+        testUnaryOperations("sqr ± 55 = -3,025");
 
-        testUnaryOperationSequence("0 = 0", SQUARE_ROOT, SQUARE_ROOT);
-        testUnaryOperationSequence("9 = 9", SQUARE_ROOT, SQUARE);
-        testUnaryOperationSequence("50 = 2.659147948472494", SQUARE_ROOT, SQUARE_ROOT);
-        testUnaryOperationSequence("55 = -7.416198487095663", SQUARE_ROOT, NEGATE);
-        testUnaryOperationSequence("9999999999999999 = 0.00000001", SQUARE_ROOT, REVERSE);
+        testUnaryOperations("√ √ 0 = 0");
+        testUnaryOperations("√ sqr 700 = 700");
+        testUnaryOperations("√ √ 50 = 2.659147948472494");
+        testUnaryOperations("√ ± 55 = -7.416198487095663");
+        testUnaryOperations("√ 1/ 9999999999999999 = 0.00000001");
 
-        testUnaryOperationSequence("5 = 5", REVERSE, REVERSE);
-        testUnaryOperationSequence("-5 = -5", REVERSE, REVERSE);
-        testUnaryOperationSequence("-5 = 0.2", REVERSE, NEGATE);
-        testUnaryOperationSequence("35 = 0.1690308509457034", REVERSE, SQUARE_ROOT);
-        testUnaryOperationSequence("-5 = 0.04", REVERSE, SQUARE);
-    }
-
-    private void testUnaryOperationSequence(String expression, MathOperation... operations) throws CalculationException {
-        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
-        int index = 0;
-        // Enter first number and press operations
-        enterNumber(expressionParts[index++]);
-        for (MathOperation operation : operations) {
-            processor.executeMathOperation(operation);
-        }
-        assertEquals(expressionParts[index], processor.calculateResult());
+        testUnaryOperations("1/ 1/ 5 = 5");
+        testUnaryOperations("1/ 1/ -5 = -5");
+        testUnaryOperations("1/ ± -5 = 0.2");
+        testUnaryOperations("1/ √ 35 = 0.1690308509457034");
+        testUnaryOperations("1/ sqr -5 = 0.04");
     }
 
     @Test

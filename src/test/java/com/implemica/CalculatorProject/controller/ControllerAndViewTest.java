@@ -30,8 +30,9 @@ import static com.implemica.CalculatorProject.util.OutputFormatter.EMPTY_VALUE;
 import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
 import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.Assert.*;
+import static org.testfx.framework.junit.ApplicationTest.launch;
 
-public class ControllerAndViewTest extends ApplicationTest {
+public class ControllerAndViewTest {
 
     private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
 
@@ -50,11 +51,6 @@ public class ControllerAndViewTest extends ApplicationTest {
     @BeforeClass
     public static void setUpInit() throws Exception {
         launch(CalcApplication.class);
-    }
-
-    @Override
-    public void start(Stage stage) throws Exception {
-        // Stage is already launched
     }
 
     @Before
@@ -113,13 +109,9 @@ public class ControllerAndViewTest extends ApplicationTest {
     }
 
     private <T extends Node> T findAndVerify(final String query, boolean visible, boolean disable) {
-        T node = find(query);
+        T node = robot.lookup(query).query();
         testExistAndActive(node, visible, disable);
         return node;
-    }
-
-    private <T extends Node> T find(final String query) {
-        return lookup(query).query();
     }
 
     private void testExistAndActive(Node element, boolean expectedVisible, boolean expectedDisable) {
@@ -149,10 +141,9 @@ public class ControllerAndViewTest extends ApplicationTest {
         Label secondSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         assertNotEquals(firstSelected, secondSelected);
         robot.scroll(VerticalDirection.DOWN);
-        WaitForAsyncUtils.waitForFxEvents();
-
         robot.clickOn(infoButton);
 
+        // hide calculator view panel
         robot.clickOn(modeClose);
         WaitForAsyncUtils.waitForFxEvents();
         assertFalse(viewPanel.isVisible());
