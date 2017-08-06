@@ -189,7 +189,7 @@
     -fx-background-color: #e0e0e0;
 }
 
-#viewPanel, .list-cell {
+#viewTypesPanel, .list-cell {
     -fx-font-size: 16;
     -fx-background-color: #e0e0e0;
     -fx-padding: 11px;
@@ -234,7 +234,7 @@
     -fx-background-color: #b3b3b3;
 }
 
-#viewPanel {
+#viewTypesPanel {
     -fx-padding: 0;
     -fx-border-radius: 0;
     -fx-border-width: 1;

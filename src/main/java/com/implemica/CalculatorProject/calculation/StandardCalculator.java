@@ -6,6 +6,7 @@ import com.implemica.CalculatorProject.exception.CalculationException;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.isZero;
+import static java.lang.String.format;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
@@ -21,7 +22,8 @@ public class StandardCalculator implements Calculator {
     /**
      * The error message about invalid count of numbers.
      */
-    private static final String INVALID_ARGUMENTS_COUNT = "Count of numbers must be 1 or 2. Your count is ";
+    private static final String INVALID_ARGUMENTS_COUNT = "Invalid count of numbers for your operation. " +
+            "Your operation is %s, count of numbers is %s";
 
     /**
      * The error message about division by zero occurs.
@@ -53,8 +55,19 @@ public class StandardCalculator implements Calculator {
      */
     private static final int SCALE = 10100;
 
+    /**
+     * The upper bound of number's value after what will be thrown an exception about overflow.
+     */
     private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
+
+    /**
+     * The lower bound of number's value under what will be thrown an exception about overflow.
+     */
     private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
+
+    /**
+     * An error message about number's value is too large or too small.
+     */
     private static final String OVERFLOW_ERROR = "Overflow";
 
     /**
@@ -62,6 +75,10 @@ public class StandardCalculator implements Calculator {
      */
     private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
+    /**
+     * An error message about situation when result is undefined.
+     * For example, division zero by zero.
+     */
     private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
 
     /**
@@ -82,11 +99,11 @@ public class StandardCalculator implements Calculator {
         }
 
         if (numbers == null || numbers.length == 0) {
-            throw new CalculationException(INVALID_ARGUMENTS_COUNT);
+            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, 0));
         }
         if (operation.isBinary() && numbers.length != 2 ||
                 !operation.isBinary() && numbers.length != 1) {
-            throw new CalculationException(INVALID_ARGUMENTS_COUNT);
+            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length));
         }
 
     }
@@ -95,8 +112,8 @@ public class StandardCalculator implements Calculator {
      * Returns the result of calculations of an Mathematical operations with the specified numbers.
      *
      * @return the result of calculations of an Mathematical operations with the specified numbers
-     * @throws CalculationException in case of operation does not exist, division by zero or
-     *                              invalid argument for an operation
+     * @throws CalculationException in cases when of operation does not exist, division by zero or
+     *                              result is overflow
      */
     public BigDecimal calculate() throws CalculationException {
         BigDecimal result;
@@ -238,7 +255,7 @@ public class StandardCalculator implements Calculator {
         if (isZero(number)) {
             return ZERO.setScale(0);
         }
-
+        // TODO change sqrt algorithm. Current doesn't work for big values. Example: 9.997189622166588e-5821 java.lang.NumberFormatException: Infinite or NaN
         // Using Karp's algorithm for searching square root. Has 32 digits precision
         BigDecimal rootForDoublePart = new BigDecimal(Math.sqrt(number.doubleValue()));
         BigDecimal squareForRoot = rootForDoublePart.multiply(rootForDoublePart);

@@ -9,6 +9,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -63,10 +64,21 @@ public class CalculatorController {
     private static final String NUMPAD_PREFIX = "Numpad ";
 
     /**
+     * The title for group calculator views used for converting values.
+     */
+    private static final String CONVERTER_GROUP = "\tCONVERTER";
+
+    /**
+     * A font for the title for group calculator views used for converting values.
+     */
+    private static final Font CONVERTER_FONT = Font.font("Segoi UI", FontWeight.BOLD, 15);
+
+    /**
      * The list of calculator types.
      */
-    private static final String[] CALCULATOR_TYPES = new String[]{"\tStandard", "\tScientific", "\tProgrammer", "\tDate calculation", "\tCONVERTER", "\tVolume", "\tLength",
-            "\tWeight and Mass", "\tTemperature", "\tEnergy", "\tArea", "\tSpeed", "\tTime", "\tPower", "\tData", "\tPressure", "\tAngle"};
+    private static final String[] CALCULATOR_TYPES = new String[]{"\tStandard", "\tScientific", "\tProgrammer",
+            "\tDate calculation", CONVERTER_GROUP, "\tVolume", "\tLength", "\tWeight and Mass", "\tTemperature",
+            "\tEnergy", "\tArea", "\tSpeed", "\tTime", "\tPower", "\tData", "\tPressure", "\tAngle"};
 
     /**
      * The count of milliseconds for animation duration.
@@ -76,84 +88,195 @@ public class CalculatorController {
     /**
      * The value of width for panel with calculator types.
      */
-    private static final double VIEW_PANEL_WIDTH = 257.0;
+    private static final double VIEW_PANEL_MAX_WIDTH = 257.0;
 
     /**
      * The flag variable shows is panel with calculator types shown right now.
      */
     private boolean isViewPanelShown = false;
 
+    /**
+     * The flag variable shows is panel with stored in memory values shown right now.
+     */
     private boolean isMemoryStorageShown = false;
 
-    private static final Font CONVERTER_FONT = Font.font("Segoi UI", FontWeight.BOLD, 15);
-
-
     /**
-     * An instance of text field with a value of current number value.
+     * A reference to the {@link TextField} with a value of current number value.
      */
     @FXML
     private TextField currentNumberText;
 
     /**
-     * An instance of text field with a string containing previous number and arithmetic operation.
+     * A reference to the {@link TextField} with a string containing current mathematical expression.
      */
     @FXML
     private TextField prevOperationsText;
 
+    /**
+     * A reference to the {@link VBox} contains controls for changing the calculator's type.
+     */
     @FXML
-    private VBox viewPanel;
+    private VBox viewTypesPanel;
 
+    /**
+     * A reference to the {@link ListView} contains the list of calculator types.
+     */
     @FXML
     private ListView<Label> viewTypes;
 
+    /**
+     * A reference to the {@link GridPane} contains {@link Button}s with digits, mathematical operations and
+     * some operations to edit entered values.
+     */
     @FXML
     private GridPane numbersAndOperations;
 
+    /**
+     * A reference to the {@link GridPane} contains {@link Button}s for working with memorized numbers.
+     */
     @FXML
     private GridPane memoryButtonsPane;
 
+    /**
+     * A references to the buttons allows to work with memorized numbers.
+     */
     @FXML
     private Button mc, mr, m, mPlus, mMinus, ms;
 
+    /**
+     * A reference to the {@link Pane} shows a memorized number.
+     */
     @FXML
     private Pane memoryStorage;
 
+    /**
+     * The flag variable shows is error occurred while calculations.
+     */
     private boolean isErrorOccurred = false;
 
-    private void searchAndFireButton(String code) {
-        numbersAndOperations.requestFocus();
-        String keyCode = code;
-        if (code.contains(NUMPAD_PREFIX)) {
-            keyCode = code.substring(NUMPAD_PREFIX.length());
-        }
-        // Search in node with numbers and operations
-        boolean found = false;
-        for (Node child : numbersAndOperations.getChildren()) {
-            found = checkAndFire(keyCode, child);
-        }
-        if (!found) {
-            // Search in node with memory operations
-            for (Node child : memoryButtonsPane.getChildren()) {
-                checkAndFire(keyCode, child);
+    /**
+     * Sets the given number represented by string to the textfield contains current number.
+     *
+     * @param number the number to set
+     */
+    public void setCurrentNumber(String number) {
+        fitText(number);
+        currentNumberText.setText(number);
+        currentNumberText.end();
+    }
+
+    /**
+     * Sets the given string containing mathematical expression to the appropriate textfield.
+     *
+     * @param mathExpression a string with expression to set
+     */
+    public void setMathExpression(String mathExpression) {
+        prevOperationsText.setText(mathExpression);
+        prevOperationsText.end();
+    }
+
+    /**
+     * Handles all events generated by keyboard key pressing.
+     *
+     * @param event an event instance generated by key pressing
+     */
+    @FXML
+    private void keyEventHandler(KeyEvent event) {
+        hideViewPanel();
+        KeyCode key = event.getCode();
+
+        // Unary operations
+        if (event.isShiftDown() && key == KeyCode.DIGIT2) {
+            fireButton(SQUARE_ROOT.getCode());
+
+            //Binary operations
+        } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
+            fireButton(PERCENT.getCode());
+
+        } else if (key == KeyCode.MINUS || key == KeyCode.SUBTRACT) {
+            fireButton(SUBTRACT.getCode());
+
+        } else if (key == KeyCode.ADD ||
+                event.isShiftDown() && key == KeyCode.EQUALS) {
+            fireButton(ADD.getCode());
+
+        } else if (key == KeyCode.MULTIPLY ||
+                event.isShiftDown() && key == KeyCode.DIGIT8) {
+            fireButton(MULTIPLY.getCode());
+
+        } else if (key == KeyCode.SLASH || key == KeyCode.DIVIDE) {
+            fireButton(DIVIDE.getCode());
+
+        } else if (key == KeyCode.BACK_SPACE) {
+            fireButton(LEFT_ERASE.getCode());
+
+        } else if (key == KeyCode.EQUALS) {
+            fireButton(RESULT.getCode());
+
+        } else if (key == KeyCode.ENTER) {
+            fireButton(RESULT.getCode());
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
+            }
+
+            // Digits and point
+        } else if (key.isDigitKey()) {
+            fireButton(key.getName());
+
+        } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
+            addPoint();
+
+        } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
+            fireButton(CLEAN.getCode());
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
             }
         }
     }
 
-    private boolean checkAndFire(String buttonId, Node child) {
-        Button button = (Button) child;
-        if (button.getText().equals(buttonId) &&
-                !button.isDisable() &&
-                button.isVisible()) {
-            addButtonClickedEffect(button);
-            button.fire();
-            return true;
+    /**
+     * Searches a {@link Button} by the given code. If find fires an {@link ActionEvent}
+     * and adds a button clicked visual effect for it.
+     *
+     * @param code a string value of a code to find button
+     */
+    private void fireButton(String code) {
+        String keyCode = code;
+        if (code.contains(NUMPAD_PREFIX)) {
+            keyCode = code.substring(NUMPAD_PREFIX.length());
         }
-        return false;
+        for (Node child : numbersAndOperations.getChildren()) {
+            findButtonImpl(keyCode, child);
+        }
     }
 
+    /**
+     * Checks the given button for an equivalence it's text and specified code. If they are
+     * equal and this button is active and visible fires an {@link ActionEvent}.
+     *
+     * @param buttonId the required button's code
+     * @param child    the button to check and fire
+     */
+    private void findButtonImpl(String buttonId, Node child) {
+        Button button = (Button) child;
+        String buttonText = button.getText();
+        if (buttonText.equals(buttonId) &&
+                !button.isDisable() &&
+                button.isVisible()) {
+
+            addButtonClickedEffect(button);
+            button.fire();
+        }
+    }
+
+    /**
+     * Adds a visual effect for button pressing.
+     *
+     * @param button the button to add a button pressed effect
+     */
     private void addButtonClickedEffect(Button button) {
         button.arm();
-        // add delay to view a button pressed effect
+        // add delay to show a button pressed effect
         PauseTransition pause = new PauseTransition(Duration.millis(50));
         pause.setOnFinished(event1 -> button.disarm());
         pause.play();
@@ -174,7 +297,7 @@ public class CalculatorController {
     }
 
     /**
-     * Extracts from occurred event a value of input number represented as string.
+     * Extracts from generated event a value of input number represented by string.
      *
      * @param event an instance of occurred event
      * @return a value of input number represented as string
@@ -194,68 +317,22 @@ public class CalculatorController {
         try {
             textToSet = valueProcessor.getLastNumber();
         } catch (CalculationException e) {
-            textToSet = e.getMessage();
-            disableAllOperations();
-            isErrorOccurred = true;
+            textToSet = handleException(e);
         }
-        fitText(textToSet);
-        currentNumberText.setText(textToSet);
+        setCurrentNumber(textToSet);
     }
 
     /**
-     * Handles all events generated by keyboard key pressing.
+     * Returns a message with information about exception and disables all buttons with mathematical
+     * operations.
      *
-     * @param event an event instance generated by key pressing
+     * @param e an occurred exception instance
+     * @return a message with information about exception
      */
-    @FXML
-    private void keyEventHandler(KeyEvent event) {
-        KeyCode key = event.getCode();
-        hideViewPanel();
-
-        // Unary operations
-        if (event.isShiftDown() && key == KeyCode.DIGIT2) {
-            searchAndFireButton(SQUARE_ROOT.getCode());
-
-            //Binary operations
-        } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
-            searchAndFireButton(PERCENT.getCode());
-
-        } else if (key == KeyCode.MINUS || key == KeyCode.SUBTRACT) {
-            searchAndFireButton(SUBTRACT.getCode());
-
-        } else if (key == KeyCode.ADD ||
-                event.isShiftDown() && key == KeyCode.EQUALS) {
-            searchAndFireButton(ADD.getCode());
-
-        } else if (key == KeyCode.MULTIPLY ||
-                event.isShiftDown() && key == KeyCode.DIGIT8) {
-            searchAndFireButton(MULTIPLY.getCode());
-
-        } else if (key == KeyCode.SLASH || key == KeyCode.DIVIDE) {
-            searchAndFireButton(DIVIDE.getCode());
-
-        } else if (key == KeyCode.BACK_SPACE) {
-            searchAndFireButton(LEFT_ERASE.getCode());
-
-        } else if (key == KeyCode.EQUALS) {
-            searchAndFireButton(EQUAL.getCode());
-        } else if (key == KeyCode.ENTER) {
-            searchAndFireButton(EQUAL.getCode());
-            if (isMemoryStorageShown) {
-                showOrHideMemoryPane();
-            }
-
-            // Digits and point
-        } else if (key.isDigitKey()) {
-            searchAndFireButton(key.getName());
-        } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
-            addPoint();
-        } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
-            searchAndFireButton(CLEAN.getCode());
-            if (isMemoryStorageShown) {
-                showOrHideMemoryPane();
-            }
-        }
+    private String handleException(Exception e) {
+        disableAllOperations(true);
+        isErrorOccurred = true;
+        return e.getMessage();
     }
 
     /**
@@ -274,15 +351,11 @@ public class CalculatorController {
         try {
             textToSet = valueProcessor.executeMathOperation(operation);
         } catch (CalculationException e) {
-            textToSet = e.getMessage();
-            disableAllOperations();
-            isErrorOccurred = true;
+            textToSet = handleException(e);
         }
-        fitText(textToSet);
-        currentNumberText.setText(textToSet);
-        currentNumberText.end();
-        prevOperationsText.setText(valueProcessor.getExpression());
-        prevOperationsText.end();
+        setCurrentNumber(textToSet);
+        String mathExpression = valueProcessor.getExpression();
+        setMathExpression(mathExpression);
         if (isErrorOccurred) {
             valueProcessor.cleanAll();
         }
@@ -304,7 +377,8 @@ public class CalculatorController {
      * Updates values in text fields with current number and previous operations.
      */
     private void updateTextFields() {
-        prevOperationsText.setText(valueProcessor.getExpression());
+        String currentMathExpression = valueProcessor.getExpression();
+        setMathExpression(currentMathExpression);
         updateCurrentNumberField();
     }
 
@@ -319,14 +393,10 @@ public class CalculatorController {
         try {
             textToSet = valueProcessor.calculateResult();
         } catch (CalculationException e) {
-            textToSet = e.getMessage();
+            textToSet = handleException(e);
             valueProcessor.cleanAll();
-            disableAllOperations();
-            isErrorOccurred = true;
         }
-        fitText(textToSet);
-        currentNumberText.setText(textToSet);
-        currentNumberText.end();
+        setCurrentNumber(textToSet);
         if (!isErrorOccurred) {
             prevOperationsText.clear();
         }
@@ -334,7 +404,7 @@ public class CalculatorController {
 
     private void resetAfterError() {
         if (isErrorOccurred) {
-            enableAllOperations();
+            disableAllOperations(false);
             updateTextFields();
             isErrorOccurred = false;
         }
@@ -349,13 +419,10 @@ public class CalculatorController {
         try {
             textToSet = valueProcessor.addPoint();
         } catch (CalculationException e) {
-            textToSet = e.getMessage();
+            textToSet = handleException(e);
             valueProcessor.cleanAll();
-            disableAllOperations();
-            isErrorOccurred = true;
         }
-        fitText(textToSet);
-        currentNumberText.setText(textToSet);
+        setCurrentNumber(textToSet);
     }
 
     /**
@@ -366,7 +433,7 @@ public class CalculatorController {
         resetAfterError();
         valueProcessor.cleanAll();
         updateTextFields();
-        enableAllOperations();
+        disableAllOperations(false);
         isErrorOccurred = false;
     }
 
@@ -378,7 +445,7 @@ public class CalculatorController {
         resetAfterError();
         valueProcessor.cleanCurrent();
         updateCurrentNumberField();
-        enableAllOperations();
+        disableAllOperations(false);
         isErrorOccurred = false;
     }
 
@@ -388,13 +455,14 @@ public class CalculatorController {
     @FXML
     private void deleteLastNumber() {
         resetAfterError();
+        String textToSet;
         try {
-            valueProcessor.deleteLastDigit();
+            textToSet = valueProcessor.deleteLastDigit();
             updateCurrentNumberField();
         } catch (CalculationException e) {
-            fitText(e.getMessage());
+            textToSet = handleException(e);
         }
-
+        setCurrentNumber(textToSet);
     }
 
     /**
@@ -410,56 +478,40 @@ public class CalculatorController {
         try {
             valueProcessor.executeMemoryOperation(operation);
             textToSet = valueProcessor.getLastNumber();
-            enableMemoryButtons();
+            disableMemoryButtons(false);
         } catch (CalculationException e) {
-            textToSet = e.getMessage();
+            textToSet = handleException(e);
         }
         if (operation == MEMORY_CLEAN) {
-            disableMemoryButtons();
+            disableMemoryButtons(true);
         }
-        fitText(textToSet);
-        currentNumberText.setText(textToSet);
-        numbersAndOperations.requestFocus();
+        setCurrentNumber(textToSet);
     }
 
-    private void enableMemoryButtons() {
-        mr.setDisable(false);
-        mc.setDisable(false);
-        m.setDisable(false);
-        numbersAndOperations.requestFocus();
+    private void disableMemoryButtons(boolean disable) {
+        mr.setDisable(disable);
+        mc.setDisable(disable);
+        m.setDisable(disable);
     }
 
-    private void disableMemoryButtons() {
-        mr.setDisable(true);
-        mc.setDisable(true);
-        m.setDisable(true);
-        numbersAndOperations.requestFocus();
-    }
-
-    private void disableAllOperations() {
-        disableMemoryButtons();
-        mPlus.setDisable(true);
-        mMinus.setDisable(true);
-        ms.setDisable(true);
+    private void disableAllOperations(boolean disable) {
+        disableMemoryButtons(true);
+        mPlus.setDisable(disable);
+        mMinus.setDisable(disable);
+        ms.setDisable(disable);
         for (Node children : numbersAndOperations.getChildren()) {
-            Button thisButton = (Button) children;
-            if (MathOperation.getOperation(thisButton.getText()) != null &&
-                    !thisButton.getText().equals(EQUAL.getCode()) ||
-                    POINT.equals(thisButton.getText())) {
-                thisButton.setDisable(true);
-            }
+            Button button = (Button) children;
+            disableOperationButton(button, disable);
         }
     }
 
-    private void enableAllOperations() {
-        mPlus.setDisable(false);
-        mMinus.setDisable(false);
-        ms.setDisable(false);
-        for (Node children : numbersAndOperations.getChildren()) {
-            Button thisButton = (Button) children;
-            if (MathOperation.getOperation(thisButton.getText()) != null || POINT.equals(thisButton.getText())) {
-                thisButton.setDisable(false);
-            }
+    private void disableOperationButton(Button button, boolean disable) {
+        String buttonText = button.getText();
+        MathOperation operation = MathOperation.getOperation(buttonText);
+
+        if (operation != null && operation != RESULT ||
+                POINT.equals(buttonText)) {
+            button.setDisable(disable);
         }
     }
 
@@ -473,7 +525,9 @@ public class CalculatorController {
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentNumberText.getBoundsInLocal().getWidth() / textWidth - 0.1;
         if (scale < 1.0) {
-            currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), currentNumberText.getFont().getSize() * scale));
+            double newFontSize = currentNumberText.getFont().getSize() * scale;
+            currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(),
+                    newFontSize));
         }
     }
 
@@ -483,34 +537,35 @@ public class CalculatorController {
         Point mouse = MouseInfo.getPointerInfo().getLocation();
         tooltip.setX(mouse.getX() - 50);
         tooltip.setY(mouse.getY() - 55);
-        numbersAndOperations.requestFocus();
     }
 
     @FXML
     private void showViewPanel() {
-
-        List<Label> labelList = new LinkedList<>();
-
-        for (String type : CALCULATOR_TYPES) {
-            Label label = new Label(type);
-            if ("\tCONVERTER".equals(type)) {
-                label.setFont(CONVERTER_FONT);
-            }
-            labelList.add(label);
-
-        }
-        viewTypes.setItems(FXCollections.observableList(labelList));
+        viewTypes.setItems(getListOfCalcTypes());
         viewTypes.getSelectionModel().select(0);
 
-        viewPanel.setVisible(true);
+        viewTypesPanel.setVisible(true);
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(viewPanel.prefWidthProperty(), 0.0)),
-                new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), VIEW_PANEL_WIDTH))
+                new KeyFrame(Duration.ZERO, new KeyValue(viewTypesPanel.prefWidthProperty(), 0.0)),
+                new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewTypesPanel.prefWidthProperty(),
+                        VIEW_PANEL_MAX_WIDTH))
         );
 
         timeline.play();
         isViewPanelShown = true;
-        numbersAndOperations.requestFocus();
+    }
+
+    private ObservableList<Label> getListOfCalcTypes() {
+        List<Label> labelList = new LinkedList<>();
+
+        for (String type : CALCULATOR_TYPES) {
+            Label label = new Label(type);
+            if (CONVERTER_GROUP.equals(type)) {
+                label.setFont(CONVERTER_FONT);
+            }
+            labelList.add(label);
+        }
+        return FXCollections.observableList(labelList);
     }
 
 
@@ -518,16 +573,17 @@ public class CalculatorController {
     private void hideViewPanel() {
         if (isViewPanelShown) {
             Timeline timeline = new Timeline(
-                    new KeyFrame(Duration.ZERO, new KeyValue(viewPanel.prefWidthProperty(), VIEW_PANEL_WIDTH)),
-                    new KeyFrame(Duration.millis(ANIMATION_DURATION), new KeyValue(viewPanel.prefWidthProperty(), 0.0))
+                    new KeyFrame(Duration.ZERO, new KeyValue(viewTypesPanel.prefWidthProperty(),
+                            VIEW_PANEL_MAX_WIDTH)),
+                    new KeyFrame(Duration.millis(ANIMATION_DURATION),
+                            new KeyValue(viewTypesPanel.prefWidthProperty(), 0.0))
             );
             timeline.play();
             PauseTransition pause = new PauseTransition(Duration.millis(ANIMATION_DURATION));
-            pause.setOnFinished(event1 -> viewPanel.setVisible(false));
+            pause.setOnFinished(event1 -> viewTypesPanel.setVisible(false));
             pause.play();
             isViewPanelShown = false;
         }
-        numbersAndOperations.requestFocus();
     }
 
     @FXML
@@ -535,22 +591,21 @@ public class CalculatorController {
         if (isMemoryStorageShown) {
             memoryStorage.setVisible(false);
             isMemoryStorageShown = false;
-            enableAllOperations();
+            disableAllOperations(true);
             mc.setDisable(false);
             mr.setDisable(false);
             disableAllButtons(false);
         } else {
             memoryStorage.setVisible(true);
-            disableAllOperations();
+            isMemoryStorageShown = true;
+            disableAllOperations(false);
             m.setDisable(false);
             disableAllButtons(true);
-
-            isMemoryStorageShown = true;
         }
     }
 
     private void disableAllButtons(boolean disable) {
-        for (Node node : numbersAndOperations.getChildren() ) {
+        for (Node node : numbersAndOperations.getChildren()) {
             node.setDisable(disable);
         }
     }

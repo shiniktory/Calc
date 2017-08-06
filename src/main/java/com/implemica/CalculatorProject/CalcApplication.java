@@ -110,7 +110,7 @@ public class CalcApplication extends Application {
             if (ADD.getCode().equals(buttonText) ||
                     SUBTRACT.getCode().equals(buttonText) ||
                     DIVIDE.getCode().equals(buttonText) ||
-                    EQUAL.getCode().equals(buttonText) ||
+                    RESULT.getCode().equals(buttonText) ||
                     NEGATE.getCode().equals(buttonText)) {
 
                 Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);

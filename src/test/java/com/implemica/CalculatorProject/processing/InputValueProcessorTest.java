@@ -8,9 +8,7 @@ import org.junit.Test;
 
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.util.OutputFormatter.formatUnaryOperation;
+import static com.implemica.CalculatorProject.util.OutputFormatter.*;
 import static com.implemica.CalculatorProject.validation.DataValidator.isEmptyString;
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
@@ -296,10 +294,10 @@ public class InputValueProcessorTest {
         testUnaryOperations("± sqr 700 = 490,000");
         testUnaryOperations("± sqr 50 = 2,500");
         testUnaryOperations("± ± 55 = 55");
-        testUnaryOperations("± 1/ 9999999999999999 = -0.00000001");
-
+        testUnaryOperations("± 1/ 9999999999999999 = -0.0000000000000001");
+// TODO what's the difference between this tests and tests in StandardCalculatorTest? Answer - formatting resulted number and history expression. Maybe merge these tests with calculation tests?
         // Square root
-        testUnaryOperations("√ 0 = 0"); // TODO what's the difference between this tests and tests in StandardCalculatorTest? Answer - formatting resulted number and history expression
+        testUnaryOperations("√ 0 = 0");
         testUnaryOperations("√ 0.25 = 0.5");
         testUnaryOperations("√ 1 = 1");
         testUnaryOperations("√ 999999999999999 = 31,622,776.60168378");
@@ -370,6 +368,9 @@ public class InputValueProcessorTest {
                 history = formatUnaryOperation(operation, history);
             }
             processor.executeMathOperation(operation);
+            if (operation == NEGATE && isEmptyString(history)) {
+                base = formatToMathView(processor.getLastNumber());
+            }
         }
         testHistoryExpression(history);
         assertEquals(expectedResult, processor.calculateResult());

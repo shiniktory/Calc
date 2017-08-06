@@ -255,7 +255,10 @@
                               <Font name="Segoe UI Semibold" size="21.0" />
                            </font>
                             <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Clear all memory" />
+                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Clear all memory" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font></Tooltip>
                            </tooltip>
                         </Button>
                      </bottom>
@@ -400,7 +403,7 @@
                   </Button>
                </left>
             </BorderPane>
-            <GridPane maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+            <GridPane maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" onKeyPressed="#keyEventHandler" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
@@ -409,7 +412,7 @@
                 <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="110.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TextField fx:id="currentNumberText" alignment="TOP_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                  <TextField fx:id="currentNumberText" alignment="TOP_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#keyEventHandler" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
                      <font>
                         <Font name="Segoe UI Semibold" size="42.0" />
                      </font>
@@ -432,7 +435,7 @@
                         <ColorAdjust contrast="0.21" hue="0.07" />
                      </effect>
                   </TextField>
-                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" centerShape="false" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#readCurrentNumber" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                  <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" centerShape="false" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#keyEventHandler" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
                      <font>
                         <Font name="Segoe UI" size="14.0" />
                      </font>
@@ -447,7 +450,7 @@
             </GridPane>
          </children>
       </GridPane>
-      <VBox fx:id="viewPanel" maxWidth="-Infinity" prefHeight="569.0" prefWidth="257.0" visible="false" StackPane.alignment="CENTER_LEFT">
+      <VBox fx:id="viewTypesPanel" maxWidth="-Infinity" prefHeight="569.0" prefWidth="257.0" visible="false" StackPane.alignment="CENTER_LEFT">
          <children>
             <BorderPane VBox.vgrow="ALWAYS">
                <bottom>

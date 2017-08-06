@@ -5,7 +5,7 @@ package com.implemica.CalculatorProject.calculation;
  * The enum contains an operations with memorized value such as add or subtract to memorized
  * value, store value, recall or clean it.
  *
- * @author V, Kozina-Kravchenko
+ * @author V. Kozina-Kravchenko
  */
 public enum MemoryOperation {
 
