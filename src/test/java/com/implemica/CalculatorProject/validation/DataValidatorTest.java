@@ -77,7 +77,7 @@ public class DataValidatorTest {
         testIsNumber(true, "-2.e-25");
         testIsNumber(true, "2.E-25");
 
-        // Not valid strings
+        // Not valid values
         testIsNumber(false, null);
         testIsNumber(false, "");
         testIsNumber(false, "not empty");

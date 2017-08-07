@@ -161,21 +161,21 @@ public class ControllerAndViewTest {
         assertTrue(memoryStorage.isVisible());
 
         // Test key press on buttons hidden by memory storage panel. Expected no changes - default zero
-        testKeyPressed("0", KeyCode.DIGIT1, false);
-        testKeyPressed("0", KeyCode.DIGIT2, false);
-        testKeyPressed("0", KeyCode.DIGIT3, false);
-        testKeyPressed("0", KeyCode.DIGIT4, false);
-        testKeyPressed("0", KeyCode.DIGIT5, false);
-        testKeyPressed("0", KeyCode.DIGIT6, false);
-        testKeyPressed("0", KeyCode.DIGIT7, false);
-        testKeyPressed("0", KeyCode.DIGIT8, false);
-        testKeyPressed("0", KeyCode.DIGIT9, false);
-        testKeyPressed("0", KeyCode.DIGIT0, false);
-        testKeyPressed("0", KeyCode.ADD, false);
-        testKeyPressed("0", KeyCode.SUBTRACT, false);
-        testKeyPressed("0", KeyCode.MULTIPLY, false);
-        testKeyPressed("0", KeyCode.DIVIDE, false);
-        testKeyPressed("0", KeyCode.BACK_SPACE, false);
+        testKeyPressed("0", KeyCode.DIGIT1);
+        testKeyPressed("0", KeyCode.DIGIT2);
+        testKeyPressed("0", KeyCode.DIGIT3);
+        testKeyPressed("0", KeyCode.DIGIT4);
+        testKeyPressed("0", KeyCode.DIGIT5);
+        testKeyPressed("0", KeyCode.DIGIT6);
+        testKeyPressed("0", KeyCode.DIGIT7);
+        testKeyPressed("0", KeyCode.DIGIT8);
+        testKeyPressed("0", KeyCode.DIGIT9);
+        testKeyPressed("0", KeyCode.DIGIT0);
+        testKeyPressed("0", KeyCode.ADD);
+        testKeyPressed("0", KeyCode.SUBTRACT);
+        testKeyPressed("0", KeyCode.MULTIPLY);
+        testKeyPressed("0", KeyCode.DIVIDE);
+        testKeyPressed("0", KeyCode.BACK_SPACE);
 
         // hide panel
         robot.clickOn(memory);
@@ -194,6 +194,8 @@ public class ControllerAndViewTest {
         // try to click invisible button
         numOne.setVisible(false);
         testButtonClicked("123", numOne);
+        numOne.setVisible(true);
+
         // continue typing
         testButtonClicked("1,234", numFour);
         testButtonClicked("12,345", numFive);
@@ -205,7 +207,6 @@ public class ControllerAndViewTest {
 
         // reset
         testButtonClicked("0", cleanCurrent);
-        numOne.setVisible(true);
 
         // test subtract operation
         testButtonClicked("5", numFive);
@@ -294,79 +295,83 @@ public class ControllerAndViewTest {
     @Test
     public void testKeyPressed() {
         // enter the number
-        testKeyPressed("0", KeyCode.ESCAPE, false);
-        testKeyPressed("1", KeyCode.DIGIT1, false);
-        testKeyPressed("12", KeyCode.DIGIT2, false);
-        testKeyPressed("123", KeyCode.DIGIT3, false);
-        testKeyPressed("1,234", KeyCode.DIGIT4, false);
-        testKeyPressed("12,345", KeyCode.DIGIT5, false);
-        testKeyPressed("123,456", KeyCode.DIGIT6, false);
-        testKeyPressed("1,234,567", KeyCode.DIGIT7, false);
-        testKeyPressed("12,345,678", KeyCode.DIGIT8, false);
-        testKeyPressed("123,456,789", KeyCode.DIGIT9, false);
-        testKeyPressed("1,234,567,890", KeyCode.DIGIT0, false);
+        testKeyPressed("0", KeyCode.ESCAPE);
+        testKeyPressed("1", KeyCode.DIGIT1);
+        testKeyPressed("12", KeyCode.DIGIT2);
+        testKeyPressed("123", KeyCode.DIGIT3);
+        testKeyPressed("1,234", KeyCode.DIGIT4);
+        testKeyPressed("12,345", KeyCode.DIGIT5);
+        testKeyPressed("123,456", KeyCode.DIGIT6);
+        testKeyPressed("1,234,567", KeyCode.DIGIT7);
+        testKeyPressed("12,345,678", KeyCode.DIGIT8);
+        testKeyPressed("123,456,789", KeyCode.DIGIT9);
+        testKeyPressed("1,234,567,890", KeyCode.DIGIT0);
 
         // press an operation
         testKeyPressed("1,234,567,890", KeyCode.EQUALS, true);
 
         // enter new number
-        testKeyPressed("9", KeyCode.DIGIT9, false);
-        testKeyPressed("98", KeyCode.DIGIT8, false);
-        testKeyPressed("987", KeyCode.DIGIT7, false);
-        testKeyPressed("9,876", KeyCode.DIGIT6, false);
-        testKeyPressed("98,765", KeyCode.DIGIT5, false);
-        testKeyPressed("987,654", KeyCode.DIGIT4, false);
-        testKeyPressed("9,876,543", KeyCode.DIGIT3, false);
-        testKeyPressed("98,765,432", KeyCode.DIGIT2, false);
-        testKeyPressed("987,654,321", KeyCode.DIGIT1, false);
-        testKeyPressed("987,654,321.", KeyCode.PERIOD, false);
-        testKeyPressed("987,654,321.0", KeyCode.DIGIT0, false);
-        testKeyPressed("987,654,321.09", KeyCode.DIGIT9, false);
+        testKeyPressed("9", KeyCode.DIGIT9);
+        testKeyPressed("98", KeyCode.DIGIT8);
+        testKeyPressed("987", KeyCode.DIGIT7);
+        testKeyPressed("9,876", KeyCode.DIGIT6);
+        testKeyPressed("98,765", KeyCode.DIGIT5);
+        testKeyPressed("987,654", KeyCode.DIGIT4);
+        testKeyPressed("9,876,543", KeyCode.DIGIT3);
+        testKeyPressed("98,765,432", KeyCode.DIGIT2);
+        testKeyPressed("987,654,321", KeyCode.DIGIT1);
+        testKeyPressed("987,654,321.", KeyCode.PERIOD);
+        testKeyPressed("987,654,321.0", KeyCode.DIGIT0);
+        testKeyPressed("987,654,321.09", KeyCode.DIGIT9);
 
         // calculate result few times
-        testKeyPressed("2,222,222,211.09", KeyCode.ENTER, false);
-        testKeyPressed("3,209,876,532.18", KeyCode.ENTER, false);
-        testKeyPressed("4,197,530,853.27", KeyCode.ENTER, false);
+        testKeyPressed("2,222,222,211.09", KeyCode.ENTER);
+        testKeyPressed("3,209,876,532.18", KeyCode.ENTER);
+        testKeyPressed("4,197,530,853.27", KeyCode.ENTER);
 
         // test subtract operation
-        testKeyPressed("5", KeyCode.DIGIT5, false);
-        testKeyPressed("5", KeyCode.MINUS, false);
-        testKeyPressed("9", KeyCode.DIGIT9, false);
-        testKeyPressed("-4", KeyCode.ENTER, false);
-        testKeyPressed("0", KeyCode.BACK_SPACE, false);
+        testKeyPressed("5", KeyCode.DIGIT5);
+        testKeyPressed("5", KeyCode.MINUS);
+        testKeyPressed("9", KeyCode.DIGIT9);
+        testKeyPressed("-4", KeyCode.ENTER);
+        testKeyPressed("0", KeyCode.BACK_SPACE);
 
         // test multiply operation
-        testKeyPressed("5", KeyCode.DIGIT5, false);
-        testKeyPressed("5", KeyCode.MULTIPLY, false);
-        testKeyPressed("9", KeyCode.DIGIT9, false);
-        testKeyPressed("45", KeyCode.ENTER, false);
-        testKeyPressed("4", KeyCode.BACK_SPACE, false);
+        testKeyPressed("5", KeyCode.DIGIT5);
+        testKeyPressed("5", KeyCode.MULTIPLY);
+        testKeyPressed("9", KeyCode.DIGIT9);
+        testKeyPressed("45", KeyCode.ENTER);
+        testKeyPressed("4", KeyCode.BACK_SPACE);
 
         // test divide operation
-        testKeyPressed("5", KeyCode.DIGIT5, false);
-        testKeyPressed("5", KeyCode.DIVIDE, false);
-        testKeyPressed("9", KeyCode.DIGIT9, false);
-        testKeyPressed("0.5555555555555556", KeyCode.ENTER, false);
+        testKeyPressed("5", KeyCode.DIGIT5);
+        testKeyPressed("5", KeyCode.DIVIDE);
+        testKeyPressed("9", KeyCode.DIGIT9);
+        testKeyPressed("0.5555555555555556", KeyCode.ENTER);
 
         // test percentage
-        testKeyPressed("5", KeyCode.DIGIT5, false);
-        testKeyPressed("5", KeyCode.ADD, false);
-        testKeyPressed("9", KeyCode.DIGIT9, false);
+        testKeyPressed("5", KeyCode.DIGIT5);
+        testKeyPressed("5", KeyCode.ADD);
+        testKeyPressed("9", KeyCode.DIGIT9);
         testKeyPressed("0.45", KeyCode.DIGIT5, true);
-        testKeyPressed("5.45", KeyCode.ENTER, false);
+        testKeyPressed("5.45", KeyCode.ENTER);
 
         // test square root operation
-        testKeyPressed("5", KeyCode.NUMPAD5, false);
-        testKeyPressed("5", KeyCode.ADD, false);
-        testKeyPressed("9", KeyCode.DIGIT9, false);
+        testKeyPressed("5", KeyCode.NUMPAD5);
+        testKeyPressed("5", KeyCode.ADD);
+        testKeyPressed("9", KeyCode.DIGIT9);
         testKeyPressed("3", KeyCode.DIGIT2, true);
-        testKeyPressed("8", KeyCode.ENTER, false);
+        testKeyPressed("8", KeyCode.ENTER);
 
-        testKeyPressed("0", KeyCode.BACK_SPACE, false);
+        testKeyPressed("0", KeyCode.BACK_SPACE);
+    }
+
+    private void testKeyPressed(String expectedText, KeyCode keyCode) {
+        // shift button is not pressed
+        testKeyPressed(expectedText, keyCode, false);
     }
 
     private void testKeyPressed(String expectedText, KeyCode keyCode, boolean isShiftDown) {
-
         KeyCodeCombination combination;
         if (isShiftDown) {
         combination = new KeyCodeCombination(keyCode, KeyCombination.SHIFT_DOWN);
@@ -380,16 +385,16 @@ public class ControllerAndViewTest {
     @Test
     public void testPressDisabledButtons() {
         // cause an exception by dividing zero by zero to disable buttons with operations
-        testKeyPressed("0", KeyCode.ESCAPE, false);
-        testKeyPressed("0", KeyCode.DIGIT0, false);
-        testKeyPressed("0", KeyCode.DIVIDE, false);
-        testKeyPressed("0", KeyCode.DIGIT0, false);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, false);
+        testKeyPressed("0", KeyCode.ESCAPE);
+        testKeyPressed("0", KeyCode.DIGIT0);
+        testKeyPressed("0", KeyCode.DIVIDE);
+        testKeyPressed("0", KeyCode.DIGIT0);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS);
 
         // try to press disabled operations from keyboard. Expected no changes in text field
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, true);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS, false);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE, false);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE);
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, true);
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, true);
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, true);
@@ -415,7 +420,7 @@ public class ControllerAndViewTest {
         // clean error message and try to press some buttons with operations
         testButtonClicked("0", cleanAll);
         testButtonClicked("0.", point);
-        testKeyPressed("0.5", KeyCode.DIGIT5, false);
+        testKeyPressed("0.5", KeyCode.DIGIT5);
         testKeyPressed("0.7071067811865475", KeyCode.DIGIT2, true);
     }
 

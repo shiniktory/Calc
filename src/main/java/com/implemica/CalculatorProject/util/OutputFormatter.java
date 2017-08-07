@@ -62,7 +62,7 @@ public class OutputFormatter {
         int scale = 0;
         if (formattedNumber.contains(POINT)) {
             if (formattedNumber.toUpperCase().contains(EXPONENT)) {
-                scale = formattedNumber.toUpperCase().indexOf(EXPONENT) - formattedNumber.indexOf(POINT);
+                scale = new BigDecimal(number).scale();
             } else {
                 scale = formattedNumber.length() - formattedNumber.indexOf(POINT);
             }
@@ -114,8 +114,8 @@ public class OutputFormatter {
                 if (matcher2.matches() && numberStr.length() >= MAX_LENGTH_WITH_POINT) {
                     // If after point is all 9s up to max length
                     int scale = 0;
-                    return number.setScale(scale, BigDecimal.ROUND_UP).toString();
-
+                    String roundedNumber = number.setScale(scale, BigDecimal.ROUND_UP).toString();
+                    return addGroupDelimiters(roundedNumber);
                 }
             } else {
                 Pattern pattern = Pattern.compile(NUMBER_LESS_ONE_WITH_TRAILING_9_PATTERN);
@@ -195,13 +195,13 @@ public class OutputFormatter {
         if (!number.contains(POINT)) {
             return 0;
         }
-        if (number.startsWith(MINUS + "0.")) {
+        if (number.startsWith(MINUS + ZERO_VALUE + POINT)) {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 1;
         }
         if (number.startsWith(MINUS)) {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 2;
         }
-        if (number.startsWith("0.")) {
+        if (number.startsWith(ZERO_VALUE + POINT)) {
             return MAX_LENGTH_WITH_POINT - number.indexOf(POINT);
         }
         return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) - 1;
