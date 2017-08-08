@@ -29,7 +29,7 @@ public class OutputFormatterTest {
 
         // square operation
         testUnaryFormatting("sqr 5 => sqr(5)");
-        testUnaryFormatting("sqr sqr(5) => sqr(sqr(5))");
+        testUnaryFormatting("sqr sqr 5 => sqr(sqr(5))");
         testUnaryFormatting("sqr sqr(sqr(5)) => sqr(sqr(sqr(5)))");
         testUnaryFormatting("sqr 0.25 => sqr(0.25)");
         testUnaryFormatting("sqr 0 => sqr(0)");
@@ -50,13 +50,15 @@ public class OutputFormatterTest {
     private void testUnaryFormatting(String expression) {
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
         int index = 0;
+        // first element is current unary operation
         String operationString = expressionParts[index++];
         MathOperation operation = extractOperation(operationString);
 
+        // second element is base number and applied unary operations to it
         String expressionBeforeOperation = expressionParts[index++];
         String formattedInput = formatUnaryOperation(operation, expressionBeforeOperation);
 
-        if (operation == NEGATE) {
+        if (operation == NEGATE) { // negate operation has no formatting for history
             assertEquals("", formattedInput);
             return;
         }

@@ -429,7 +429,8 @@ public class ControllerAndViewTest {
         for (int i = 0; i < 15; i++) { // If text in field is too large font size must become smaller
             robot.push(KeyCode.DIGIT5);
         }
-        assertNotEquals(initialFontSize, currentNumberText.getFont().getSize());
+        double currentFontSize = currentNumberText.getFont().getSize();
+        assertNotEquals(initialFontSize, currentFontSize);
     }
 
     @Test

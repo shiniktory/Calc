@@ -165,7 +165,6 @@ public class CalcApplication extends Application {
                         buttonContent.getLayoutBounds().getHeight());
             }
 
-
             button.setFont(new Font(button.getFont().getFamily(), newFontSize));
         }
 
@@ -227,6 +226,5 @@ public class CalcApplication extends Application {
         }
         currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
         currentNumberText.end();
-        // TODO FONT SCALING!!!!!
     }
 }

@@ -25,174 +25,174 @@ public class StandardCalculatorTest {
     public void testAddOperation() throws CalculationException {
 
         // with zero arguments
-        testCalculations("0 + 555000000 = 555,000,000");
-        testCalculations("0 + 1000 = 1,000");
-        testCalculations("0 + 100 = 100");
-        testCalculations("0 + 0.6666666666666667 = 0.6666666666666667");
-        testCalculations("0 + 0 = 0");
-        testCalculations("0 + -0.6666666666666667 = -0.6666666666666667");
-        testCalculations("0 + -100 = -100");
-        testCalculations("0 + -1000 = -1,000");
-        testCalculations("0 + -555000000 = -555,000,000");
+        testCalculations("0 + 555000000 = 555,000,000", "0 + ");
+        testCalculations("0 + 1000 = 1,000", "0 + ");
+        testCalculations("0 + 100 = 100", "0 + ");
+        testCalculations("0 + 0.6666666666666667 = 0.6666666666666667", "0 + ");
+        testCalculations("0 + 0 = 0", "0 + ");
+        testCalculations("0 + -0.6666666666666667 = -0.6666666666666667", "0 + ");
+        testCalculations("0 + -100 = -100", "0 + ");
+        testCalculations("0 + -1000 = -1,000", "0 + ");
+        testCalculations("0 + -555000000 = -555,000,000", "0 + ");
 
         // with positive arguments
-        testCalculations("9999999999999999 + 9999999999999999 = 2.e+16");
-        testCalculations("5 + 55550 = 55,555");
-        testCalculations("0.6666666666666667 + 0.0000000000000003 = 0.666666666666667");
-        testCalculations("0.000005 + 0.0000000000005 = 0.0000050000005");
+        testCalculations("9999999999999999 + 9999999999999999 = 2.e+16", "9999999999999999 + ");
+        testCalculations("5 + 55550 = 55,555", "5 + ");
+        testCalculations("0.6666666666666667 + 0.0000000000000003 = 0.666666666666667", "0.6666666666666667 + ");
+        testCalculations("0.000005 + 0.0000000000005 = 0.0000050000005", "0.000005 + ");
 
         // with positive and negative arguments
-        testCalculations("9999999999999999 + -9999999999999999 = 0");
-        testCalculations("1000000.5 + -50000000 = -48,999,999.5");
-        testCalculations("1000000 + -50000000 = -49,000,000");
-        testCalculations("100 + -50 = 50");
-        testCalculations("5 + -5 = 0");
-        testCalculations("0.05 + -0.05 = 0");
-        testCalculations("0.000005 + -0.0000000000005 = 0.0000049999995");
+        testCalculations("9999999999999999 + -9999999999999999 = 0", "9999999999999999 + ");
+        testCalculations("1000000.5 + -50000000 = -48,999,999.5", "1000000.5 + ");
+        testCalculations("1000000 + -50000000 = -49,000,000", "1000000 + ");
+        testCalculations("100 + -50 = 50", "100 + ");
+        testCalculations("5 + -5 = 0", "5 + ");
+        testCalculations("0.05 + -0.05 = 0", "0.05 + ");
+        testCalculations("0.000005 + -0.0000000000005 = 0.0000049999995", "0.000005 + ");
 
         // with negative and positive arguments
-        testCalculations("-5 + 55550 = 55,545");
-        testCalculations("-100 + 50 = -50");
-        testCalculations("-2147483648 + 2147483647 = -1");
+        testCalculations("-5 + 55550 = 55,545", "-5 + ");
+        testCalculations("-100 + 50 = -50", "-100 + ");
+        testCalculations("-2147483648 + 2147483647 = -1", "-2147483648 + ");
 
         // with both negative arguments
-        testCalculations("-0.6 + -0.6 = -1.2");
-        testCalculations("-0.000005 + -0.0000000000005 = -0.0000050000005");
-        testCalculations("-0.1 + -0.1 = -0.2");
-        testCalculations("-1000000 + -50000000 = -51,000,000");
-        testCalculations("-1000000 + -50000000.5 = -51,000,000.5");
-        testCalculations("-9999999999999999 + -9999999999999999 = -2.e+16");
+        testCalculations("-0.6 + -0.6 = -1.2", "-0.6 + ");
+        testCalculations("-0.000005 + -0.0000000000005 = -0.0000050000005", "-0.000005 + ");
+        testCalculations("-0.1 + -0.1 = -0.2", "-0.1 + ");
+        testCalculations("-1000000 + -50000000 = -51,000,000", "-1000000 + ");
+        testCalculations("-1000000 + -50000000.5 = -51,000,000.5", "-1000000 + ");
+        testCalculations("-9999999999999999 + -9999999999999999 = -2.e+16", "-9999999999999999 + ");
 
         // with more than one operation in sequence
-        testCalculations("-2 + 3 + 5 = 6");
-        testCalculations("0 + 0 + 0 = 0");
-        testCalculations("0 + 5 ÷ 500 = 0.01");
-        testCalculations("2 + 3 + 5 = 10");
-        testCalculations("5000 + -6 + 50 = 5,044");
-        testCalculations("999999999999999 + 1 ÷ 2 = 500,000,000,000,000");
-        testCalculations("9999999999999999 + 1 ÷ 2 = 5,000,000,000,000,000");
+        testCalculations("-2 + 3 + 5 = 6", "-2 + 3 + ");
+        testCalculations("0 + 0 + 0 = 0", "0 + 0 + ");
+        testCalculations("0 + 5 ÷ 500 = 0.01", "0 + 5 ÷ ");
+        testCalculations("2 + 3 + 5 = 10", "2 + 3 + ");
+        testCalculations("5000 + -6 + 50 = 5,044", "5000 + -6 + ");
+        testCalculations("999999999999999 + 1 ÷ 2 = 500,000,000,000,000", "999999999999999 + 1 ÷ ");
+        testCalculations("9999999999999999 + 1 ÷ 2 = 5,000,000,000,000,000", "9999999999999999 + 1 ÷ ");
     }
 
     @Test
     public void testSubtractOperation() throws CalculationException {
 
         // with zero arguments
-        testCalculations("0 − 555000000 = -555,000,000");
-        testCalculations("0 − 1000 = -1,000");
-        testCalculations("0 − 100 = -100");
-        testCalculations("0 − 0.6666666666666667 = -0.6666666666666667");
-        testCalculations("0 − 0 = 0");
-        testCalculations("0 − -0.6666666666666667 = 0.6666666666666667");
-        testCalculations("0 − -100 = 100");
-        testCalculations("0 − -1000 = 1,000");
-        testCalculations("0 − -555000000 = 555,000,000");
+        testCalculations("0 − 555000000 = -555,000,000", "0 − ");
+        testCalculations("0 − 1000 = -1,000", "0 − ");
+        testCalculations("0 − 100 = -100", "0 − ");
+        testCalculations("0 − 0.6666666666666667 = -0.6666666666666667", "0 − ");
+        testCalculations("0 − 0 = 0", "0 − ");
+        testCalculations("0 − -0.6666666666666667 = 0.6666666666666667", "0 − ");
+        testCalculations("0 − -100 = 100", "0 − ");
+        testCalculations("0 − -1000 = 1,000", "0 − ");
+        testCalculations("0 − -555000000 = 555,000,000", "0 − ");
 
         // with positive arguments
-        testCalculations("9999999999999999 − 9999999999999999 = 0");
-        testCalculations("9999999999999999 − -9999999999999999 = 2.e+16");
-        testCalculations("2147483647 − 2147483647 = 0");
-        testCalculations("5 − 55550 = -55,545");
-        testCalculations("0.6666666666666667 − 0.0000000000000003 = 0.6666666666666664");
-        testCalculations("0.000005 − 0.0000000000005 = 0.0000049999995");
+        testCalculations("9999999999999999 − 9999999999999999 = 0", "9999999999999999 − ");
+        testCalculations("9999999999999999 − -9999999999999999 = 2.e+16", "9999999999999999 − ");
+        testCalculations("2147483647 − 2147483647 = 0", "2147483647 − ");
+        testCalculations("5 − 55550 = -55,545", "5 − ");
+        testCalculations("0.6666666666666667 − 0.0000000000000003 = 0.6666666666666664", "0.6666666666666667 − ");
+        testCalculations("0.000005 − 0.0000000000005 = 0.0000049999995", "0.000005 − ");
 
         //with positive and negative arguments
-        testCalculations("1000000.5 − -50000000 = 51,000,000.5");
-        testCalculations("1000000 − -50000000 = 51,000,000");
-        testCalculations("100 − -50 = 150");
-        testCalculations("5 − -5 = 10");
-        testCalculations("0.05 − -0.05 = 0.1");
-        testCalculations("0.000005 − -0.0000000000005 = 0.0000050000005");
+        testCalculations("1000000.5 − -50000000 = 51,000,000.5", "1000000.5 − ");
+        testCalculations("1000000 − -50000000 = 51,000,000", "1000000 − ");
+        testCalculations("100 − -50 = 150", "100 − ");
+        testCalculations("5 − -5 = 10","5 − ");
+        testCalculations("0.05 − -0.05 = 0.1", "0.05 − ");
+        testCalculations("0.000005 − -0.0000000000005 = 0.0000050000005", "0.000005 − ");
 
         // with negative and positive arguments
-        testCalculations("-5 − 55550 = -55,555");
-        testCalculations("-1000000.5 − 50000000 = -51,000,000.5");
-        testCalculations("-1000000 − 50000000 = -51,000,000");
-        testCalculations("-100 − 50 = -150");
-        testCalculations("-5 − 5 = -10");
-        testCalculations("-0.05 − 0.05 = -0.1");
-        testCalculations("-0.000005 − 0.0000000000005 = -0.0000050000005");
+        testCalculations("-5 − 55550 = -55,555", "-5 − ");
+        testCalculations("-1000000.5 − 50000000 = -51,000,000.5", "-1000000.5 − ");
+        testCalculations("-1000000 − 50000000 = -51,000,000", "-1000000 − ");
+        testCalculations("-100 − 50 = -150", "-100 − ");
+        testCalculations("-5 − 5 = -10", "-5 − ");
+        testCalculations("-0.05 − 0.05 = -0.1", "-0.05 − ");
+        testCalculations("-0.000005 − 0.0000000000005 = -0.0000050000005", "-0.000005 − ");
 
         // with negative arguments
-        testCalculations("-0.6 − -0.6 = 0");
-        testCalculations("-0.000005 − -0.0000000000005 = -0.0000049999995");
-        testCalculations("-0.1 − -0.1 = 0");
-        testCalculations("-1000000 − -50000000 = 49,000,000");
-        testCalculations("-1000000 − -50000000.5 = 49,000,000.5");
-        testCalculations("-9999999999999999 − -9999999999999999 = 0");
+        testCalculations("-0.6 − -0.6 = 0", "-0.6 − ");
+        testCalculations("-0.000005 − -0.0000000000005 = -0.0000049999995", "-0.000005 − ");
+        testCalculations("-0.1 − -0.1 = 0", "-0.1 − ");
+        testCalculations("-1000000 − -50000000 = 49,000,000", "-1000000 − ");
+        testCalculations("-1000000 − -50000000.5 = 49,000,000.5", "-1000000 − ");
+        testCalculations("-9999999999999999 − -9999999999999999 = 0", "-9999999999999999 − ");
 
         // with more than one operation in sequence
-        testCalculations("-2 − 3 + 5 = 0");
-        testCalculations("0 − 0 + 0 = 0");
-        testCalculations("0 − 5 ÷ 500 = -0.01");
-        testCalculations("2 − 3 + 5 = 4");
-        testCalculations("5000 − -6 + 50 = 5,056");
-        testCalculations("999999999999999 − 1 ☓ 2 = 1,999,999,999,999,996");
-        testCalculations("9999999999999999 − 1 ÷ 2 = 4,999,999,999,999,999");
+        testCalculations("-2 − 3 + 5 = 0", "-2 − 3 + ");
+        testCalculations("0 − 0 + 0 = 0", "0 − 0 + ");
+        testCalculations("0 − 5 ÷ 500 = -0.01", "0 − 5 ÷ ");
+        testCalculations("2 − 3 + 5 = 4", "2 − 3 + ");
+        testCalculations("5000 − -6 + 50 = 5,056", "5000 − -6 + ");
+        testCalculations("999999999999999 − 1 ☓ 2 = 1,999,999,999,999,996", "999999999999999 − 1 ☓ ");
+        testCalculations("9999999999999999 − 1 ÷ 2 = 4,999,999,999,999,999", "9999999999999999 − 1 ÷ ");
     }
 
     @Test
     public void testMultiplyOperation() throws CalculationException {
 
         // with zero arguments
-        testCalculations("0 ☓ 555000000 = 0");
-        testCalculations("0 ☓ 1000 = 0");
-        testCalculations("0 ☓ 100 = 0");
-        testCalculations("0 ☓ 0.6666666666666667 = 0");
-        testCalculations("0 ☓ 0 = 0");
-        testCalculations("0 ☓ -0.6666666666666667 = 0");
-        testCalculations("0 ☓ -100 = 0");
-        testCalculations("0 ☓ -1000 = 0");
-        testCalculations("0 ☓ -555000000 = 0");
+        testCalculations("0 ☓ 555000000 = 0", "0 ☓ ");
+        testCalculations("0 ☓ 1000 = 0", "0 ☓ ");
+        testCalculations("0 ☓ 100 = 0", "0 ☓ ");
+        testCalculations("0 ☓ 0.6666666666666667 = 0", "0 ☓ ");
+        testCalculations("0 ☓ 0 = 0", "0 ☓ ");
+        testCalculations("0 ☓ -0.6666666666666667 = 0", "0 ☓ ");
+        testCalculations("0 ☓ -100 = 0", "0 ☓ ");
+        testCalculations("0 ☓ -1000 = 0", "0 ☓ ");
+        testCalculations("0 ☓ -555000000 = 0", "0 ☓ ");
 
         // positive argument on positive
-        testCalculations("1000000.5 ☓ 50000000 = 50,000,025,000,000");
-        testCalculations("1000000 ☓ 50000000 = 50,000,000,000,000");
-        testCalculations("100 ☓ 50 = 5,000");
-        testCalculations("5 ☓ 55550 = 277,750");
-        testCalculations("5 ☓ 5 = 25");
-        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002");
-        testCalculations("0.05 ☓ 0.05 = 0.0025");
-        testCalculations("0.000005 ☓ 0.0000000000005 = 2.5e-18");
-        testCalculations("0.000005 ☓ 0.1 = 0.0000005");
+        testCalculations("1000000.5 ☓ 50000000 = 50,000,025,000,000", "1000000.5 ☓ ");
+        testCalculations("1000000 ☓ 50000000 = 50,000,000,000,000", "1000000 ☓ ");
+        testCalculations("100 ☓ 50 = 5,000", "100 ☓ ");
+        testCalculations("5 ☓ 55550 = 277,750", "5 ☓ ");
+        testCalculations("5 ☓ 5 = 25", "5 ☓ ");
+        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 ☓ ");
+        testCalculations("0.05 ☓ 0.05 = 0.0025", "0.05 ☓ ");
+        testCalculations("0.000005 ☓ 0.0000000000005 = 2.5e-18", "0.000005 ☓ ");
+        testCalculations("0.000005 ☓ 0.1 = 0.0000005", "0.000005 ☓ ");
 
         // positive argument on negative
-        testCalculations("1000000.5 ☓ -50000000 = -50,000,025,000,000");
-        testCalculations("1000000 ☓ -50000000 = -50,000,000,000,000");
-        testCalculations("100 ☓ -50 = -5,000");
-        testCalculations("5 ☓ 55550 = 277,750");
-        testCalculations("5 ☓ -5 = -25");
-        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002");
-        testCalculations("0.05 ☓ -0.05 = -0.0025");
-        testCalculations("0.000005 ☓ -0.0000000000005 = -2.5e-18");
-        testCalculations("0.000005 ☓ -0.1 = -0.0000005");
+        testCalculations("1000000.5 ☓ -50000000 = -50,000,025,000,000","1000000.5 ☓ ");
+        testCalculations("1000000 ☓ -50000000 = -50,000,000,000,000", "1000000 ☓ ");
+        testCalculations("100 ☓ -50 = -5,000", "100 ☓ ");
+        testCalculations("5 ☓ 55550 = 277,750", "5 ☓ ");
+        testCalculations("5 ☓ -5 = -25", "5 ☓ ");
+        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 ☓ ");
+        testCalculations("0.05 ☓ -0.05 = -0.0025", "0.05 ☓ ");
+        testCalculations("0.000005 ☓ -0.0000000000005 = -2.5e-18", "0.000005 ☓ ");
+        testCalculations("0.000005 ☓ -0.1 = -0.0000005", "0.000005 ☓ ");
 
         // negative on positive
-        testCalculations("-5 ☓ 55550 = -277,750");
-        testCalculations("-100 ☓ 50 = -5,000");
-        testCalculations("-2147483648 ☓ 2147483647 = -4.611686016279904e+18");
-        testCalculations("-0.6 ☓ 0.6 = -0.36");
-        testCalculations("-0.000005 ☓ 0.0000000000005 = -2.5e-18");
-        testCalculations("-0.1 ☓ 0.1 = -0.01");
-        testCalculations("-1000000 ☓ 50000000 = -50,000,000,000,000");
-        testCalculations("-1000000 ☓ 50000000.5 = -50,000,000,500,000");
+        testCalculations("-5 ☓ 55550 = -277,750", "-5 ☓ ");
+        testCalculations("-100 ☓ 50 = -5,000", "-100 ☓ ");
+        testCalculations("-2147483648 ☓ 2147483647 = -4.611686016279904e+18", "-2147483648 ☓ ");
+        testCalculations("-0.6 ☓ 0.6 = -0.36", "-0.6 ☓ ");
+        testCalculations("-0.000005 ☓ 0.0000000000005 = -2.5e-18", "-0.000005 ☓ ");
+        testCalculations("-0.1 ☓ 0.1 = -0.01", "-0.1 ☓ ");
+        testCalculations("-1000000 ☓ 50000000 = -50,000,000,000,000", "-1000000 ☓ ");
+        testCalculations("-1000000 ☓ 50000000.5 = -50,000,000,500,000", "-1000000 ☓ ");
 
         // negative argument on negative
-        testCalculations("-5 ☓ -55550 = 277,750");
-        testCalculations("-100 ☓ -50 = 5,000");
-        testCalculations("-0.6 ☓ -0.6 = 0.36");
-        testCalculations("-0.000005 ☓ -0.0000000000005 = 2.5e-18");
-        testCalculations("-0.1 ☓ -0.1 = 0.01");
-        testCalculations("-1000000 ☓ -50000000 = 50,000,000,000,000");
-        testCalculations("-1000000 ☓ -50000000.5 = 50,000,000,500,000");
+        testCalculations("-5 ☓ -55550 = 277,750", "-5 ☓ ");
+        testCalculations("-100 ☓ -50 = 5,000", "-100 ☓ ");
+        testCalculations("-0.6 ☓ -0.6 = 0.36", "-0.6 ☓ ");
+        testCalculations("-0.000005 ☓ -0.0000000000005 = 2.5e-18", "-0.000005 ☓ ");
+        testCalculations("-0.1 ☓ -0.1 = 0.01", "-0.1 ☓ ");
+        testCalculations("-1000000 ☓ -50000000 = 50,000,000,000,000", "-1000000 ☓ ");
+        testCalculations("-1000000 ☓ -50000000.5 = 50,000,000,500,000", "-1000000 ☓ ");
 
         // with more than one operation in sequence
-        testCalculations("-1000000000000000 ÷ 3 ☓ 3 = -1,000,000,000,000,000");
-        testCalculations("-1000 ÷ 3 ☓ 3 = -1,000");
-        testCalculations("0 ÷ 50 − 0 = 0");
-        testCalculations("1 ÷ 3 ☓ 3 = 1");
-        testCalculations("10 ÷ 3 ☓ 3 = 10");
-        testCalculations("1000 ÷ 3 ☓ 3 = 1,000");
-        testCalculations("5000 ÷ -6 + 50 = -783.3333333333333");
+        testCalculations("-1000000000000000 ÷ 3 ☓ 3 = -1,000,000,000,000,000", "-1000000000000000 ÷ 3 ☓ ");
+        testCalculations("-1000 ÷ 3 ☓ 3 = -1,000", "-1000 ÷ 3 ☓ ");
+        testCalculations("0 ÷ 50 − 0 = 0", "0 ÷ 50 − ");
+        testCalculations("1 ÷ 3 ☓ 3 = 1", "1 ÷ 3 ☓ ");
+        testCalculations("10 ÷ 3 ☓ 3 = 10", "10 ÷ 3 ☓ ");
+        testCalculations("1000 ÷ 3 ☓ 3 = 1,000", "1000 ÷ 3 ☓ ");
+        testCalculations("5000 ÷ -6 + 50 = -783.3333333333333", "5000 ÷ -6 + ");
     }
 
     @Test
@@ -390,17 +390,17 @@ public class StandardCalculatorTest {
     }
 
 
-    private void testCalculations(String expression) throws CalculationException {
+    private void testCalculations(String expression, String expectedHistory) throws CalculationException {
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
         String expectedResult = expressionParts[expressionParts.length - 1];
-        String history;
+
 
         if (isNumber(expressionParts[0])) {
-            history = performBinaryCalculations(expressionParts);
+            performBinaryCalculations(expressionParts);
         } else {
-            history = performUnaryOperations(expressionParts);
+            performUnaryOperations(expressionParts);
         }
-        testHistory(history);
+        testHistory(expectedHistory);
         testResult(expectedResult);
     }
 
