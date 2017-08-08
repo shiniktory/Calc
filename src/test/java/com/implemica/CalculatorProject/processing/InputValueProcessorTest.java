@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 public class InputValueProcessorTest {
 
-    private InputValueProcessor processor = new InputValueProcessor();
+    private final InputValueProcessor processor = new InputValueProcessor();
 
     private static final String ARGUMENT_DELIMITERS = "\\s+[=\\s]*";
 
@@ -147,8 +147,9 @@ public class InputValueProcessorTest {
         // Press "=" when nothing entered
         testResultButtonPressed("0");
 
-        // Enter first number, perform unary operation, press one binary operation,
-        // change it to another binary operation and enter new number
+        // Enter first number, press binary operation,
+        // change it to another binary operation and enter new number.
+        // Expected execution of the last pressed binary operation
         enterNumber("5");
         processor.executeMathOperation(SQUARE);
         processor.executeMathOperation(MULTIPLY);

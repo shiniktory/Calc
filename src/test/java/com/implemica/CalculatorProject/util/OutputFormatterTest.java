@@ -7,46 +7,62 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.calculation.StandardCalculatorTest.extractOperation;
 import static com.implemica.CalculatorProject.util.OutputFormatter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class OutputFormatterTest {
 
+    private static final String ARGUMENT_DELIMITERS = "\\s+[=>\\s]*";
+
     @Test
     public void testUnaryOperationFormat() {
 
         // square root operation
-        testUnaryFormatting("√(5)", SQUARE_ROOT, "5");
-        testUnaryFormatting("√(√(5))", SQUARE_ROOT, "√(5)");
-        testUnaryFormatting("√(√(√(5)))", SQUARE_ROOT, "√(√(5))");
-        testUnaryFormatting("√(0.25)", SQUARE_ROOT, "0.25");
-        testUnaryFormatting("√(0)", SQUARE_ROOT, "0");
-        testUnaryFormatting("√(-5)", SQUARE_ROOT, "-5");
+        testUnaryFormatting("√ 5 => √(5)");
+        testUnaryFormatting("√ √(5) => √(√(5))");
+        testUnaryFormatting("√ √(√(5)) => √(√(√(5)))");
+        testUnaryFormatting("√ 0.25 => √(0.25)");
+        testUnaryFormatting("√ 0 => √(0)");
+        testUnaryFormatting("√ -5 => √(-5)");
 
         // square operation
-        testUnaryFormatting("sqr(5)", SQUARE, "5");
-        testUnaryFormatting("sqr(sqr(5))", SQUARE, "sqr(5)");
-        testUnaryFormatting("sqr(sqr(sqr(5)))", SQUARE, "sqr(sqr(5))");
-        testUnaryFormatting("sqr(0.25)", SQUARE, "0.25");
-        testUnaryFormatting("sqr(0)", SQUARE, "0");
-        testUnaryFormatting("sqr(-5)", SQUARE, "-5");
+        testUnaryFormatting("sqr 5 => sqr(5)");
+        testUnaryFormatting("sqr sqr(5) => sqr(sqr(5))");
+        testUnaryFormatting("sqr sqr(sqr(5)) => sqr(sqr(sqr(5)))");
+        testUnaryFormatting("sqr 0.25 => sqr(0.25)");
+        testUnaryFormatting("sqr 0 => sqr(0)");
+        testUnaryFormatting("sqr -5 => sqr(-5)");
 
         // reverse operation
-        testUnaryFormatting("1/(5)", REVERSE, "5");
-        testUnaryFormatting("1/(1/(5))", REVERSE, "1/(5)");
-        testUnaryFormatting("1/(1/(1/(5)))", REVERSE, "1/(1/(5))");
-        testUnaryFormatting("1/(0.25)", REVERSE, "0.25");
-        testUnaryFormatting("1/(0)", REVERSE, "0");
-        testUnaryFormatting("1/(-5)", REVERSE, "-5");
+        testUnaryFormatting("1/ 5 => 1/(5)");
+        testUnaryFormatting("1/ 1/(5) => 1/(1/(5))");
+        testUnaryFormatting("1/ 1/(1/(5)) => 1/(1/(1/(5)))");
+        testUnaryFormatting("1/ 0.25 => 1/(0.25)");
+        testUnaryFormatting("1/ 0 => 1/(0)");
+        testUnaryFormatting("1/ -5 => 1/(-5)");
 
         // unary operation that have no formatting for history - returns an empty string
-        testUnaryFormatting("", NEGATE, "-5");
+        testUnaryFormatting("± -5 => ");
     }
 
-    private void testUnaryFormatting(String expected, MathOperation operation, String input) {
-        String formattedInput = formatUnaryOperation(operation, input);
-        assertEquals(expected, formattedInput);
+    private void testUnaryFormatting(String expression) {
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int index = 0;
+        String operationString = expressionParts[index++];
+        MathOperation operation = extractOperation(operationString);
+
+        String expressionBeforeOperation = expressionParts[index++];
+        String formattedInput = formatUnaryOperation(operation, expressionBeforeOperation);
+
+        if (operation == NEGATE) {
+            assertEquals("", formattedInput);
+            return;
+        }
+
+        String resultedExpression = expressionParts[index];
+        assertEquals(resultedExpression, formattedInput);
     }
 
     @Test

@@ -14,12 +14,12 @@ public enum MathOperation {
     /**
      * A string representation of the operation.
      */
-    private String code;
+    private final String code;
 
     /**
      * The flag variable shows is operation binary (true) or unary (false).
      */
-    private boolean isBinary;
+    private final boolean isBinary;
 
     /**
      * Constructs a new {@code MathOperation} with the given description.

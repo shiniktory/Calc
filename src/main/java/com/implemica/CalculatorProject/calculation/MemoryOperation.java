@@ -15,7 +15,7 @@ public enum MemoryOperation {
     /**
      * A string representation of the operation.
      */
-    private String code;
+    private final String code;
 
     /**
      * Constructs a new {@code MemoryOperation} with the given string representation.

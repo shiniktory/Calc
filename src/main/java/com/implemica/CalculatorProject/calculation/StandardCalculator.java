@@ -4,6 +4,7 @@ package com.implemica.CalculatorProject.calculation;
 import com.implemica.CalculatorProject.exception.CalculationException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.isZero;
 import static java.lang.String.format;
@@ -43,12 +44,12 @@ public class StandardCalculator implements Calculator {
     /**
      * The list of one or two numbers for calculations.
      */
-    private BigDecimal[] numbers;
+    private final BigDecimal[] numbers;
 
     /**
      * The value of a Mathematical operation type.
      */
-    private MathOperation operation;
+    private final MathOperation operation;
 
     /**
      * Scale of the {@code BigDecimal} quotient to be returned for result of the division.
@@ -199,7 +200,7 @@ public class StandardCalculator implements Calculator {
      * @param secondNumber a value of the second argument for multiplication
      * @return the multiplication of two specified numbers
      */
-    private BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) throws CalculationException {
+    private BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) {
         return firstNumber.multiply(secondNumber);
     }
 
@@ -255,13 +256,23 @@ public class StandardCalculator implements Calculator {
         if (isZero(number)) {
             return ZERO.setScale(0);
         }
-        // TODO change sqrt algorithm. Current doesn't work for big values. Example: 9.997189622166588e-5821 java.lang.NumberFormatException: Infinite or NaN
-        // Using Karp's algorithm for searching square root. Has 32 digits precision
-        BigDecimal rootForDoublePart = new BigDecimal(Math.sqrt(number.doubleValue()));
-        BigDecimal squareForRoot = rootForDoublePart.multiply(rootForDoublePart);
-        double difference = number.subtract(squareForRoot).doubleValue();
-        BigDecimal correlation = new BigDecimal(difference / (rootForDoublePart.doubleValue() * 2.0));
-        return rootForDoublePart.add(correlation);
+
+        BigInteger numberBigInt = number.movePointRight(SCALE << 1).toBigInteger();
+
+        // The first approximation is the upper half of n.
+        int bits = (numberBigInt.bitLength() + 1) >> 1;
+        BigInteger tempValue = numberBigInt.shiftRight(bits);
+        BigInteger prevTempValue;
+
+        // Loop until the approximations converge
+        // (two successive approximations are equal after rounding).
+        do {
+            prevTempValue = tempValue;
+            // x = (x + n/x)/2
+            tempValue = tempValue.add(numberBigInt.divide(tempValue)).shiftRight(1);
+        } while (tempValue.compareTo(prevTempValue) != 0);
+
+        return new BigDecimal(tempValue, SCALE);
     }
 
     /**
@@ -271,13 +282,13 @@ public class StandardCalculator implements Calculator {
      * @param percent a count of percents to calculate
      * @return the number that is a specified percentage calculated for the given number
      */
-    private BigDecimal percent(BigDecimal base, BigDecimal percent) throws CalculationException {
+    private BigDecimal percent(BigDecimal base, BigDecimal percent) {
         if (isZero(base) || isZero(percent)) {
             return ZERO.setScale(0);
         }
         // Convert percentage to an absolute value
-        BigDecimal absolutePercentage = percent.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP).stripTrailingZeros();
-        return base.multiply(absolutePercentage).stripTrailingZeros();
+        BigDecimal absolutePercentageValue = percent.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP).stripTrailingZeros();
+        return base.multiply(absolutePercentageValue).stripTrailingZeros();
     }
 
     /**

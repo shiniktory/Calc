@@ -13,7 +13,7 @@ public enum EditOperation {
     /**
      * A string representation of an operation.
      */
-    private String code;
+    private final String code;
 
     /**
      * Constructs a new {@code EditOperation} with the given code.

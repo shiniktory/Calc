@@ -25,9 +25,6 @@ import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CU
 import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.EMPTY_VALUE;
-import static javafx.scene.input.KeyCombination.ModifierValue.DOWN;
-import static javafx.scene.input.KeyCombination.ModifierValue.UP;
 import static org.junit.Assert.*;
 import static org.testfx.framework.junit.ApplicationTest.launch;
 
@@ -35,7 +32,7 @@ public class ControllerAndViewTest {
 
     private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
 
-    private FxRobot robot = new FxRobot();
+    private final FxRobot robot = new FxRobot();
 
     private TextField currentNumberText, prevOperationsText;
     private Button numZero, numOne, numTwo, numThree, numFour, numFive, numSix, numSeven, numEight, numNine;
@@ -416,6 +413,7 @@ public class ControllerAndViewTest {
         testButtonClicked(RESULT_IS_UNDEFINED_MESSAGE, memoryMinus);
         testButtonClicked(RESULT_IS_UNDEFINED_MESSAGE, memoryStore);
         testButtonClicked(RESULT_IS_UNDEFINED_MESSAGE, memory);
+        testButtonClicked(RESULT_IS_UNDEFINED_MESSAGE, history);
 
         // clean error message and try to press some buttons with operations
         testButtonClicked("0", cleanAll);

@@ -73,10 +73,7 @@ public class CalcApplication extends Application {
                 changeFontSize(root, scale);
             });
 
-            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
-
-                changeFontSizeForHeight(root);
-            });
+            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> changeFontSizeForHeight(root));
 
             primaryStage.show();
         } catch (IOException e) {

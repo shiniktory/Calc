@@ -51,7 +51,7 @@ public class CalculatorController {
      * An instance of {@link InputValueProcessor} that accepts, transforms and calculates the results for an
      * input data.
      */
-    private InputValueProcessor valueProcessor = new InputValueProcessor();
+    private final InputValueProcessor valueProcessor = new InputValueProcessor();
 
     /**
      * The value of a default font for the text field with current number.
@@ -159,7 +159,7 @@ public class CalculatorController {
      *
      * @param number the number to set
      */
-    public void setCurrentNumber(String number) {
+    private void setCurrentNumber(String number) {
         fitText(number);
         currentNumberText.setText(number);
         currentNumberText.end();
@@ -170,7 +170,7 @@ public class CalculatorController {
      *
      * @param mathExpression a string with expression to set
      */
-    public void setMathExpression(String mathExpression) {
+    private void setMathExpression(String mathExpression) {
         prevOperationsText.setText(mathExpression);
         prevOperationsText.end();
     }
@@ -455,14 +455,12 @@ public class CalculatorController {
     @FXML
     private void deleteLastNumber() {
         resetAfterError();
-        String textToSet;
         try {
-            textToSet = valueProcessor.deleteLastDigit();
+            valueProcessor.deleteLastDigit();
             updateCurrentNumberField();
         } catch (CalculationException e) {
-            textToSet = handleException(e);
+            setCurrentNumber(handleException(e));
         }
-        setCurrentNumber(textToSet);
     }
 
     /**

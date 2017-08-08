@@ -17,40 +17,85 @@ import static com.implemica.CalculatorProject.validation.DataValidator.*;
 
 public class InputValueProcessor {
 
+    /**
+     * The value of previous entered number represented by string. By default it is zero.
+     */
     private String previousNumber = ZERO_VALUE;
+
+    /**
+     * The last requested binary operation.
+     */
     private MathOperation operation;
+
+    /**
+     * The value of last entered number represented by string. By default it is zero.
+     */
     private String lastNumber = ZERO_VALUE;
 
+    /**
+     * The value of last memorized value represented by string. By default it is zero.
+     */
     private String memorizedNumber = ZERO_VALUE;
 
-    private List<String> expression = new ArrayList<>();
+    /**
+     * The list of expression parts (numbers and operations) used for history showing.
+     */
+    private final List<String> expression = new ArrayList<>();
 
+    /**
+     * The value of temporary number stores last entered number before calculation result. Used as argument
+     * for calculations with multiple pressings result button. Default value is zero.
+     */
     private String tempNumber = ZERO_VALUE;
 
+    /**
+     * The flag variable shows is entering a new number or continuing type previous number.
+     */
     private boolean isNewNumber = true;
 
+    /**
+     * The flag variable shows was previous operation unary or binary.
+     */
     private boolean wasUnaryBefore = false;
 
+    /**
+     * The string contains a zero value. Uses as default value for some fields with numbers.
+     */
     public static final String ZERO_VALUE = "0";
 
+    /**
+     * An error message about requested operation not found.
+     */
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
-    private Calculator calculator;
-
-
+    /**
+     * Returns the last entered number formatted with group delimiters represented by string.
+     *
+     * @return the last entered number formatted with group delimiters represented by string
+     * @throws CalculationException if last entered number is not a number
+     */
     public String getLastNumber() throws CalculationException {
         return addGroupDelimiters(lastNumber);
     }
 
+    /**
+     * Returns a string contains a mathematical expression used as history.
+     *
+     * @return a string contains a mathematical expression
+     */
     public String getExpression() {
         StringBuilder builder = new StringBuilder();
         for (String expressionPart : expression) {
             builder.append(expressionPart).append(" ");
         }
-
         return builder.toString().trim().toLowerCase();
     }
 
+    /**
+     * Adds digit to the last entered number.
+     *
+     * @param digit to add to the last entered number
+     */
     public void updateCurrentNumber(String digit) {
         if (!isDigit(digit)) {
             return;
@@ -63,6 +108,11 @@ public class InputValueProcessor {
         isNewNumber = false;
     }
 
+    /**
+     * Appends the given digit to the current number.
+     *
+     * @param digit a digit to append to the current number
+     */
     private void appendDigit(String digit) {
         if (!isNumberLengthValid(lastNumber + digit)) {
             return;
@@ -77,6 +127,14 @@ public class InputValueProcessor {
         }
     }
 
+    /**
+     * Executes the specified mathematical operation, writes it to history expression. Returns last entered number
+     * or operation result if needed for some operations. Returning value is formatted appropriate way for displaying.
+     *
+     * @param currentOperation an operation to execute
+     * @return last entered number or operation result if needed for some operations
+     * @throws CalculationException if some error while calculations occurred
+     */
     public String executeMathOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_FOUND);
@@ -148,7 +206,7 @@ public class InputValueProcessor {
     }
 
     private String getResult(MathOperation operation, String... arguments) throws CalculationException {
-        calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
+        Calculator calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
         BigDecimal result = calculator.calculate();
         return formatToMathView(result);
     }
