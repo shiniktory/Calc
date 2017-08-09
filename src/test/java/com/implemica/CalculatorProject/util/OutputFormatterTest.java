@@ -20,51 +20,45 @@ public class OutputFormatterTest {
     public void testUnaryOperationFormat() {
 
         // square root operation
-        testUnaryFormatting("√ 5 => √(5)");
-        testUnaryFormatting("√ √(5) => √(√(5))");
-        testUnaryFormatting("√ √(√(5)) => √(√(√(5)))");
-        testUnaryFormatting("√ 0.25 => √(0.25)");
-        testUnaryFormatting("√ 0 => √(0)");
-        testUnaryFormatting("√ -5 => √(-5)");
+        testUnaryFormatting("√ 5", "√(5)");
+        testUnaryFormatting("√ √ 5", "√(√(5))");
+        testUnaryFormatting("√ √ √ 5", " √(√(√(5)))");
+        testUnaryFormatting("√ 0.25", "√(0.25)");
+        testUnaryFormatting("√ 0", "√(0)");
+        testUnaryFormatting("√ -5", "√(-5)");
 
         // square operation
-        testUnaryFormatting("sqr 5 => sqr(5)");
-        testUnaryFormatting("sqr sqr 5 => sqr(sqr(5))");
-        testUnaryFormatting("sqr sqr(sqr(5)) => sqr(sqr(sqr(5)))");
-        testUnaryFormatting("sqr 0.25 => sqr(0.25)");
-        testUnaryFormatting("sqr 0 => sqr(0)");
-        testUnaryFormatting("sqr -5 => sqr(-5)");
+        testUnaryFormatting("sqr 5", "sqr(5)");
+        testUnaryFormatting("sqr sqr 5", "sqr(sqr(5))");
+        testUnaryFormatting("sqr sqr sqr 5", "sqr(sqr(sqr(5)))");
+        testUnaryFormatting("sqr 0.25", "sqr(0.25)");
+        testUnaryFormatting("sqr 0", "sqr(0)");
+        testUnaryFormatting("sqr -5", "sqr(-5)");
 
         // reverse operation
-        testUnaryFormatting("1/ 5 => 1/(5)");
-        testUnaryFormatting("1/ 1/(5) => 1/(1/(5))");
-        testUnaryFormatting("1/ 1/(1/(5)) => 1/(1/(1/(5)))");
-        testUnaryFormatting("1/ 0.25 => 1/(0.25)");
-        testUnaryFormatting("1/ 0 => 1/(0)");
-        testUnaryFormatting("1/ -5 => 1/(-5)");
+        testUnaryFormatting("1/ 5", "1/(5)");
+        testUnaryFormatting("1/ 1/ 5", "1/(1/(5))");
+        testUnaryFormatting("1/ 1/ 1/ 5", "1/(1/(1/(5)))");
+        testUnaryFormatting("1/ 0.25", " 1/(0.25)");
+        testUnaryFormatting("1/ 0 ", "1/(0)");
+        testUnaryFormatting("1/ -5", " 1/(-5)");
 
         // unary operation that have no formatting for history - returns an empty string
-        testUnaryFormatting("± -5 => ");
+        testUnaryFormatting("± -5", "");
     }
 
-    private void testUnaryFormatting(String expression) {
+    private void testUnaryFormatting(String expression, String expectedHistory) {
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
-        int index = 0;
-        // first element is current unary operation
-        String operationString = expressionParts[index++];
-        MathOperation operation = extractOperation(operationString);
+        int index = expressionParts.length - 1;
 
-        // second element is base number and applied unary operations to it
-        String expressionBeforeOperation = expressionParts[index++];
-        String formattedInput = formatUnaryOperation(operation, expressionBeforeOperation);
+        String formattedInput = expressionParts[index--];
 
-        if (operation == NEGATE) { // negate operation has no formatting for history
-            assertEquals("", formattedInput);
-            return;
+        for (int i = 0; i <= index; i++) {
+            MathOperation operation = extractOperation(expressionParts[i]);
+            formattedInput = formatUnaryOperation(operation, formattedInput);
         }
 
-        String resultedExpression = expressionParts[index];
-        assertEquals(resultedExpression, formattedInput);
+        assertEquals(expectedHistory.trim(), formattedInput.trim());
     }
 
     @Test

@@ -445,7 +445,7 @@ public class CalculatorController {
         resetAfterError();
         valueProcessor.cleanCurrent();
         updateCurrentNumberField();
-        disableAllOperations(false);
+        prevOperationsText.setText(valueProcessor.getExpression());
         isErrorOccurred = false;
     }
 

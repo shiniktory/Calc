@@ -1,28 +1,140 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.controller;
 
-import com.implemica.CalculatorProject.exception.CalculationException;
-import com.implemica.CalculatorProject.processing.InputValueProcessor;
+import com.implemica.CalculatorProject.CalcApplication;
+import com.implemica.CalculatorProject.calculation.*;
+import javafx.geometry.VerticalDirection;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Window;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.loadui.testfx.utils.FXTestUtils;
+import org.testfx.api.FxRobot;
+import org.testfx.util.WaitForAsyncUtils;
 
-import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.*;
-import static com.implemica.CalculatorProject.util.ValueTransformerUtil.getBigDecimalValues;
-import static com.implemica.CalculatorProject.validation.DataValidator.isEmptyString;
+import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_CLEAN;
+import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_RECALL;
+import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_SHOW;
+import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.testfx.framework.junit.ApplicationTest.launch;
 
-public class StandardCalculatorTest {
+
+public class TestCalculator {
+
+    private static final FxRobot robot = new FxRobot();
+
+    private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
+    private static final String DIVISION_BY_ZERO_MESSAGE = "Cannot divide by zero";
+    private static final String INVALID_INPUT_MESSAGE = "Invalid input";
+    private static final String OVERFLOW_MESSAGE = "Overflow";
 
     private static final String ARGUMENT_DELIMITERS = "\\s+[=\\s]*";
 
-    private final InputValueProcessor valueProcessor = new InputValueProcessor();
+    private static TextField currentNumberText, prevOperationsText;
+
+    private static ListView typesList;
+    private static VBox viewPanel;
+    private static BorderPane memoryStorage;
+
+    private static Map<String, Button> buttons = new LinkedHashMap<>();
+
+    @BeforeClass
+    public static void setUpInit() throws Exception {
+        launch(CalcApplication.class);
+
+        WaitForAsyncUtils.waitForFxEvents();
+        // init numbers
+        for (int i = 0; i <= 9; i++) {
+            String number = String.valueOf(i);
+            findAndPutButton(number, number);
+        }
+        findAndPutButton(".", "#point");
+
+        // init math operations
+        for (MathOperation operation : MathOperation.values()) {
+            String operationCode = operation.getCode();
+            findAndPutButton(operationCode, operationCode);
+        }
+
+        // init edit number operations
+        for (EditOperation operation : EditOperation.values()) {
+            String operationCode = operation.getCode();
+            findAndPutButton(operationCode, operationCode);
+        }
+
+        // init memory operations
+        for (MemoryOperation operation : MemoryOperation.values()) {
+            String operationCode = operation.getCode();
+            findAndPutButton(operationCode, operationCode);
+        }
+
+        // other buttons
+        findAndPutButton("mode", "#mode");
+        findAndPutButton("modeClose", "#modeClose");
+        findAndPutButton("infoButton", "#infoButton");
+        findAndPutButton("history", "#history");
+
+        // text fields with current number and history
+        currentNumberText = find("#currentNumberText");
+        prevOperationsText = find("#prevOperationsText");
+
+        // panels with calculator's view types and memorized values
+        viewPanel = find("#viewTypesPanel");
+        typesList = find("#viewTypes");
+        memoryStorage = find("#memoryStorage");
+    }
+
+    private static void findAndPutButton(String buttonId, String query) {
+        buttons.put(buttonId, find(query));
+        WaitForAsyncUtils.waitForFxEvents();
+    }
+
+    private static <T extends Node> T find(final String query) {
+        T node = robot.lookup(query).query();
+        assertNotNull(node);
+        return node;
+    }
+
+    @Before
+    public void setUp() {
+        // reset everything before each test
+        robot.push(KeyCode.ESCAPE);
+    }
 
     @Test
-    public void testAddOperation() throws CalculationException {
+    public void testButtons() {
+        for (int i = 0; i <= 9; i++) {
+            String digit = String.valueOf(i);
+            fireButton(digit);
+            assertEquals(digit, currentNumberText.getText());
+            fireButton(CLEAN_CURRENT.getCode());
+            robot.clickOn(digit);
+            fireButton(CLEAN_CURRENT.getCode());
+        }
+    }
+
+    // TODO add just clicking or pressing all buttons
+
+    @Test
+    public void testAddOperation() {
 
         // with zero arguments
         testCalculations("0 + 555000000 = 555,000,000", "0 + ");
@@ -74,7 +186,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testSubtractOperation() throws CalculationException {
+    public void testSubtractOperation() {
 
         // with zero arguments
         testCalculations("0 − 555000000 = -555,000,000", "0 − ");
@@ -131,7 +243,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testMultiplyOperation() throws CalculationException {
+    public void testMultiplyOperation() {
 
         // with zero arguments
         testCalculations("0 ☓ 555000000 = 0", "0 ☓ ");
@@ -196,7 +308,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testDivideOperation() throws CalculationException {
+    public void testDivideOperation() {
 
         // zero by non-zero number
         testCalculations("0 ÷ 555000000 = 0", "0 ÷ ");
@@ -242,7 +354,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testPercentOperation() throws CalculationException {
+    public void testPercentOperation() {
 
         // percentage for base zero and any percent
         testCalculations("0 + 555000000 % = 0", "0 + 0 ");
@@ -279,7 +391,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testNegateOperation() throws CalculationException {
+    public void testNegateOperation() {
         // Expression format: unaryOperation enteredNumber = expected result after unary operation
         // with positive argument
         testCalculations("± 9999999999999999 = -9,999,999,999,999,999", "");
@@ -311,7 +423,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testSquareOperation() throws CalculationException {
+    public void testSquareOperation() {
         // Expression format: enteredNumber = expected result after unary operation
         // with positive argument
         testCalculations("sqr 1000000.5 = 1,000,001,000,000.25", "sqr(1000000.5)");
@@ -342,7 +454,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testSquareRootOperation() throws CalculationException {
+    public void testSquareRootOperation() {
         // Expression format: enteredNumber = expected result after unary operation
         testCalculations("√ 9999999999999999 = 100,000,000", "√(9999999999999999)");
         testCalculations("√ 58585858585 = 242,045.158152358", "√(58585858585)");
@@ -363,7 +475,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testReverseOperation() throws CalculationException {
+    public void testReverseOperation() {
         // Expression format: enteredNumber = expected result after unary operation
         // positive argument
         testCalculations("1/ 9999999999999999 = 0.0000000000000001", "1/(9999999999999999)");
@@ -389,11 +501,11 @@ public class StandardCalculatorTest {
         testCalculations("1/ sqr -5 = 0.04", "sqr(1/(-5))");
     }
 
+    // TODO add binary with unary operations test + when clean current after unary check not only reset number but deleting last unaries from history
 
-    private void testCalculations(String expression, String expectedHistory) throws CalculationException {
+    private void testCalculations(String expression, String expectedHistory) {
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
         String expectedResult = expressionParts[expressionParts.length - 1];
-
 
         if (isNumber(expressionParts[0])) {
             performBinaryCalculations(expressionParts);
@@ -401,10 +513,10 @@ public class StandardCalculatorTest {
             performUnaryOperations(expressionParts);
         }
         testHistory(expectedHistory);
-        testResult(expectedResult);
+        testCalculation(expectedResult);
     }
 
-    private void performBinaryCalculations(String[] expressionParts) throws CalculationException {
+    private void performBinaryCalculations(String[] expressionParts) {
         int index = expressionParts.length - 2;
         String lastEnteredNumber = expressionParts[index--];
 
@@ -414,32 +526,42 @@ public class StandardCalculatorTest {
         }
 
         for (int i = 0; i <= index; i++) {
-            processElement(expressionParts, i);
+            processElement(expressionParts[i]);
         }
         enterNumber(lastEnteredNumber);
         processPercentage(wasPercentage);
     }
 
-    private void processElement(String[] expressionParts, int index) throws CalculationException {
-        if (index % 2 == 0) { // even indexes for numbers
-            String currentNumber = expressionParts[index];
-            enterNumber(currentNumber);
+    private void processElement(String expressionPart) {
+        WaitForAsyncUtils.waitForFxEvents();
+
+        if (isNumber(expressionPart)) { // even indexes for numbers
+            enterNumber(expressionPart);
 
         } else { // odd indexes for math operations
-            MathOperation operation = extractOperation(expressionParts[index]);
-            valueProcessor.executeMathOperation(operation);
+            MathOperation operation = extractOperation(expressionPart);
+            fireButton(operation.getCode());
         }
+        // TODO check fire buttons
+//        if (index % 2 == 0) { // even indexes for numbers
+//            String currentNumber = expressionParts[index];
+//            enterNumber(currentNumber);
+//
+//        } else { // odd indexes for math operations
+//            MathOperation operation = extractOperation(expressionParts[index]);
+//            fireButton(operation.getCode());
+//        }
     }
 
-    private void processPercentage(boolean wasPercentage) throws CalculationException {
+    private void processPercentage(boolean wasPercentage) {
         if (wasPercentage) {
-            valueProcessor.executeMathOperation(PERCENT);
+            fireButton(PERCENT.getCode());
         }
     }
 
 
-    private void performUnaryOperations(String[] expressionParts) throws CalculationException {
-        valueProcessor.cleanAll();
+    private void performUnaryOperations(String[] expressionParts) {
+        fireButton(EditOperation.CLEAN.getCode());
         int index = expressionParts.length - 2;
         String base = expressionParts[index--];
         enterNumber(base);
@@ -447,33 +569,34 @@ public class StandardCalculatorTest {
         // execute all unary operations
         for (int i = 0; i <= index; i++) {
             MathOperation operation = extractOperation(expressionParts[i]);
-            valueProcessor.executeMathOperation(operation);
+            fireButton(operation.getCode());
         }
     }
 
-    private void enterNumber(String number) throws CalculationException {
+    private void enterNumber(String number) {
         int i = 0;
-        if (number.startsWith(MINUS)) { // skip minus
+        boolean isNegativeNumber = number.startsWith(MINUS);
+        if (isNegativeNumber) { // skip minus
             i++;
         }
         for (; i < number.length(); i++) { // add digit or point
             String digit = String.valueOf(number.charAt(i));
             addDigit(digit);
         }
-        if (number.startsWith(MINUS)) { // add minus
-            valueProcessor.executeMathOperation(NEGATE);
+        if (isNegativeNumber) { // add minus
+            buttons.get(NEGATE.getCode()).fire();
         }
     }
 
-    private void addDigit(String digit) throws CalculationException {
+    private void addDigit(String digit) {
         if (POINT.equals(digit)) {
-            valueProcessor.addPoint();
+            robot.push(KeyCode.PERIOD);
         } else {
-            valueProcessor.updateCurrentNumber(digit);
+            robot.push(KeyCode.getKeyCode(digit));
         }
     }
 
-    public static MathOperation extractOperation(String operation) {
+    private MathOperation extractOperation(String operation) {
         switch (operation) {
             case "1/":
                 return REVERSE;
@@ -485,107 +608,333 @@ public class StandardCalculatorTest {
     }
 
     private void testHistory(String expected) {
-        assertEquals(expected.trim(), valueProcessor.getExpression().trim());
+        assertEquals(expected.trim(), prevOperationsText.getText().trim());
     }
 
-    private void testResult(String expectedResult) throws CalculationException {
-        assertEquals(expectedResult, valueProcessor.calculateResult());
+    private void testCalculation(String expectedResult) {
+        robot.push(KeyCode.ENTER);
+        assertEquals(expectedResult, currentNumberText.getText());
+    }
+
+    private void testKeyPressed(String expectedText, KeyCode keyCode) {
+        // shift button is not pressed
+        testKeyPressed(expectedText, keyCode, false);
+    }
+
+    private void testKeyPressed(String expectedText, KeyCode keyCode, boolean isShiftDown) {
+        KeyCodeCombination combination;
+        if (isShiftDown) {
+            combination = new KeyCodeCombination(keyCode, KeyCombination.SHIFT_DOWN);
+        } else {
+            combination = new KeyCodeCombination(keyCode);
+        }
+        robot.push(combination);
+        assertEquals(expectedText, currentNumberText.getText());
     }
 
     @Test
-    public void testInitWithWrongArgumentCount() {
-        testInitForException(null, 0);
-        testInitForException(null, 1);
+    public void testMemoryOperations() {
+        // with empty memorized value these buttons must be disabled
+        testDisableMemoryButton(true, MEMORY_CLEAN);
+        testDisableMemoryButton(true, MEMORY_RECALL);
+        testDisableMemoryButton(true, MEMORY_SHOW);
 
-        // binary operation with wrong argument count
-        testInitForException(ADD, 0);
-        testInitForException(ADD, 1);
-        testInitForException(ADD, 3);
-        testInitForException(ADD, 4);
-        testInitForException(ADD, 10);
+        testMemoryOperation("M+ 50 = 50");
+        testMemoryOperation("M+ -3 = 47");
+        testMemoryOperation("M+ 0.555555 = 47.555555");
+        testMemoryOperation("M+ -99999999999 = -99,999,999,951.44445");
 
-        // unary operation with wrong argument count
-        testInitForException(SQUARE_ROOT, 0);
-        testInitForException(SQUARE_ROOT, 2);
-        testInitForException(SQUARE_ROOT, 3);
-        testInitForException(SQUARE_ROOT, 4);
-        testInitForException(SQUARE_ROOT, 10);
+        testDisableMemoryButton(false, MEMORY_CLEAN);
+        testDisableMemoryButton(false, MEMORY_RECALL);
+        testDisableMemoryButton(false, MEMORY_SHOW);
+        fireButton(MEMORY_CLEAN.getCode());
+
+        // subtract from memorized value
+        testMemoryOperation("M- 50 = -50");
+        testMemoryOperation("M- -3 = -47");
+        testMemoryOperation( "M- 0.555555 = -47.555555");
+        testMemoryOperation("M- -99999999999 = 99,999,999,951.44445");
+        fireButton(MEMORY_CLEAN.getCode());
+
+        // store value in memorized
+        testMemoryOperation("MS 50 = 50");
+        testMemoryOperation("MS -3 = -3");
+        testMemoryOperation("MS 0.555555 = 0.555555");
+        testMemoryOperation("MS -99999999999 = -99,999,999,999");
+        fireButton(MEMORY_CLEAN.getCode());
+
+        testDisableMemoryButton(true, MEMORY_CLEAN);
+        testDisableMemoryButton(true, MEMORY_RECALL);
+        testDisableMemoryButton(true, MEMORY_SHOW);
     }
 
-    private void testInitForException(MathOperation operation, int argumentsCount) {
-        try {
-            new StandardCalculator(operation, new BigDecimal[argumentsCount]);
-            fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count of arguments is %d",
-                    operation, argumentsCount));
-        } catch (CalculationException e) {
-            // expected
-        }
+    private void testDisableMemoryButton(boolean expectedDisabled, MemoryOperation operation) {
+        Button memoryButton = buttons.get(operation.getCode());
+        boolean isButtonDisabled = memoryButton.isDisabled();
+        assertEquals(expectedDisabled, isButtonDisabled);
+    }
+
+    private void testMemoryOperation(String expression) {
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+
+        // enter new number and execute memory operation
+        enterNumber(expressionParts[1]);
+        fireButton(expressionParts[0]);
+
+        //reset entered number and check for 0 (default value for new number)
+        fireButton(CLEAN_CURRENT.getCode());
+        assertEquals("0", currentNumberText.getText());
+
+        // recall memorized value
+        fireButton(MEMORY_RECALL.getCode());
+
+        WaitForAsyncUtils.waitForFxEvents();
+        String expectedMemorizedValue = expressionParts[2];
+        assertEquals(expectedMemorizedValue, currentNumberText.getText());
     }
 
     @Test
     public void testOperationWithWrongArguments() {
 
         // division by zero
-        testOperationForException("555000000 ÷ 0");
-        testOperationForException("1000 ÷ 0");
-        testOperationForException("100 ÷ 0");
-        testOperationForException("0.6666666666666667 ÷ 0");
-        testOperationForException("0 ÷ 0");
-        testOperationForException("0 ÷ 0.0");
-        testOperationForException("-0.6666666666666667 ÷ 0");
-        testOperationForException("-100 ÷ 0");
-        testOperationForException("-1000 ÷ 0");
-        testOperationForException("-555000000 ÷ 0");
+        testOperationForException("555000000 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("1000 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("100 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("0.6666666666666667 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("0 ÷ 0 ", RESULT_IS_UNDEFINED_MESSAGE);
+        testOperationForException("0 ÷ 0.0", RESULT_IS_UNDEFINED_MESSAGE);
+        testOperationForException("-0.6666666666666667 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("-100 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("-1000 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("-555000000 ÷ 0", DIVISION_BY_ZERO_MESSAGE);
 
         // square root with negative argument
-        testOperationForException("√ -1");
-        testOperationForException("√ -5");
-        testOperationForException("√ -5.5");
-        testOperationForException("√ -10000000");
-        testOperationForException("√ -2147483648");
-        testOperationForException("√ -555555555000005");
-        testOperationForException("√ -9999999999999999");
-        testOperationForException("√ -9223372036854775808");
+        testOperationForException("√ -1", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -5", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -5.5", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -10000000", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -2147483648", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -555555555000005", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -9999999999999999", INVALID_INPUT_MESSAGE);
+        testOperationForException("√ -9223372036854775808", INVALID_INPUT_MESSAGE);
 
         // reverse with zero base
-        testOperationForException("1/ 0");
-        testOperationForException("1/ 0.0");
-
-        // result is overflow
-        testOperationForException("1.e-9999 ÷ 10");
-        testOperationForException("1.e-9999 ÷ 100");
-        testOperationForException("1.e-9999 ÷ 1000000");
-
-        testOperationForException("1.e+9999 ☓ 10");
-        testOperationForException("1.e+9999 ☓ 100");
-        testOperationForException("1.e+9999 ☓ 1000000");
+        testOperationForException("1/ 0", DIVISION_BY_ZERO_MESSAGE);
+        testOperationForException("1/ 0.0", DIVISION_BY_ZERO_MESSAGE);
     }
 
-    private void testOperationForException(String expression) {
-        try {
-            initAndCalculate(expression);
-            fail(format("Expected CalculationException caused by wrong operation argument. Your expression: %s",
-                    expression));
-        } catch (CalculationException e) {
-            // expected
-        }
-    }
-
-    private void initAndCalculate(String expression) throws CalculationException {
+    private void testOperationForException(String expression, String expectedErrorMessage) {
+        robot.push(KeyCode.ESCAPE);
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
         MathOperation operation;
-        String[] numbers;
 
         if (expressionParts.length == 2) { // Expression for unary operations has format: operation baseNumber
             operation = extractOperation(expressionParts[0]);
-            numbers = new String[]{expressionParts[1]};
+            String base = expressionParts[1];
+            enterNumber(base);
+            fireButton(operation.getCode());
 
         } else { // Expression for binary operations has format: firstNumber operation secondNumber
-            operation = extractOperation(expressionParts[1]);
-            numbers = new String[]{expressionParts[0], expressionParts[2]};
+            String firstNumber = expressionParts[0];
+            enterNumber(firstNumber);
+
+            fireButton(expressionParts[1]);
+
+            String secondNumber = expressionParts[2];
+            enterNumber(secondNumber);
+            robot.push(KeyCode.ENTER);
         }
 
-        Calculator calculator = new StandardCalculator(operation, getBigDecimalValues(numbers));
-        calculator.calculate();
+        assertEquals(expectedErrorMessage, currentNumberText.getText());
+    }
+
+
+    private void fireButton(String buttonId) {
+        final Button operationButton = buttons.get(buttonId);
+        operationButton.fire();
+    }
+
+    @Test
+    public void testForOverflow() {
+        // result is overflow
+        testForOverflow("1.e-9990 ÷ 10000000000", OVERFLOW_MESSAGE);
+
+        testForOverflow("1.e+9990 ☓ 10000000000", OVERFLOW_MESSAGE);
+    }
+
+    private void testForOverflow(String expression, String expectedErrorMessage) {
+        robot.push(KeyCode.ESCAPE);
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        MathOperation operation;
+
+        enterNumber("1");
+        operation = extractOperation(expressionParts[1]);
+        final Button operationButton = buttons.get(operation.getCode());
+        operationButton.fire();
+
+        enterNumber("1000000000000000");
+
+        String firstNumber = expressionParts[0];
+
+        // press result button many times to get too large or too small number
+        while (!currentNumberText.getText().trim().equals(firstNumber.trim())) {
+            robot.push(KeyCode.ENTER);
+        }
+        operationButton.fire();
+        String secondNumber = expressionParts[2];
+        enterNumber(secondNumber);
+
+        testCalculation(expectedErrorMessage);
+    }
+
+    @Test
+    public void testPressDisabledButtons() {
+        // cause an exception by dividing zero by zero to disable buttons with operations
+        testOperationForException("0 ÷ 0", RESULT_IS_UNDEFINED_MESSAGE);
+
+        for (MathOperation operation : MathOperation.values()) {
+            if (operation != RESULT) {
+                testPressButtonAfterError(operation.getCode());
+            }
+        }
+        for (MemoryOperation operation : MemoryOperation.values()) {
+            testPressButtonAfterError(operation.getCode());
+        }
+
+        testPressButtonAfterError(POINT);
+        testPressButtonAfterError("history");
+
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, true);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, true);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, true);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, true);
+
+        // clean error message
+        robot.push(KeyCode.ESCAPE);
+        assertEquals("0", currentNumberText.getText());
+    }
+
+    private void testPressButtonAfterError(String buttonId) {
+        Button operationButton = buttons.get(buttonId);
+        operationButton.fire();
+        robot.clickOn(operationButton);
+        assertEquals(RESULT_IS_UNDEFINED_MESSAGE, currentNumberText.getText());
+    }
+
+
+    @Test
+    public void testFontResize() {
+        double initialFontSize = currentNumberText.getFont().getSize();
+
+        for (int i = 0; i < 15; i++) { // If text in field is too large font size must become smaller
+            robot.push(KeyCode.DIGIT5);
+        }
+        double currentFontSize = currentNumberText.getFont().getSize();
+        assertNotEquals(initialFontSize, currentFontSize);
+    }
+
+    @Test
+    public void testWindowResize() {
+        Window windowBeforeResize = robot.targetWindow();
+
+        // remember initial parameters
+        double startX = windowBeforeResize.getX();
+        double startY = windowBeforeResize.getY();
+        double initWidth = windowBeforeResize.getWidth();
+        double initHeight = windowBeforeResize.getHeight();
+
+        robot.drag(startX, startY, MouseButton.PRIMARY);
+        robot.moveBy(100, 100);
+        robot.drop();
+
+        Window windowAfterResize = robot.targetWindow();
+        assertNotEquals(initWidth, windowAfterResize.getWidth());
+        assertNotEquals(initHeight, windowAfterResize.getHeight());
+
+        // resize one more time
+        initWidth = windowAfterResize.getWidth();
+        initHeight = windowAfterResize.getHeight();
+
+        robot.drag(windowAfterResize.getX(), windowAfterResize.getY(), MouseButton.PRIMARY);
+        robot.moveBy(-170, -100);
+        robot.drop();
+
+        assertNotEquals(initWidth, robot.targetWindow().getWidth());
+        assertNotEquals(initHeight, robot.targetWindow().getHeight());
+    }
+
+    @Test
+    public void testWindowMove() {
+        Window windowBeforeMove = robot.targetWindow();
+        // remember initial parameters
+        double startX = windowBeforeMove.getX();
+        double startY = windowBeforeMove.getY();
+        double initWidth = windowBeforeMove.getWidth();
+        double initHeight = windowBeforeMove.getHeight();
+
+        robot.drag(startX + 70, startY + 10, MouseButton.PRIMARY);
+        robot.moveBy(100, 100);
+        robot.drop();
+
+        Window windowAfterMove = robot.targetWindow();
+
+        // Assert that window coordinates changed but window width and height still the same
+        assertNotEquals(startX, windowAfterMove.getX());
+        assertNotEquals(startY, windowAfterMove.getY());
+        assertEquals(initWidth, windowAfterMove.getWidth(), 0.0001);
+        assertEquals(initHeight, windowAfterMove.getHeight(), 0.0001);
+    }
+
+
+    @Test
+    public void testViewPanel() {
+        assertFalse(viewPanel.isVisible());
+        robot.clickOn(buttons.get("mode"));
+        WaitForAsyncUtils.waitForFxEvents();
+        assertTrue(viewPanel.isVisible());
+
+        // Verify is selected item changed
+        Label firstSelected = (Label) typesList.getSelectionModel().getSelectedItem();
+        robot.clickOn(typesList);
+        Label secondSelected = (Label) typesList.getSelectionModel().getSelectedItem();
+        assertNotEquals(firstSelected, secondSelected);
+
+        robot.scroll(VerticalDirection.DOWN);
+        robot.clickOn(buttons.get("infoButton"));
+
+        // hide calculator view panel
+        robot.clickOn(buttons.get("modeClose"));
+        WaitForAsyncUtils.waitForFxEvents();
+        assertFalse(viewPanel.isVisible());
+    }
+
+    @Test
+    public void testViewMemoryPanel() {
+        assertFalse(memoryStorage.isVisible());
+        robot.clickOn(buttons.get("C"));
+        robot.clickOn(buttons.get(MemoryOperation.MEMORY_STORE.getCode()));
+
+        // show memory panel
+        Button memoryShowButton = buttons.get(MEMORY_SHOW.getCode());
+        robot.clickOn(memoryShowButton);
+        WaitForAsyncUtils.waitForFxEvents();
+        assertTrue(memoryStorage.isVisible());
+
+        for (int i = 0; i <= 9; i++) {
+            testKeyPressed("0", KeyCode.getKeyCode(String.valueOf(i)));
+        }
+        for (MathOperation operation : MathOperation.values()) {
+            Button operationButton = buttons.get(operation.getCode());
+            operationButton.fire();
+            assertEquals("0", currentNumberText.getText());
+        }
+        testKeyPressed("0", KeyCode.BACK_SPACE);
+
+        // hide panel
+        robot.clickOn(memoryShowButton);
+        WaitForAsyncUtils.waitForFxEvents();
+        assertFalse(viewPanel.isVisible());
     }
 }

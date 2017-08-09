@@ -170,7 +170,7 @@ public class InputValueProcessor {
         }
 
         // If no new number entered need to change last operation to new
-        if (isNewNumber && expression.size() > 1) {
+        if (isNewNumber && expression.size() > 1 && !wasUnaryBefore) {
             operation = currentOperation;
             expression.set(expression.size() - 1, currentOperation.getCode());
             wasUnaryBefore = false;
@@ -251,6 +251,10 @@ public class InputValueProcessor {
 
     public void cleanCurrent() {
         lastNumber = ZERO_VALUE;
+        if (!expression.isEmpty() && wasUnaryBefore) {
+            expression.remove(expression.size() - 1);
+            wasUnaryBefore = false;
+        }
         isNewNumber = true;
     }
 

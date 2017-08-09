@@ -1,6 +1,9 @@
 package com.implemica.CalculatorProject.controller;
 
 import com.implemica.CalculatorProject.CalcApplication;
+import com.implemica.CalculatorProject.calculation.EditOperation;
+import com.implemica.CalculatorProject.calculation.MathOperation;
+import com.implemica.CalculatorProject.calculation.MemoryOperation;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -19,6 +22,8 @@ import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
@@ -32,7 +37,7 @@ public class ControllerAndViewTest {
 
     private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
 
-    private final FxRobot robot = new FxRobot();
+    private static final FxRobot robot = new FxRobot();
 
     private TextField currentNumberText, prevOperationsText;
     private Button numZero, numOne, numTwo, numThree, numFour, numFive, numSix, numSeven, numEight, numNine;
@@ -47,6 +52,12 @@ public class ControllerAndViewTest {
     @BeforeClass
     public static void setUpInit() throws Exception {
         launch(CalcApplication.class);
+    }
+
+    private static <T extends Node> T find(final String query) {
+        T node = robot.lookup(query).query();
+        assertNotNull(node);
+        return node;
     }
 
     @Before
@@ -182,7 +193,7 @@ public class ControllerAndViewTest {
 
     @Test
     public void testButtonClicked() {
-        // testViewPanel clicking for visible buttons
+        // test clicking for visible buttons
         testButtonClicked("0", cleanAll);
         testButtonClicked("1", numOne);
         testButtonClicked("12", numTwo);
@@ -257,7 +268,7 @@ public class ControllerAndViewTest {
         testButtonClicked("0", leftErase);
     }
 
-    private void testButtonClicked(String expectedText, Node button) {
+    private void testButtonClicked(String expectedText, Button button) {
         robot.clickOn(button);
         assertEquals(expectedText, currentNumberText.getText());
     }
