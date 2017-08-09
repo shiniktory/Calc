@@ -17,7 +17,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
+import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 
@@ -27,7 +31,6 @@ import static com.implemica.CalculatorProject.calculation.MathOperation.*;
  * @author V. Kozina-Kravchenko
  */
 public class CalcApplication extends Application {
-
 
     /**
      * A path to the view file.
@@ -226,5 +229,30 @@ public class CalcApplication extends Application {
         }
         currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
         currentNumberText.end();
+    }
+
+    private static final Map<String, Double> defaultFontSizes = new LinkedHashMap<>();
+
+    static {
+        defaultFontSizes.put(PERCENT.getCode(), 19.0);
+        defaultFontSizes.put(SQUARE_ROOT.getCode(), 17.0);
+        defaultFontSizes.put(SQUARE.getCode(), 18.0);
+        defaultFontSizes.put(REVERSE.getCode(), 18.0);
+        defaultFontSizes.put(NEGATE.getCode(), 29.0); // label
+        defaultFontSizes.put(DIVIDE.getCode(), 32.0); // label
+        defaultFontSizes.put(MULTIPLY.getCode(), 19.0);
+        defaultFontSizes.put(ADD.getCode(), 33.0); // label
+        defaultFontSizes.put(SUBTRACT.getCode(), 35.0); // label
+        defaultFontSizes.put(RESULT.getCode(), 34.0); // label
+
+        defaultFontSizes.put("numbers", 23.0);
+        defaultFontSizes.put("point", 23.0);
+
+        defaultFontSizes.put(LEFT_ERASE.getCode(), 20.0); // label
+        defaultFontSizes.put(CLEAN_CURRENT.getCode(), 15.0);
+        defaultFontSizes.put(CLEAN.getCode(), 15.0);
+
+        defaultFontSizes.put("current number tf", 42.0);
+        defaultFontSizes.put("history tf", 14.0);
     }
 }

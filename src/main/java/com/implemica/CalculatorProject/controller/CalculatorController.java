@@ -132,12 +132,6 @@ public class CalculatorController {
     private GridPane numbersAndOperations;
 
     /**
-     * A reference to the {@link GridPane} contains {@link Button}s for working with memorized numbers.
-     */
-    @FXML
-    private GridPane memoryButtonsPane;
-
-    /**
      * A references to the buttons allows to work with memorized numbers.
      */
     @FXML
