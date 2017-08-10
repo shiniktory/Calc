@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.processing.InputValueProcessor.ZERO_VALUE;
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
+import static java.math.RoundingMode.HALF_UP;
 
 public class OutputFormatter {
 
@@ -55,19 +56,23 @@ public class OutputFormatter {
      * @return the formatted string containing number for the next calculations
      */
     public static String formatToMathView(String number) throws CalculationException {
-        String formattedNumber = removeGroupDelimiters(number);
-        if (!isNumber(formattedNumber)) {
+        String formattedNumberStr = removeGroupDelimiters(number);
+        if (!isNumber(formattedNumberStr)) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
+        BigDecimal formattedNumber = new BigDecimal(formattedNumberStr);
         int scale = 0;
-        if (formattedNumber.contains(POINT)) {
-            if (formattedNumber.toUpperCase().contains(EXPONENT)) {
+        if (isZero(formattedNumber)) {
+            return formattedNumber.setScale(0, HALF_UP).toString();
+        }
+        if (formattedNumberStr.contains(POINT)) {
+            if (formattedNumberStr.toUpperCase().contains(EXPONENT)) {
                 scale = new BigDecimal(number).scale();
             } else {
-                scale = formattedNumber.length() - formattedNumber.indexOf(POINT);
+                scale = formattedNumberStr.length() - formattedNumberStr.indexOf(POINT) - 1;
             }
         }
-        return formatToMathView(new BigDecimal(formattedNumber).setScale(scale, RoundingMode.HALF_UP));
+        return formatToMathView(formattedNumber.setScale(scale, HALF_UP));
     }
 
     /**
@@ -150,7 +155,7 @@ public class OutputFormatter {
 
     private static String formatToExponentialView(BigDecimal number) {
         DecimalFormat format = new DecimalFormat(NUMBER_FORMAT_PATTERN);
-        format.setRoundingMode(RoundingMode.HALF_UP);
+        format.setRoundingMode(HALF_UP);
         format.setDecimalFormatSymbols(getDelimiters());
         String formattedNumber = format.format(number).toLowerCase();
         return adjustExponentialView(formattedNumber);
@@ -159,7 +164,7 @@ public class OutputFormatter {
     private static String formatWithRounding(BigDecimal number) {
         DecimalFormat format = new DecimalFormat();
         format.setMaximumFractionDigits(getCountFractionDigits(number.toPlainString()));
-        format.setRoundingMode(RoundingMode.HALF_UP);
+        format.setRoundingMode(HALF_UP);
         format.setDecimalFormatSymbols(getDelimiters());
         return format.format(number).toLowerCase();
     }

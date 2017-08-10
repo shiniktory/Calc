@@ -198,7 +198,7 @@ public class InputValueProcessor {
             String lastUnary = expression.get(lastIndex);
             expression.set(lastIndex, formatUnaryOperation(currentOperation, lastUnary));
         } else {
-            expression.add(formatUnaryOperation(currentOperation, lastNumber));
+            expression.add(formatUnaryOperation(currentOperation, formatToMathView(lastNumber)));
         }
         lastNumber = getResult(currentOperation, lastNumber);
         wasUnaryBefore = true;

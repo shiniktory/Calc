@@ -1,14 +1,15 @@
 package com.implemica.CalculatorProject;
 
-import com.implemica.CalculatorProject.calculation.EditOperation;
+import com.implemica.CalculatorProject.util.OutputFormatter;
+import com.implemica.CalculatorProject.validation.DataValidator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
@@ -17,7 +18,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
@@ -69,14 +72,15 @@ public class CalcApplication extends Application {
             primaryStage.setResizable(true);
 
             primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
-                if (Double.isNaN(oldValue.doubleValue()) || Double.isNaN(newValue.doubleValue())) {
-                    return;
-                }
-                double scale = newValue.doubleValue() / oldValue.doubleValue();
-                changeFontSize(root, scale);
+                scaleFontSize(root, primaryStage);
             });
 
-            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> changeFontSizeForHeight(root));
+            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
+                scaleFontSize(root, primaryStage);
+            });
+
+            primaryStage.fullScreenProperty().addListener((observable, oldValue, newValue) ->
+                    scaleFontSize(root, primaryStage));
 
             primaryStage.show();
         } catch (IOException e) {
@@ -95,164 +99,116 @@ public class CalcApplication extends Application {
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
     }
 
-
-    private void changeFontSize(Parent root, double scale) {
-        GridPane pane = (GridPane) root.lookup("#numbers_operations");
-
-        for (Node node : pane.getChildren()) {
-            Button button = (Button) node;
-            String buttonText = button.getText();
-
-            double minFontSize = 16.0;
-            double maxFontSize = 25.0;
-
-
-            if (ADD.getCode().equals(buttonText) ||
-                    SUBTRACT.getCode().equals(buttonText) ||
-                    DIVIDE.getCode().equals(buttonText) ||
-                    RESULT.getCode().equals(buttonText) ||
-                    NEGATE.getCode().equals(buttonText)) {
-
-                Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
-                double newFontSize = buttonLabel.getFont().getSize() * scale;
-
-                if (newFontSize > 42) {
-                    newFontSize = 42;
-                }
-                if (newFontSize < 24) {
-                    newFontSize = 24;
-                }
-                buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
-            }
-
-            if (MULTIPLY.getCode().equals(buttonText) ||
-                    LEFT_ERASE.getCode().equals(buttonText)) {
-                Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
-                double newFontSize = buttonLabel.getFont().getSize() * scale;
-
-                if (newFontSize > 25) {
-                    newFontSize = 25;
-                }
-                if (newFontSize < 15) {
-                    newFontSize = 15;
-                }
-                buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
-            }
-
-            if (EditOperation.CLEAN.getCode().equals(button.getText()) ||
-                    EditOperation.CLEAN_CURRENT.getCode().equals(button.getText())) {
-
-                minFontSize = 14.0;
-                maxFontSize = 23.0;
-            }
-
-            double newFontSize = button.getFont().getSize() * scale;
-            Text buttonContent = new Text(button.getText());
-            buttonContent.setFont(button.getFont());
-
-            if (newFontSize > maxFontSize) {
-                newFontSize = maxFontSize;
-            }
-
-            if (buttonContent.getLayoutBounds().getWidth() > (button.getBoundsInLocal().getWidth() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getWidth() * 0.7) /
-                        buttonContent.getLayoutBounds().getWidth());
-            }
-
-            if (newFontSize < minFontSize) {
-                newFontSize = minFontSize;
-            }
-
-            if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.65) /
-                        buttonContent.getLayoutBounds().getHeight());
-            }
-
-            button.setFont(new Font(button.getFont().getFamily(), newFontSize));
-        }
-
-        TextField currentNumberText = (TextField) root.lookup("#currentNumberText");
-        double textFontSize =  currentNumberText.getFont().getSize() * scale; // currentNumberText.getHeight() * scale * 0.42;
-
-        Text text = new Text(currentNumberText.getText());
-        text.setFont(currentNumberText.getFont());
-
-        if (text.getLayoutBounds().getWidth() > (currentNumberText.getBoundsInLocal().getWidth())) {
-            textFontSize = textFontSize * ((currentNumberText.getBoundsInLocal().getWidth()) /
-                    text.getLayoutBounds().getWidth()) - 0.05;
-        }
-        if (textFontSize > 66) {
-            textFontSize = 66;
-        }
-
-        if (textFontSize < 16) {
-            textFontSize = 16;
-        }
-        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
-        currentNumberText.end();
-    }
-
-    private void changeFontSizeForHeight(Parent root) {
-        GridPane pane = (GridPane) root.lookup("#numbers_operations");
-
-        for (Node node : pane.getChildren()) {
-            Button button = (Button) node;
-            String buttonText = button.getText();
-
-            double newFontSize = button.getFont().getSize();
-            Text buttonContent = new Text(buttonText);
-            buttonContent.setFont(button.getFont());
-
-            if (buttonContent.getLayoutBounds().getHeight() > (button.getBoundsInLocal().getHeight() * 0.7)) {
-                newFontSize = newFontSize * ((button.getBoundsInLocal().getHeight() * 0.65) /
-                        buttonContent.getLayoutBounds().getHeight());
-            }
-            button.setFont(new Font(button.getFont().getFamily(), newFontSize));
-        }
-
-        TextField currentNumberText = (TextField) root.lookup("#currentNumberText");
-        double textFontSize = currentNumberText.getFont().getSize();
-
-        Text text = new Text(currentNumberText.getText());
-        text.setFont(currentNumberText.getFont());
-
-        if (text.getLayoutBounds().getHeight() > (currentNumberText.getBoundsInLocal().getHeight())) {
-            textFontSize = textFontSize * ((currentNumberText.getBoundsInLocal().getHeight()) /
-                    text.getLayoutBounds().getHeight()) - 0.05;
-        }
-        if (textFontSize > 66) {
-            textFontSize = 66;
-        }
-
-        if (textFontSize < 16) {
-            textFontSize = 16;
-        }
-        currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(), textFontSize));
-        currentNumberText.end();
-    }
-
-    private static final Map<String, Double> defaultFontSizes = new LinkedHashMap<>();
+    private static final Map<String, Double[]> defaultFontSizes = new LinkedHashMap<>();
 
     static {
-        defaultFontSizes.put(PERCENT.getCode(), 19.0);
-        defaultFontSizes.put(SQUARE_ROOT.getCode(), 17.0);
-        defaultFontSizes.put(SQUARE.getCode(), 18.0);
-        defaultFontSizes.put(REVERSE.getCode(), 18.0);
-        defaultFontSizes.put(NEGATE.getCode(), 29.0); // label
-        defaultFontSizes.put(DIVIDE.getCode(), 32.0); // label
-        defaultFontSizes.put(MULTIPLY.getCode(), 19.0);
-        defaultFontSizes.put(ADD.getCode(), 33.0); // label
-        defaultFontSizes.put(SUBTRACT.getCode(), 35.0); // label
-        defaultFontSizes.put(RESULT.getCode(), 34.0); // label
+        defaultFontSizes.put(PERCENT.getCode(), new Double[]{16.0, 19.0, 25.0});  // 16-25
+        defaultFontSizes.put(SQUARE_ROOT.getCode(), new Double[]{16.0, 17.0, 25.0}); // 16-25
+        defaultFontSizes.put(SQUARE.getCode(), new Double[]{16.0,18.0,25.0}); // 16-25
+        defaultFontSizes.put(REVERSE.getCode(), new Double[]{16.0,18.0, 25.0}); // 16-25
+        defaultFontSizes.put(NEGATE.getCode(), new Double[]{24.0,29.0, 42.0});// 24-42
+        defaultFontSizes.put(DIVIDE.getCode(), new Double[]{24.0,32.0, 42.0}); // 24-42
+        defaultFontSizes.put(MULTIPLY.getCode(), new Double[]{15.0,19.0, 25.0}); //15-25
+        defaultFontSizes.put(ADD.getCode(), new Double[]{24.0,33.0, 42.0});// 24-42
+        defaultFontSizes.put(SUBTRACT.getCode(), new Double[]{24.0,35.0, 42.0});// 24-42
+        defaultFontSizes.put(RESULT.getCode(), new Double[]{24.0,34.0, 42.0});// 24-42
 
-        defaultFontSizes.put("numbers", 23.0);
-        defaultFontSizes.put("point", 23.0);
+        defaultFontSizes.put("numbers", new Double[]{15.0,20.0, 25.0}); // 15-25
+        defaultFontSizes.put("point", new Double[]{15.0,23.0, 25.0}); // 15-25
 
-        defaultFontSizes.put(LEFT_ERASE.getCode(), 20.0); // label
-        defaultFontSizes.put(CLEAN_CURRENT.getCode(), 15.0);
-        defaultFontSizes.put(CLEAN.getCode(), 15.0);
+        defaultFontSizes.put(LEFT_ERASE.getCode(), new Double[]{15.0,20.0, 25.0}); // 15-25
+        defaultFontSizes.put(CLEAN_CURRENT.getCode(), new Double[]{14.0,15.0, 23.0}); // 14-23
+        defaultFontSizes.put(CLEAN.getCode(), new Double[]{14.0,15.0, 23.0}); //14-23
 
-        defaultFontSizes.put("current number tf", 42.0);
-        defaultFontSizes.put("history tf", 14.0);
+        defaultFontSizes.put("current number tf", new Double[]{16.0,42.0, 66.0});
+    }
+
+    private void scaleFontSize(Parent root, Stage primaryStage) {
+        GridPane pane = (GridPane) root.lookup("#numbers_operations");
+
+        for (Node node : pane.getChildren()) {
+            Button button = (Button) node;
+            String buttonText = button.getText();
+//
+//            double defaultFontSize = getDefaultFontSize(buttonText);
+//            setFontSize(button, defaultFontSize);
+
+            double newFontSize = calculateNewFontSize(primaryStage, button);
+            setFontSize(button, newFontSize);
+        }
+    }
+
+    private double getDefaultFontSize(String buttonText, int boundIndex) {
+        if (DataValidator.isDigit(buttonText) || OutputFormatter.POINT.equals(buttonText)) {
+            return defaultFontSizes.get("numbers")[boundIndex];
+        } else {
+            return defaultFontSizes.get(buttonText)[boundIndex];
+        }
+    }
+
+    private double calculateNewFontSize(Stage primaryStage, Button button) {
+        /*
+            if width and height in appropriate scopes -> get for this scope
+            if in different scopes -> get for min parameter
+
+                        min         middle      max
+            width       200         280-        440+
+            height      370         480-        640+
+         */
+
+        double currentWidth = primaryStage.getWidth();
+        double currentHeight = primaryStage.getHeight();
+        double sum = currentHeight + currentWidth; // TODO change not for sum. Do as in comment under
+        int index = 1;
+        if (sum < 760.0) {
+            index = 0;
+        } else if (sum > 1080.0) {
+            index = 2;
+        }
+
+        return getDefaultFontSize(button.getText(), index);
+//        String buttonText = button.getText();
+//
+//        Text text = new Text(buttonText);
+//        text.setFont(button.getFont());
+//        Bounds textBounds = text.getLayoutBounds();
+//        Bounds buttonBounds = button.getBoundsInLocal();
+//
+//        double newFontSize = button.getFont().getSize();
+//        double scale = (buttonBounds.getHeight() * 0.45) / textBounds.getHeight();
+//        if (scale < 1.5) {
+//            newFontSize *= scale;
+//        }
+//        text.setFont(new Font(text.getFont().getFamily(), newFontSize));
+//        textBounds = text.getBoundsInLocal();
+//
+//        if (textBounds.getWidth() > (buttonBounds.getWidth() * 0.5)) {
+//            scale = (buttonBounds.getWidth() * 0.5) / textBounds.getWidth();
+//            newFontSize *= scale;
+//        }
+
+//        return newFontSize;
+    }
+
+    private List<String> labeledButtons = new ArrayList<>();
+
+    {
+        labeledButtons.add(NEGATE.getCode());
+        labeledButtons.add(DIVIDE.getCode());
+        labeledButtons.add(SUBTRACT.getCode());
+        labeledButtons.add(ADD.getCode());
+        labeledButtons.add(RESULT.getCode());
+        labeledButtons.add(LEFT_ERASE.getCode());
+    }
+
+    private void setFontSize(Button button, double newFontSize) {
+        String buttonText = button.getText();
+
+        if (labeledButtons.contains(buttonText)) {
+            Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
+            buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
+        } else {
+            button.setFont(new Font(button.getFont().getFamily(), newFontSize));
+        }
     }
 }
