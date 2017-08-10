@@ -23,12 +23,14 @@ import java.util.Map;
 
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
+import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_CLEAN;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_RECALL;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_SHOW;
 import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
 import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.util.OutputFormatter.removeGroupDelimiters;
 import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -104,48 +106,30 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testButtons() {
-        for (int i = 0; i <= 9; i++) {
-            String digit = String.valueOf(i);
-            fireButton(digit);
-            assertEquals(digit, currentNumberText.getText());
-            fireButton(CLEAN_CURRENT.getCode());
-            clickButton(digit);
-            fireButton(CLEAN_CURRENT.getCode());
-        }
+    public void testEnterTooLongNumbers() {
 
         // enter long number with max length and try to add more digits
-        enterNumber("9999999999999999");
-        testAddMoreDigits("9,999,999,999,999,999");
+        testTooLongNumber("9,999,999,999,999,999", "-9,999,999,999,999,999",
+                "-9,999,999,999,999,999.");
+        testTooLongNumber("0.8888888888888888", "-0.8888888888888888",
+                "-0.8888888888888888");
+        testTooLongNumber("1.888888888888888", "-1.888888888888888",
+                "-1.888888888888888");
+    }
+
+    private void testTooLongNumber(String number, String negatePressed, String pointPressed) {
+        enterNumber(removeGroupDelimiters(number));
+        testAddMoreDigits(number);
 
         // negate number and try to add more digits
         fireButton(NEGATE.getCode());
-        testAddMoreDigits("-9,999,999,999,999,999");
-        pushKey(ESCAPE);
-        // enter double number less than one and try to add more digits
-        enterNumber("0.8888888888888888");
-        testAddMoreDigits("0.8888888888888888");
+        testAddMoreDigits(negatePressed);
 
-        // try to add one more point
+        // add point and try to add more digits
         pushKey(PERIOD);
-        testAddMoreDigits("0.8888888888888888");
+        testAddMoreDigits(pointPressed);
 
-        // negate number and try to add more digits
-        fireButton(NEGATE.getCode());
-        testAddMoreDigits("-0.8888888888888888");
         pushKey(ESCAPE);
-
-        // enter double number greater than one and try to add more digits
-        enterNumber("1.888888888888888");
-        testAddMoreDigits("1.888888888888888");
-
-        // try to add one more point
-        pushKey(PERIOD);
-        testAddMoreDigits("1.888888888888888");
-
-        // negate number and try to add more digits
-        fireButton(NEGATE.getCode());
-        testAddMoreDigits("-1.888888888888888");
     }
 
     private void testAddMoreDigits(String expectedNumber) {
@@ -159,11 +143,6 @@ public class StandardCalculatorTest {
         WaitForAsyncUtils.waitForFxEvents();
         final Button button = buttons.get(buttonId);
         button.fire();
-    }
-
-    private void clickButton(String buttonId) {
-        Button button = buttons.get(buttonId);
-        robot.clickOn(button);
     }
 
     @Test
@@ -525,9 +504,8 @@ public class StandardCalculatorTest {
         testCalculations("1/ sqr -5 = 0.04", "sqr(1/(-5))");
     }
 
-    // TODO add binary with unary operations test + when clean current after unary check not only reset number but deleting last unaries from history
-
     private void testCalculations(String expression, String expectedHistory) {
+        pushKey(ESCAPE);
         String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
         int lastElementIndex = expressionParts.length - 1;
         String expectedResult = expressionParts[lastElementIndex];
@@ -565,7 +543,6 @@ public class StandardCalculatorTest {
     }
 
     private void performUnaryOperations(String[] expressionParts) {
-        fireButton(CLEAN.getCode());
         int lastElementIndex = expressionParts.length - 1;
         String baseNumber = expressionParts[lastElementIndex];
         enterNumber(baseNumber);
@@ -627,6 +604,31 @@ public class StandardCalculatorTest {
     private void pushKey(KeyCode keyCode, KeyCombination.Modifier... modifiers) {
         KeyCodeCombination combination = new KeyCodeCombination(keyCode, modifiers);
         robot.push(combination);
+    }
+
+    @Test
+    public void testUnaryAfterBinary() {
+        testUnaryAfterBinary("5 + 1/ 9999999999999999 = 5", "5 + 1/(9999999999999999)");
+        testUnaryAfterBinary("5 + 1/ 0.0000000000000001 = 1.000000000000001e+16", "5 + 1/(0.0000000000000001)");
+
+        testUnaryAfterBinary("5 + sqr 9999999999999999 = 9.999999999999998e+31", "5 + sqr(9999999999999999)");
+        testUnaryAfterBinary("5 + sqr 0.0000000000000001 = 5", "5 + sqr(0.0000000000000001)");
+
+        testUnaryAfterBinary("5 + √ 9999999999999999 = 100,000,005", "5 + √(9999999999999999)");
+        testUnaryAfterBinary("5 + √ 0.0000000000000001 = 5.00000001", "5 + √(0.0000000000000001)");
+    }
+
+    private void testUnaryAfterBinary(String expression, String expectedHistory) {
+        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int lastElementIndex = expressionParts.length - 1;
+        String expectedResult = expressionParts[lastElementIndex];
+
+        performBinaryCalculations(Arrays.copyOf(expressionParts, 2));
+        performUnaryOperations(Arrays.copyOfRange(expressionParts, 2, lastElementIndex));
+
+        WaitForAsyncUtils.waitForFxEvents();
+        testHistory(expectedHistory);
+        testCalculation(expectedResult);
     }
 
     @Test
@@ -737,7 +739,6 @@ public class StandardCalculatorTest {
         assertEquals(expectedErrorMessage, currentNumberText.getText());
         testHistory(expectedHistory);
     }
-
 
     @Test
     public void testForOverflow() {

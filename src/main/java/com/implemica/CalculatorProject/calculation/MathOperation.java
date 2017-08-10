@@ -7,7 +7,7 @@ package com.implemica.CalculatorProject.calculation;
  */
 public enum MathOperation {
 
-    ADD("+", true), SUBTRACT("−", true), MULTIPLY("☓", true), DIVIDE("÷", true),
+    ADD("+", true), SUBTRACT("−", true), MULTIPLY("×", true), DIVIDE("÷", true),
     NEGATE("±", false), PERCENT("%", true), SQUARE_ROOT("√", false), SQUARE("\uD835\uDC65²", false),
     REVERSE("¹⁄\uD835\uDC65", false), RESULT("=", true);
 

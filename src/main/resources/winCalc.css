@@ -15,8 +15,19 @@
 #currentNumberText {
     -fx-border-color: white;
     -fx-border-radius: 0;
-    -fx-border-width: 2px;
+    -fx-border-width: 0px;
     -fx-border-style: solid;
+}
+
+#prevOperationsText, #prevOperationsText:focused, #prevOperationsText:selected {
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-background-color: white;
 }
 
 .text-field .content {

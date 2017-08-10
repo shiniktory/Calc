@@ -122,7 +122,7 @@
                               <Font name="Segoe UI Semibold" size="23.0" />
                            </font>
                         </Button>
-                        <Button id="numbers" fx:id="multiply" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="☓" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                        <Button id="numbers" fx:id="multiply" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#operationsHandler" text="&#215;" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
                            <font>
                               <Font name="Segoe UI Black Italic" size="21.0" />
                            </font>

@@ -26,7 +26,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.awt.*;
@@ -154,7 +153,6 @@ public class CalculatorController {
      * @param number the number to set
      */
     private void setCurrentNumber(String number) {
-        fitText(number);
         currentNumberText.setText(number);
         currentNumberText.end();
     }
@@ -504,22 +502,6 @@ public class CalculatorController {
         if (operation != null && operation != RESULT ||
                 POINT.equals(buttonText)) {
             button.setDisable(disable);
-        }
-    }
-
-    private void fitText(String currentText) {
-        currentNumberText.setFont(DEFAULT_FONT);
-
-        Text text = new Text(currentText);
-        text.setFont(currentNumberText.getFont());
-        currentNumberText.applyCss();
-
-        double textWidth = text.getLayoutBounds().getWidth();
-        double scale = currentNumberText.getBoundsInLocal().getWidth() / textWidth - 0.1;
-        if (scale < 1.0) {
-            double newFontSize = currentNumberText.getFont().getSize() * scale;
-            currentNumberText.setFont(new Font(currentNumberText.getFont().getFamily(),
-                    newFontSize));
         }
     }
 
