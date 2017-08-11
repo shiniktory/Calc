@@ -3,13 +3,10 @@ package com.implemica.CalculatorProject.calculation;
 import com.implemica.CalculatorProject.exception.CalculationException;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,13 +18,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
-import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_CLEAN;
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_RECALL;
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_SHOW;
+import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
 import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.util.OutputFormatter.removeGroupDelimiters;
@@ -36,6 +29,7 @@ import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.PERIOD;
 import static javafx.scene.input.KeyCode.getKeyCode;
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -56,31 +50,31 @@ public class StandardCalculatorTest {
     private static Map<String, Button> buttons = new LinkedHashMap<>();
 
     @BeforeClass
-    public static void setUpInit() throws Exception {
+    public static void setUpInit() {
         WaitForAsyncUtils.waitForFxEvents();
         // init numbers
         for (int i = 0; i <= 9; i++) {
             String number = String.valueOf(i);
-            findAndPutButton(number, number);
+            addButton(number, number);
         }
-        findAndPutButton(".", "#point");
+        addButton(".", "point");
+        addButton("history", "history");
 
         // init math operations
         for (MathOperation operation : MathOperation.values()) {
-            String operationCode = operation.getCode();
-            findAndPutButton(operationCode, operationCode);
+            String operationId = operation.id();
+            addButton(operationId, operationId);
         }
 
         // init edit number operations
         for (EditOperation operation : EditOperation.values()) {
-            String operationCode = operation.getCode();
-            findAndPutButton(operationCode, operationCode);
+            String operationId = operation.id();
+            addButton(operationId, operationId);
         }
 
         // init memory operations
         for (MemoryOperation operation : MemoryOperation.values()) {
-            String operationCode = operation.getCode();
-            findAndPutButton(operationCode, operationCode);
+            addButton(operation.symbol(), operation.id());
         }
 
         // text fields with current number and history
@@ -88,8 +82,8 @@ public class StandardCalculatorTest {
         prevOperationsText = find("#prevOperationsText");
     }
 
-    private static void findAndPutButton(String buttonId, String query) {
-        buttons.put(buttonId, find(query));
+    private static void addButton(String buttonId, String query) {
+        buttons.put(buttonId, find("#" + query));
         WaitForAsyncUtils.waitForFxEvents();
     }
 
@@ -107,7 +101,6 @@ public class StandardCalculatorTest {
 
     @Test
     public void testEnterTooLongNumbers() {
-
         // enter long number with max length and try to add more digits
         testTooLongNumber("9,999,999,999,999,999", "-9,999,999,999,999,999",
                 "-9,999,999,999,999,999.");
@@ -118,31 +111,25 @@ public class StandardCalculatorTest {
     }
 
     private void testTooLongNumber(String number, String negatePressed, String pointPressed) {
+        pushKey(ESCAPE);
         enterNumber(removeGroupDelimiters(number));
         testAddMoreDigits(number);
 
         // negate number and try to add more digits
-        fireButton(NEGATE.getCode());
+        fireButton(NEGATE.id());
         testAddMoreDigits(negatePressed);
 
         // add point and try to add more digits
         pushKey(PERIOD);
         testAddMoreDigits(pointPressed);
-
-        pushKey(ESCAPE);
     }
 
     private void testAddMoreDigits(String expectedNumber) {
         for (int i = 0; i < 9; i++) {
             KeyCode digitKey = getKeyCode(String.valueOf(i));
-            testKeyPressed(expectedNumber, digitKey);
+            pushKey(digitKey);
+            testCurrentText(expectedNumber);
         }
-    }
-
-    private void fireButton(String buttonId) {
-        WaitForAsyncUtils.waitForFxEvents();
-        final Button button = buttons.get(buttonId);
-        button.fire();
     }
 
     @Test
@@ -189,176 +176,176 @@ public class StandardCalculatorTest {
         // with more than one operation in sequence
         testCalculations("-2 + 3 + 5 = 6", "-2 + 3 + ");
         testCalculations("0 + 0 + 0 = 0", "0 + 0 + ");
-        testCalculations("0 + 5 ÷ 500 = 0.01", "0 + 5 ÷ ");
+        testCalculations("0 + 5 / 500 = 0.01", "0 + 5 ÷ ");
         testCalculations("2 + 3 + 5 = 10", "2 + 3 + ");
         testCalculations("5000 + -6 + 50 = 5,044", "5000 + -6 + ");
-        testCalculations("999999999999999 + 1 ÷ 2 = 500,000,000,000,000", "999999999999999 + 1 ÷ ");
-        testCalculations("9999999999999999 + 1 ÷ 2 = 5,000,000,000,000,000", "9999999999999999 + 1 ÷ ");
+        testCalculations("999999999999999 + 1 / 2 = 500,000,000,000,000", "999999999999999 + 1 ÷ ");
+        testCalculations("9999999999999999 + 1 / 2 = 5,000,000,000,000,000", "9999999999999999 + 1 ÷ ");
     }
 
     @Test
     public void testSubtractOperation() {
         // with zero arguments
-        testCalculations("0 − 555000000 = -555,000,000", "0 − ");
-        testCalculations("0 − 1000 = -1,000", "0 − ");
-        testCalculations("0 − 100 = -100", "0 − ");
-        testCalculations("0 − 0.6666666666666667 = -0.6666666666666667", "0 − ");
-        testCalculations("0 − 0 = 0", "0 − ");
-        testCalculations("0 − -0.6666666666666667 = 0.6666666666666667", "0 − ");
-        testCalculations("0 − -100 = 100", "0 − ");
-        testCalculations("0 − -1000 = 1,000", "0 − ");
-        testCalculations("0 − -555000000 = 555,000,000", "0 − ");
+        testCalculations("0 - 555000000 = -555,000,000", "0 − ");
+        testCalculations("0 - 1000 = -1,000", "0 − ");
+        testCalculations("0 - 100 = -100", "0 − ");
+        testCalculations("0 - 0.6666666666666667 = -0.6666666666666667", "0 − ");
+        testCalculations("0 - 0 = 0", "0 − ");
+        testCalculations("0 - -0.6666666666666667 = 0.6666666666666667", "0 − ");
+        testCalculations("0 - -100 = 100", "0 − ");
+        testCalculations("0 - -1000 = 1,000", "0 − ");
+        testCalculations("0 - -555000000 = 555,000,000", "0 − ");
 
         // with positive arguments
-        testCalculations("9999999999999999 − 9999999999999999 = 0", "9999999999999999 − ");
-        testCalculations("9999999999999999 − -9999999999999999 = 2.e+16", "9999999999999999 − ");
-        testCalculations("2147483647 − 2147483647 = 0", "2147483647 − ");
-        testCalculations("5 − 55550 = -55,545", "5 − ");
-        testCalculations("0.6666666666666667 − 0.0000000000000003 = 0.6666666666666664", "0.6666666666666667 − ");
-        testCalculations("0.000005 − 0.0000000000005 = 0.0000049999995", "0.000005 − ");
+        testCalculations("9999999999999999 - 9999999999999999 = 0", "9999999999999999 − ");
+        testCalculations("9999999999999999 - -9999999999999999 = 2.e+16", "9999999999999999 − ");
+        testCalculations("2147483647 - 2147483647 = 0", "2147483647 − ");
+        testCalculations("5 - 55550 = -55,545", "5 − ");
+        testCalculations("0.6666666666666667 - 0.0000000000000003 = 0.6666666666666664", "0.6666666666666667 − ");
+        testCalculations("0.000005 - 0.0000000000005 = 0.0000049999995", "0.000005 − ");
 
         //with positive and negative arguments
-        testCalculations("1000000.5 − -50000000 = 51,000,000.5", "1000000.5 − ");
-        testCalculations("1000000 − -50000000 = 51,000,000", "1000000 − ");
-        testCalculations("100 − -50 = 150", "100 − ");
-        testCalculations("5 − -5 = 10", "5 − ");
-        testCalculations("0.05 − -0.05 = 0.1", "0.05 − ");
-        testCalculations("0.000005 − -0.0000000000005 = 0.0000050000005", "0.000005 − ");
+        testCalculations("1000000.5 - -50000000 = 51,000,000.5", "1000000.5 − ");
+        testCalculations("1000000 - -50000000 = 51,000,000", "1000000 − ");
+        testCalculations("100 - -50 = 150", "100 − ");
+        testCalculations("5 - -5 = 10", "5 − ");
+        testCalculations("0.05 - -0.05 = 0.1", "0.05 − ");
+        testCalculations("0.000005 - -0.0000000000005 = 0.0000050000005", "0.000005 − ");
 
         // with negative and positive arguments
-        testCalculations("-5 − 55550 = -55,555", "-5 − ");
-        testCalculations("-1000000.5 − 50000000 = -51,000,000.5", "-1000000.5 − ");
-        testCalculations("-1000000 − 50000000 = -51,000,000", "-1000000 − ");
-        testCalculations("-100 − 50 = -150", "-100 − ");
-        testCalculations("-5 − 5 = -10", "-5 − ");
-        testCalculations("-0.05 − 0.05 = -0.1", "-0.05 − ");
-        testCalculations("-0.000005 − 0.0000000000005 = -0.0000050000005", "-0.000005 − ");
+        testCalculations("-5 - 55550 = -55,555", "-5 − ");
+        testCalculations("-1000000.5 - 50000000 = -51,000,000.5", "-1000000.5 − ");
+        testCalculations("-1000000 - 50000000 = -51,000,000", "-1000000 − ");
+        testCalculations("-100 - 50 = -150", "-100 − ");
+        testCalculations("-5 - 5 = -10", "-5 − ");
+        testCalculations("-0.05 - 0.05 = -0.1", "-0.05 − ");
+        testCalculations("-0.000005 - 0.0000000000005 = -0.0000050000005", "-0.000005 − ");
 
         // with negative arguments
-        testCalculations("-0.6 − -0.6 = 0", "-0.6 − ");
-        testCalculations("-0.000005 − -0.0000000000005 = -0.0000049999995", "-0.000005 − ");
-        testCalculations("-0.1 − -0.1 = 0", "-0.1 − ");
-        testCalculations("-1000000 − -50000000 = 49,000,000", "-1000000 − ");
-        testCalculations("-1000000 − -50000000.5 = 49,000,000.5", "-1000000 − ");
-        testCalculations("-9999999999999999 − -9999999999999999 = 0", "-9999999999999999 − ");
+        testCalculations("-0.6 - -0.6 = 0", "-0.6 − ");
+        testCalculations("-0.000005 - -0.0000000000005 = -0.0000049999995", "-0.000005 − ");
+        testCalculations("-0.1 - -0.1 = 0", "-0.1 − ");
+        testCalculations("-1000000 - -50000000 = 49,000,000", "-1000000 − ");
+        testCalculations("-1000000 - -50000000.5 = 49,000,000.5", "-1000000 − ");
+        testCalculations("-9999999999999999 - -9999999999999999 = 0", "-9999999999999999 − ");
 
         // with more than one operation in sequence
-        testCalculations("-2 − 3 + 5 = 0", "-2 − 3 + ");
-        testCalculations("0 − 0 + 0 = 0", "0 − 0 + ");
-        testCalculations("0 − 5 ÷ 500 = -0.01", "0 − 5 ÷ ");
-        testCalculations("2 − 3 + 5 = 4", "2 − 3 + ");
-        testCalculations("5000 − -6 + 50 = 5,056", "5000 − -6 + ");
-        testCalculations("999999999999999 − 1 ☓ 2 = 1,999,999,999,999,996", "999999999999999 − 1 ☓ ");
-        testCalculations("9999999999999999 − 1 ÷ 2 = 4,999,999,999,999,999", "9999999999999999 − 1 ÷ ");
+        testCalculations("-2 - 3 + 5 = 0", "-2 − 3 + ");
+        testCalculations("0 - 0 + 0 = 0", "0 − 0 + ");
+        testCalculations("0 - 5 / 500 = -0.01", "0 − 5 ÷ ");
+        testCalculations("2 - 3 + 5 = 4", "2 − 3 + ");
+        testCalculations("5000 - -6 + 50 = 5,056", "5000 − -6 + ");
+        testCalculations("999999999999999 - 1 * 2 = 1,999,999,999,999,996", "999999999999999 − 1 × ");
+        testCalculations("9999999999999999 - 1 / 2 = 4,999,999,999,999,999", "9999999999999999 − 1 ÷ ");
     }
 
     @Test
     public void testMultiplyOperation() {
         // with zero arguments
-        testCalculations("0 ☓ 555000000 = 0", "0 ☓ ");
-        testCalculations("0 ☓ 1000 = 0", "0 ☓ ");
-        testCalculations("0 ☓ 100 = 0", "0 ☓ ");
-        testCalculations("0 ☓ 0.6666666666666667 = 0", "0 ☓ ");
-        testCalculations("0 ☓ 0 = 0", "0 ☓ ");
-        testCalculations("0 ☓ -0.6666666666666667 = 0", "0 ☓ ");
-        testCalculations("0 ☓ -100 = 0", "0 ☓ ");
-        testCalculations("0 ☓ -1000 = 0", "0 ☓ ");
-        testCalculations("0 ☓ -555000000 = 0", "0 ☓ ");
+        testCalculations("0 * 555000000 = 0", "0 × ");
+        testCalculations("0 * 1000 = 0", "0 × ");
+        testCalculations("0 * 100 = 0", "0 × ");
+        testCalculations("0 * 0.6666666666666667 = 0", "0 × ");
+        testCalculations("0 * 0 = 0", "0 × ");
+        testCalculations("0 * -0.6666666666666667 = 0", "0 × ");
+        testCalculations("0 * -100 = 0", "0 × ");
+        testCalculations("0 * -1000 = 0", "0 × ");
+        testCalculations("0 * -555000000 = 0", "0 × ");
 
         // positive argument on positive
-        testCalculations("1000000.5 ☓ 50000000 = 50,000,025,000,000", "1000000.5 ☓ ");
-        testCalculations("1000000 ☓ 50000000 = 50,000,000,000,000", "1000000 ☓ ");
-        testCalculations("100 ☓ 50 = 5,000", "100 ☓ ");
-        testCalculations("5 ☓ 55550 = 277,750", "5 ☓ ");
-        testCalculations("5 ☓ 5 = 25", "5 ☓ ");
-        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 ☓ ");
-        testCalculations("0.05 ☓ 0.05 = 0.0025", "0.05 ☓ ");
-        testCalculations("0.000005 ☓ 0.0000000000005 = 2.5e-18", "0.000005 ☓ ");
-        testCalculations("0.000005 ☓ 0.1 = 0.0000005", "0.000005 ☓ ");
+        testCalculations("1000000.5 * 50000000 = 50,000,025,000,000", "1000000.5 × ");
+        testCalculations("1000000 * 50000000 = 50,000,000,000,000", "1000000 × ");
+        testCalculations("100 * 50 = 5,000", "100 × ");
+        testCalculations("5 * 55550 = 277,750", "5 × ");
+        testCalculations("5 * 5 = 25", "5 × ");
+        testCalculations("0.6666666666666667 * 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 × ");
+        testCalculations("0.05 * 0.05 = 0.0025", "0.05 × ");
+        testCalculations("0.000005 * 0.0000000000005 = 2.5e-18", "0.000005 × ");
+        testCalculations("0.000005 * 0.1 = 0.0000005", "0.000005 × ");
 
         // positive argument on negative
-        testCalculations("1000000.5 ☓ -50000000 = -50,000,025,000,000", "1000000.5 ☓ ");
-        testCalculations("1000000 ☓ -50000000 = -50,000,000,000,000", "1000000 ☓ ");
-        testCalculations("100 ☓ -50 = -5,000", "100 ☓ ");
-        testCalculations("5 ☓ 55550 = 277,750", "5 ☓ ");
-        testCalculations("5 ☓ -5 = -25", "5 ☓ ");
-        testCalculations("0.6666666666666667 ☓ 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 ☓ ");
-        testCalculations("0.05 ☓ -0.05 = -0.0025", "0.05 ☓ ");
-        testCalculations("0.000005 ☓ -0.0000000000005 = -2.5e-18", "0.000005 ☓ ");
-        testCalculations("0.000005 ☓ -0.1 = -0.0000005", "0.000005 ☓ ");
+        testCalculations("1000000.5 * -50000000 = -50,000,025,000,000", "1000000.5 × ");
+        testCalculations("1000000 * -50000000 = -50,000,000,000,000", "1000000 × ");
+        testCalculations("100 * -50 = -5,000", "100 × ");
+        testCalculations("5 * 55550 = 277,750", "5 × ");
+        testCalculations("5 * -5 = -25", "5 × ");
+        testCalculations("0.6666666666666667 * 0.0000000000000003 = 0.0000000000000002", "0.6666666666666667 × ");
+        testCalculations("0.05 * -0.05 = -0.0025", "0.05 × ");
+        testCalculations("0.000005 * -0.0000000000005 = -2.5e-18", "0.000005 × ");
+        testCalculations("0.000005 * -0.1 = -0.0000005", "0.000005 × ");
 
         // negative on positive
-        testCalculations("-5 ☓ 55550 = -277,750", "-5 ☓ ");
-        testCalculations("-100 ☓ 50 = -5,000", "-100 ☓ ");
-        testCalculations("-2147483648 ☓ 2147483647 = -4.611686016279904e+18", "-2147483648 ☓ ");
-        testCalculations("-0.6 ☓ 0.6 = -0.36", "-0.6 ☓ ");
-        testCalculations("-0.000005 ☓ 0.0000000000005 = -2.5e-18", "-0.000005 ☓ ");
-        testCalculations("-0.1 ☓ 0.1 = -0.01", "-0.1 ☓ ");
-        testCalculations("-1000000 ☓ 50000000 = -50,000,000,000,000", "-1000000 ☓ ");
-        testCalculations("-1000000 ☓ 50000000.5 = -50,000,000,500,000", "-1000000 ☓ ");
+        testCalculations("-5 * 55550 = -277,750", "-5 × ");
+        testCalculations("-100 * 50 = -5,000", "-100 × ");
+        testCalculations("-2147483648 * 2147483647 = -4.611686016279904e+18", "-2147483648 × ");
+        testCalculations("-0.6 * 0.6 = -0.36", "-0.6 × ");
+        testCalculations("-0.000005 * 0.0000000000005 = -2.5e-18", "-0.000005 × ");
+        testCalculations("-0.1 * 0.1 = -0.01", "-0.1 × ");
+        testCalculations("-1000000 * 50000000 = -50,000,000,000,000", "-1000000 × ");
+        testCalculations("-1000000 * 50000000.5 = -50,000,000,500,000", "-1000000 × ");
 
         // negative argument on negative
-        testCalculations("-5 ☓ -55550 = 277,750", "-5 ☓ ");
-        testCalculations("-100 ☓ -50 = 5,000", "-100 ☓ ");
-        testCalculations("-0.6 ☓ -0.6 = 0.36", "-0.6 ☓ ");
-        testCalculations("-0.000005 ☓ -0.0000000000005 = 2.5e-18", "-0.000005 ☓ ");
-        testCalculations("-0.1 ☓ -0.1 = 0.01", "-0.1 ☓ ");
-        testCalculations("-1000000 ☓ -50000000 = 50,000,000,000,000", "-1000000 ☓ ");
-        testCalculations("-1000000 ☓ -50000000.5 = 50,000,000,500,000", "-1000000 ☓ ");
+        testCalculations("-5 * -55550 = 277,750", "-5 × ");
+        testCalculations("-100 * -50 = 5,000", "-100 × ");
+        testCalculations("-0.6 * -0.6 = 0.36", "-0.6 × ");
+        testCalculations("-0.000005 * -0.0000000000005 = 2.5e-18", "-0.000005 × ");
+        testCalculations("-0.1 * -0.1 = 0.01", "-0.1 × ");
+        testCalculations("-1000000 * -50000000 = 50,000,000,000,000", "-1000000 × ");
+        testCalculations("-1000000 * -50000000.5 = 50,000,000,500,000", "-1000000 × ");
 
         // with more than one operation in sequence
-        testCalculations("-1000000000000000 ÷ 3 ☓ 3 = -1,000,000,000,000,000", "-1000000000000000 ÷ 3 ☓ ");
-        testCalculations("-1000 ÷ 3 ☓ 3 = -1,000", "-1000 ÷ 3 ☓ ");
-        testCalculations("0 ÷ 50 − 0 = 0", "0 ÷ 50 − ");
-        testCalculations("1 ÷ 3 ☓ 3 = 1", "1 ÷ 3 ☓ ");
-        testCalculations("10 ÷ 3 ☓ 3 = 10", "10 ÷ 3 ☓ ");
-        testCalculations("1000 ÷ 3 ☓ 3 = 1,000", "1000 ÷ 3 ☓ ");
-        testCalculations("5000 ÷ -6 + 50 = -783.3333333333333", "5000 ÷ -6 + ");
+        testCalculations("-1000000000000000 / 3 * 3 = -1,000,000,000,000,000", "-1000000000000000 ÷ 3 × ");
+        testCalculations("-1000 / 3 * 3 = -1,000", "-1000 ÷ 3 × ");
+        testCalculations("0 / 50 - 0 = 0", "0 ÷ 50 − ");
+        testCalculations("1 / 3 * 3 = 1", "1 ÷ 3 × ");
+        testCalculations("10 / 3 * 3 = 10", "10 ÷ 3 × ");
+        testCalculations("1000 / 3 * 3 = 1,000", "1000 ÷ 3 × ");
+        testCalculations("5000 / -6 + 50 = -783.3333333333333", "5000 ÷ -6 + ");
     }
 
     @Test
     public void testDivideOperation() {
         // zero by non-zero number
-        testCalculations("0 ÷ 555000000 = 0", "0 ÷ ");
-        testCalculations("0 ÷ 1000 = 0", "0 ÷ ");
-        testCalculations("0 ÷ 100 = 0", "0 ÷ ");
-        testCalculations("0 ÷ 0.6666666666666667 = 0", "0 ÷ ");
-        testCalculations("0 ÷ -0.6666666666666667 = 0", "0 ÷ ");
-        testCalculations("0 ÷ -100 = 0", "0 ÷ ");
-        testCalculations("0 ÷ -1000 = 0", "0 ÷ ");
-        testCalculations("0 ÷ -555000000 = 0", "0 ÷ ");
+        testCalculations("0 / 555000000 = 0", "0 ÷ ");
+        testCalculations("0 / 1000 = 0", "0 ÷ ");
+        testCalculations("0 / 100 = 0", "0 ÷ ");
+        testCalculations("0 / 0.6666666666666667 = 0", "0 ÷ ");
+        testCalculations("0 / -0.6666666666666667 = 0", "0 ÷ ");
+        testCalculations("0 / -100 = 0", "0 ÷ ");
+        testCalculations("0 / -1000 = 0", "0 ÷ ");
+        testCalculations("0 / -555000000 = 0", "0 ÷ ");
 
         // positive number by any non-zero number
-        testCalculations("9999999999999999 ÷ 9999999999999999 = 1", "9999999999999999 ÷ ");
-        testCalculations("9999999999999999 ÷ -9999999999999999 = -1", "9999999999999999 ÷ ");
-        testCalculations("1000000.5 ÷ -50000000 = -0.02000001", "1000000.5 ÷ ");
-        testCalculations("1000000 ÷ -50000000 = -0.02", "1000000 ÷ ");
-        testCalculations("100 ÷ -50 = -2", "100 ÷ ");
-        testCalculations("5 ÷ 55550 = 9.000900090009001e-5", "5 ÷ ");
-        testCalculations("5 ÷ -5 = -1", "5 ÷ ");
-        testCalculations("0.05 ÷ -0.05 = -1", "0.05 ÷ ");
-        testCalculations("0.000005 ÷ 0.0000000000005 = 10,000,000", "0.000005 ÷ ");
-        testCalculations("0.000005 ÷ -0.0000000000005 = -10,000,000", "0.000005 ÷ ");
+        testCalculations("9999999999999999 / 9999999999999999 = 1", "9999999999999999 ÷ ");
+        testCalculations("9999999999999999 / -9999999999999999 = -1", "9999999999999999 ÷ ");
+        testCalculations("1000000.5 / -50000000 = -0.02000001", "1000000.5 ÷ ");
+        testCalculations("1000000 / -50000000 = -0.02", "1000000 ÷ ");
+        testCalculations("100 / -50 = -2", "100 ÷ ");
+        testCalculations("5 / 55550 = 9.000900090009001e-5", "5 ÷ ");
+        testCalculations("5 / -5 = -1", "5 ÷ ");
+        testCalculations("0.05 / -0.05 = -1", "0.05 ÷ ");
+        testCalculations("0.000005 / 0.0000000000005 = 10,000,000", "0.000005 ÷ ");
+        testCalculations("0.000005 / -0.0000000000005 = -10,000,000", "0.000005 ÷ ");
 
         // negative number by any non-zero
-        testCalculations("-0.6 ÷ -0.6 = 1", "-0.6 ÷ ");
-        testCalculations("-0.000005 ÷ -0.0000000000005 = 10,000,000", "-0.000005 ÷ ");
-        testCalculations("-0.1 ÷ -0.1 = 1", "-0.1 ÷ ");
-        testCalculations("-5 ÷ 55550 = -9.000900090009001e-5", "-5 ÷ ");
-        testCalculations("-100 ÷ 50 = -2", "-100 ÷ ");
-        testCalculations("-1000000 ÷ -50000000 = 0.02", "-1000000 ÷ ");
-        testCalculations("-1000000 ÷ -50000000.5 = 0.0199999998", "-1000000 ÷ ");
-        testCalculations("-2147483648 ÷ 2147483647 = -1.000000000465661", "-2147483648 ÷ ");
-        testCalculations("-9999999999999999 ÷ -9999999999999999 = 1", "-9999999999999999 ÷ ");
+        testCalculations("-0.6 / -0.6 = 1", "-0.6 ÷ ");
+        testCalculations("-0.000005 / -0.0000000000005 = 10,000,000", "-0.000005 ÷ ");
+        testCalculations("-0.1 / -0.1 = 1", "-0.1 ÷ ");
+        testCalculations("-5 / 55550 = -9.000900090009001e-5", "-5 ÷ ");
+        testCalculations("-100 / 50 = -2", "-100 ÷ ");
+        testCalculations("-1000000 / -50000000 = 0.02", "-1000000 ÷ ");
+        testCalculations("-1000000 / -50000000.5 = 0.0199999998", "-1000000 ÷ ");
+        testCalculations("-2147483648 / 2147483647 = -1.000000000465661", "-2147483648 ÷ ");
+        testCalculations("-9999999999999999 / -9999999999999999 = 1", "-9999999999999999 ÷ ");
 
         // with more than one operation in sequence
-        testCalculations("-859999 ☓ 66 + 9999999 = -46,759,935", "-859999 ☓ 66 + ");
-        testCalculations("-1000 ☓ 3 ÷ 3 = -1,000", "-1000 ☓ 3 ÷ ");
-        testCalculations("-2 ☓ 3 + 5 = -1", "-2 ☓ 3 + ");
-        testCalculations("0 ☓ 0 − 1500 = -1,500", "0 ☓ 0 − ");
-        testCalculations("2 ☓ 3 + 5 = 11", "2 ☓ 3 + ");
-        testCalculations("90 ☓ 22222 ÷ -50 = -39,999.6", "90 ☓ 22222 ÷ ");
-        testCalculations("9999999999999999 ☓ 9999999999999999 ☓ 5 = 4.999999999999999e+32", "9999999999999999 ☓ 9999999999999999 ☓ ");
+        testCalculations("-859999 * 66 + 9999999 = -46,759,935", "-859999 × 66 + ");
+        testCalculations("-1000 * 3 / 3 = -1,000", "-1000 × 3 ÷ ");
+        testCalculations("-2 * 3 + 5 = -1", "-2 × 3 + ");
+        testCalculations("0 * 0 - 1500 = -1,500", "0 × 0 − ");
+        testCalculations("2 * 3 + 5 = 11", "2 × 3 + ");
+        testCalculations("90 * 22222 / -50 = -39,999.6", "90 × 22222 ÷ ");
+        testCalculations("9999999999999999 * 9999999999999999 * 5 = 4.999999999999999e+32", "9999999999999999 × 9999999999999999 × ");
     }
 
     @Test
@@ -539,7 +526,7 @@ public class StandardCalculatorTest {
 
     private void executeMathOperation(String operationSymbol) {
         MathOperation operation = extractOperation(operationSymbol);
-        fireButton(operation.getCode());
+        fireButton(operation.id());
     }
 
     private void performUnaryOperations(String[] expressionParts) {
@@ -563,7 +550,7 @@ public class StandardCalculatorTest {
             addDigit(number.charAt(i));
         }
         if (isNegativeNumber) { // add minus
-            fireButton(NEGATE.getCode());
+            fireButton(NEGATE.id());
         }
     }
 
@@ -582,28 +569,23 @@ public class StandardCalculatorTest {
                 return REVERSE;
             case "sqr":
                 return SQUARE;
+            case "√":
+                return SQUARE_ROOT;
+            case "±":
+                return NEGATE;
+            case "*":
+                return MULTIPLY;
+            case "/":
+                return DIVIDE;
+            case "-":
+                return SUBTRACT;
+            case "+":
+                return ADD;
+            case "%":
+                return PERCENT;
             default:
                 return MathOperation.getOperation(operation);
         }
-    }
-
-    private void testHistory(String expected) {
-        assertEquals(expected.trim(), prevOperationsText.getText().trim());
-    }
-
-    private void testCalculation(String expectedResult) {
-        pushKey(KeyCode.ENTER);
-        assertEquals(expectedResult, currentNumberText.getText());
-    }
-
-    private void testKeyPressed(String expectedText, KeyCode keyCode, KeyCombination.Modifier... modifiers) {
-        pushKey(keyCode, modifiers);
-        assertEquals(expectedText, currentNumberText.getText());
-    }
-
-    private void pushKey(KeyCode keyCode, KeyCombination.Modifier... modifiers) {
-        KeyCodeCombination combination = new KeyCodeCombination(keyCode, modifiers);
-        robot.push(combination);
     }
 
     @Test
@@ -646,21 +628,21 @@ public class StandardCalculatorTest {
         testIsDisableButton(MEMORY_CLEAN, false);
         testIsDisableButton(MEMORY_RECALL, false);
         testIsDisableButton(MEMORY_SHOW, false);
-        fireButton(MEMORY_CLEAN.getCode());
+        fireButton(MEMORY_CLEAN.symbol());
 
         // subtract from memorized value
         testMemoryOperation("M- 50 = -50");
         testMemoryOperation("M- -3 = -47");
         testMemoryOperation("M- 0.555555 = -47.555555");
         testMemoryOperation("M- -99999999999 = 99,999,999,951.44445");
-        fireButton(MEMORY_CLEAN.getCode());
+        fireButton(MEMORY_CLEAN.symbol());
 
         // store value in memorized
         testMemoryOperation("MS 50 = 50");
         testMemoryOperation("MS -3 = -3");
         testMemoryOperation("MS 0.555555 = 0.555555");
         testMemoryOperation("MS -99999999999 = -99,999,999,999");
-        fireButton(MEMORY_CLEAN.getCode());
+        fireButton(MEMORY_CLEAN.symbol());
 
         testIsDisableButton(MEMORY_CLEAN, true);
         testIsDisableButton(MEMORY_RECALL, true);
@@ -668,7 +650,7 @@ public class StandardCalculatorTest {
     }
 
     private void testIsDisableButton(MemoryOperation operation, boolean expectedDisabled) {
-        Button memoryButton = buttons.get(operation.getCode());
+        Button memoryButton = buttons.get(operation.symbol());
         boolean isButtonDisabled = memoryButton.isDisabled();
         assertEquals(expectedDisabled, isButtonDisabled);
     }
@@ -684,31 +666,31 @@ public class StandardCalculatorTest {
         testHistory("");
 
         //reset entered number and check for 0 (default value for new number)
-        fireButton(CLEAN_CURRENT.getCode());
-        assertEquals("0", currentNumberText.getText());
+        fireButton(CLEAN_CURRENT.id());
+        testCurrentText("0");
 
         // recall memorized value
-        fireButton(MEMORY_RECALL.getCode());
+        fireButton(MEMORY_RECALL.symbol());
 
         WaitForAsyncUtils.waitForFxEvents();
         String expectedMemorizedValue = expressionParts[index];
-        assertEquals(expectedMemorizedValue, currentNumberText.getText());
+        testCurrentText(expectedMemorizedValue);
     }
 
     @Test
     public void testOperationWithWrongArguments() {
 
         // division by zero
-        testOperationForException("555000000 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "555000000 ÷ ");
-        testOperationForException("1000 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "1000 ÷ ");
-        testOperationForException("100 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "100 ÷ ");
-        testOperationForException("0.6666666666666667 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "0.6666666666666667 ÷ ");
-        testOperationForException("0 ÷ 0 ", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
-        testOperationForException("0 ÷ 0.0", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
-        testOperationForException("-0.6666666666666667 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "-0.6666666666666667 ÷ ");
-        testOperationForException("-100 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "-100 ÷ ");
-        testOperationForException("-1000 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "-1000 ÷ ");
-        testOperationForException("-555000000 ÷ 0", DIVISION_BY_ZERO_MESSAGE, "-555000000 ÷ ");
+        testOperationForException("555000000 / 0", DIVISION_BY_ZERO_MESSAGE, "555000000 ÷ ");
+        testOperationForException("1000 / 0", DIVISION_BY_ZERO_MESSAGE, "1000 ÷ ");
+        testOperationForException("100 / 0", DIVISION_BY_ZERO_MESSAGE, "100 ÷ ");
+        testOperationForException("0.6666666666666667 / 0", DIVISION_BY_ZERO_MESSAGE, "0.6666666666666667 ÷ ");
+        testOperationForException("0 / 0 ", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
+        testOperationForException("0 / 0.0", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
+        testOperationForException("-0.6666666666666667 / 0", DIVISION_BY_ZERO_MESSAGE, "-0.6666666666666667 ÷ ");
+        testOperationForException("-100 / 0", DIVISION_BY_ZERO_MESSAGE, "-100 ÷ ");
+        testOperationForException("-1000 / 0", DIVISION_BY_ZERO_MESSAGE, "-1000 ÷ ");
+        testOperationForException("-555000000 / 0", DIVISION_BY_ZERO_MESSAGE, "-555000000 ÷ ");
 
         // square root with negative argument
         testOperationForException("√ -5", INVALID_INPUT_MESSAGE, "√(-5)");
@@ -736,16 +718,50 @@ public class StandardCalculatorTest {
             pushKey(KeyCode.ENTER);
         }
 
-        assertEquals(expectedErrorMessage, currentNumberText.getText());
+        testCurrentText(expectedErrorMessage);
         testHistory(expectedHistory);
+    }
+
+    @Test
+    public void testPressDisabledButtons() {
+        // cause an exception by dividing zero by zero to disable buttons with operations
+        testOperationForException("0 / 0 ", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
+
+        for (MathOperation operation : MathOperation.values()) {
+            if (operation != RESULT) {
+                testPressButtonAfterError(operation.id());
+            }
+        }
+        for (MemoryOperation operation : MemoryOperation.values()) {
+            testPressButtonAfterError(operation.symbol());
+        }
+        testPressButtonAfterError(POINT);
+        testPressButtonAfterError("history");
+
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, SHIFT_DOWN);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, SHIFT_DOWN);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, SHIFT_DOWN);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, SHIFT_DOWN);
+
+        // clean error message
+        pushKey(KeyCode.ESCAPE);
+        testCurrentText("0");
+    }
+
+    private void testPressButtonAfterError(String buttonId) {
+        fireButton(buttonId);
+        clickButton(buttonId);
+        testCurrentText(RESULT_IS_UNDEFINED_MESSAGE);
     }
 
     @Test
     public void testForOverflow() {
         // result is overflow
-        testForOverflow("1.e-9990 ÷ 10000000000", OVERFLOW_MESSAGE);
+        testForOverflow("1.e-9990 / 10000000000", OVERFLOW_MESSAGE);
 
-        testForOverflow("1.e+9990 ☓ 10000000000", OVERFLOW_MESSAGE);
+        testForOverflow("1.e+9990 * 10000000000", OVERFLOW_MESSAGE);
     }
 
     private void testForOverflow(String expression, String expectedErrorMessage) {
@@ -754,7 +770,7 @@ public class StandardCalculatorTest {
 
         enterNumber("1");
         MathOperation operation = extractOperation(expressionParts[1]);
-        fireButton(operation.getCode());
+        fireButton(operation.id());
         enterNumber("1000000000000000");
 
         String firstNumber = expressionParts[0];
@@ -764,7 +780,7 @@ public class StandardCalculatorTest {
             pushKey(KeyCode.ENTER);
         }
 
-        fireButton(operation.getCode());
+        fireButton(operation.id());
         String secondNumber = expressionParts[2];
         enterNumber(secondNumber);
 
@@ -799,5 +815,39 @@ public class StandardCalculatorTest {
         } catch (CalculationException e) {
             // expected
         }
+    }
+
+    private void clickButton(String buttonId) {
+        Button button = buttons.get(buttonId);
+        robot.clickOn(button);
+    }
+
+    private void testCurrentText(String expected) {
+        assertEquals(expected, currentNumberText.getText());
+    }
+
+    private void fireButton(String buttonId) {
+        WaitForAsyncUtils.waitForFxEvents();
+        final Button button = buttons.get(buttonId);
+        button.fire();
+    }
+
+    private void testHistory(String expected) {
+        assertEquals(expected.trim(), prevOperationsText.getText().trim());
+    }
+
+    private void testCalculation(String expectedResult) {
+        pushKey(KeyCode.ENTER);
+        testCurrentText(expectedResult);
+    }
+
+    private void testKeyPressed(String expectedText, KeyCode keyCode, KeyCombination.Modifier... modifiers) {
+        pushKey(keyCode, modifiers);
+        testCurrentText(expectedText);
+    }
+
+    private void pushKey(KeyCode keyCode, KeyCombination.Modifier... modifiers) {
+        KeyCodeCombination combination = new KeyCodeCombination(keyCode, modifiers);
+        robot.push(combination);
     }
 }

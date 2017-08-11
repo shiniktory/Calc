@@ -1,45 +1,37 @@
 package com.implemica.CalculatorProject.controller;
 
 import com.implemica.CalculatorProject.calculation.*;
-import com.implemica.CalculatorProject.validation.DataValidator;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.implemica.CalculatorProject.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
 import static javafx.geometry.VerticalDirection.DOWN;
 import static javafx.scene.input.KeyCode.*;
-import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 import static org.junit.Assert.*;
 
 public class TestView {
 
     private static final FxRobot robot = new FxRobot();
 
-    private static final String RESULT_IS_UNDEFINED_MESSAGE = "Result is undefined";
-
-    private static final String ARGUMENT_DELIMITERS = "\\s+[=\\s]*";
-
-    private static TextField currentNumberText, prevOperationsText;
+    private static TextField currentNumberText;
 
     private static ListView typesList;
     private static VBox viewPanel;
@@ -48,33 +40,36 @@ public class TestView {
     private static Map<String, Button> buttons = new LinkedHashMap<>();
 
     @BeforeClass
-    public static void setUpInit() throws Exception {
-
+    public static void setUpInit() {
         WaitForAsyncUtils.waitForFxEvents();
 
-        findAndPutButton(".", "#point");
+        // init numbers
+        for (int i = 0; i <= 9; i++) {
+            String number = String.valueOf(i);
+            addButton(number, number);
+        }
 
         // init math operations
         for (MathOperation operation : MathOperation.values()) {
-            String operationCode = operation.getCode();
-            findAndPutButton(operationCode, operationCode);
+            String operationCode = operation.id();
+            addButton(operationCode, operationCode);
         }
+        addButton(".", "point");
 
         // init memory operations
         for (MemoryOperation operation : MemoryOperation.values()) {
-            String operationCode = operation.getCode();
-            findAndPutButton(operationCode, operationCode);
+            String operationCode = operation.id();
+            addButton(operationCode, operationCode);
         }
 
         // other buttons
-        findAndPutButton("mode", "#mode");
-        findAndPutButton("modeClose", "#modeClose");
-        findAndPutButton("infoButton", "#infoButton");
-        findAndPutButton("history", "#history");
+        addButton("mode", "mode");
+        addButton("modeClose", "modeClose");
+        addButton("infoButton", "infoButton");
+        addButton("history", "history");
 
         // text fields with current number and history
         currentNumberText = find("#currentNumberText");
-        prevOperationsText = find("#prevOperationsText");
 
         // panels with calculator's view types and memorized values
         viewPanel = find("#viewTypesPanel");
@@ -82,8 +77,8 @@ public class TestView {
         memoryStorage = find("#memoryStorage");
     }
 
-    private static void findAndPutButton(String buttonId, String query) {
-        buttons.put(buttonId, find(query));
+    private static void addButton(String buttonId, String query) {
+        buttons.put(buttonId, find("#" + query));
         WaitForAsyncUtils.waitForFxEvents();
     }
 
@@ -99,127 +94,85 @@ public class TestView {
         pushKey(KeyCode.ESCAPE);
     }
 
-    private void fireButton(String buttonId) {
-        WaitForAsyncUtils.waitForFxEvents();
-        final Button button = buttons.get(buttonId);
-        button.fire();
-    }
-
-    private void clickButton(String buttonId) {
-        Button button = buttons.get(buttonId);
-        robot.clickOn(button);
-    }
-
-    private void testKeyPressed(String expectedText, KeyCode keyCode, Modifier... modifiers) {
-        pushKey(keyCode, modifiers);
-        assertEquals(expectedText, currentNumberText.getText());
-    }
-
-    private void pushKey(KeyCode keyCode, Modifier... modifiers) {
-        KeyCodeCombination combination = new KeyCodeCombination(keyCode, modifiers);
-        robot.push(combination);
-    }
-
-    @Test
-    public void testPressDisabledButtons() {
-        // cause an exception by dividing zero by zero to disable buttons with operations
-        causeAnException();
-
-        for (MathOperation operation : MathOperation.values()) {
-            if (operation != RESULT) {
-                testPressButtonAfterError(operation.getCode());
-            }
-        }
-        for (MemoryOperation operation : MemoryOperation.values()) {
-            testPressButtonAfterError(operation.getCode());
-        }
-        testPressButtonAfterError(POINT);
-        testPressButtonAfterError("history");
-
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, SHIFT_DOWN);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, SHIFT_DOWN);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, SHIFT_DOWN);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, SHIFT_DOWN);
-
-        // clean error message
-        pushKey(KeyCode.ESCAPE);
-        assertEquals("0", currentNumberText.getText());
-    }
-
-    private void causeAnException() {
-        pushKey(KeyCode.ESCAPE);
-        String[] expressionParts = "0 ÷ 0".trim().split(ARGUMENT_DELIMITERS);
-
-        for (int i = 0; i < expressionParts.length; i++) {
-            if (DataValidator.isDigit(expressionParts[i])) {
-                pushKey(getKeyCode(expressionParts[i]));
-            } else {
-                fireButton(expressionParts[i]);
-            }
-        }
-        pushKey(KeyCode.ENTER);
-
-        assertEquals(RESULT_IS_UNDEFINED_MESSAGE, currentNumberText.getText());
-    }
-
-    private void testPressButtonAfterError(String buttonId) {
-        fireButton(buttonId);
-        clickButton(buttonId);
-        assertEquals(RESULT_IS_UNDEFINED_MESSAGE, currentNumberText.getText());
-    }
-
     @Test
     public void testViewPanel() {
-        assertFalse(viewPanel.isVisible());
+        testPaneVisible(false, viewPanel);
+
         clickButton("mode");
         WaitForAsyncUtils.waitForFxEvents();
-        assertTrue(viewPanel.isVisible());
+        testPaneVisible(true, viewPanel);
 
         // Verify is selected item changed
         Label firstSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         robot.clickOn(typesList);
+        testPaneVisible(true, viewPanel);
         Label secondSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         assertNotEquals(firstSelected, secondSelected);
+        testPaneVisible(true, viewPanel);
 
         robot.scroll(DOWN);
+        testPaneVisible(true, viewPanel);
         clickButton("infoButton");
+        testPaneVisible(true, viewPanel);
 
         // hide calculator view panel
         clickButton("modeClose");
         WaitForAsyncUtils.waitForFxEvents();
-        assertFalse(viewPanel.isVisible());
+        testPaneVisible(false, viewPanel);
     }
 
     @Test
     public void testMemoryPanel() {
         // by default memory panel must be invisible
-        assertFalse(memoryStorage.isVisible());
+        testPaneVisible(false, memoryStorage);
 
         // show memory panel
-        clickButton(MEMORY_STORE.getCode());
-        clickButton(MEMORY_SHOW.getCode());
+        clickButton(MEMORY_STORE.id());
+        clickButton(MEMORY_SHOW.id());
         WaitForAsyncUtils.waitForFxEvents();
-        assertTrue(memoryStorage.isVisible());
+        testPaneVisible(true, memoryStorage);
 
         // try to press any digit or operation button
         for (int i = 0; i <= 9; i++) {
-            KeyCode digitKey = getKeyCode(String.valueOf(i));
-            testKeyPressed("0", digitKey);
+            String digit = String.valueOf(i);
+            testButtonVisible(false, digit);
+            KeyCode digitKey = getKeyCode(digit);
+            pushKey(digitKey);
+            testCurrentText("0");
         }
-        for (MathOperation operation : MathOperation.values()) {
-            fireButton(operation.getCode());
-            assertEquals("0", currentNumberText.getText());
-        }
-        testKeyPressed("0", KeyCode.BACK_SPACE);
+        testPaneVisible(true, memoryStorage);
 
-        // hide panel
-        clickButton(MEMORY_SHOW.getCode());
+        for (MathOperation operation : MathOperation.values()) {
+            testButtonVisible(false, operation.id());
+        }
+        testPaneVisible(true, memoryStorage);
+
+        pushKey(BACK_SPACE);
+        testCurrentText("0");
+        testPaneVisible(true, memoryStorage);
         WaitForAsyncUtils.waitForFxEvents();
-        assertFalse(viewPanel.isVisible());
+        // hide panel
+        clickButton(MEMORY_SHOW.id());
+        WaitForAsyncUtils.waitForFxEvents();
+        testPaneVisible(false, memoryStorage);
     }
 
+    private void testCurrentText(String expected) {
+        assertEquals(expected, currentNumberText.getText());
+    }
+
+    private void testPaneVisible(boolean expected, Pane pane) {
+        assertEquals(expected, pane.isVisible());
+    }
+
+    private void testButtonVisible(boolean expected, String buttonId) {
+        Button button = buttons.get(buttonId);
+        button.isVisible();
+        assertEquals(expected, FXTestUtils.isNodeVisible(button));
+    }
+
+    private static final double MIN_FONT_SIZE = 10.0;
+    private static final double MAX_FONT_SIZE = 66.0;
 
     @Test
     public void testFontResize() {
@@ -230,12 +183,27 @@ public class TestView {
         }
         double currentFontSize = currentNumberText.getFont().getSize();
         assertNotEquals(initialFontSize, currentFontSize);
+        assertTrue(currentFontSize > MIN_FONT_SIZE);
+        assertTrue(currentFontSize < MAX_FONT_SIZE);
+
+        // test font size after reset. expected returned to initial size
+        pushKey(ESCAPE);
+        currentFontSize = currentNumberText.getFont().getSize();
+        assertEquals(initialFontSize, currentFontSize, 0.001);
     }
 
     @Test
     public void testWindowResize() {
         testWindowResize(100, 100);
         testWindowResize(-170, -100);
+        testWindowResize(-10, -10);
+        testWindowResize(170, 100);
+        testWindowResize(70, 50);
+        testWindowResize(-110, -190);
+        testWindowResize(40, 30);
+        testWindowResize(-40, -30);
+        testWindowResize(-50, -60);
+        testWindowResize(50, 60);
     }
 
     private void testWindowResize(double byX, double byY) {
@@ -279,5 +247,21 @@ public class TestView {
         assertNotEquals(startY, windowAfterMove.getY());
         assertEquals(initWidth, windowAfterMove.getWidth(), 0.0001);
         assertEquals(initHeight, windowAfterMove.getHeight(), 0.0001);
+    }
+
+
+    private void fireButton(String buttonId) {
+        WaitForAsyncUtils.waitForFxEvents();
+        final Button button = buttons.get(buttonId);
+        button.fire();
+    }
+
+    private void clickButton(String buttonId) {
+        Button button = buttons.get(buttonId);
+        robot.clickOn(button);
+    }
+
+    private void pushKey(KeyCode keyCode) {
+        robot.push(keyCode);
     }
 }

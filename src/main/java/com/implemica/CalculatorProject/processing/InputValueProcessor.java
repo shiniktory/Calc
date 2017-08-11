@@ -172,7 +172,7 @@ public class InputValueProcessor {
         // If no new number entered need to change last operation to new
         if (isNewNumber && expression.size() > 1 && !wasUnaryBefore) {
             operation = currentOperation;
-            expression.set(expression.size() - 1, currentOperation.getCode());
+            expression.set(expression.size() - 1, currentOperation.symbol());
             wasUnaryBefore = false;
             return formatNumberForDisplaying(lastNumber);
         }
@@ -180,7 +180,7 @@ public class InputValueProcessor {
         if (!wasUnaryBefore) {
             expression.add(formatToMathView(lastNumber));
         }
-        expression.add(currentOperation.getCode());
+        expression.add(currentOperation.symbol());
         if (expression.size() > 2) { // If was already added more than one number and binary operation performed
             previousNumber = getResult(operation, previousNumber, lastNumber);
 
@@ -234,7 +234,7 @@ public class InputValueProcessor {
 
     public String addPoint() throws CalculationException {
         if (lastNumber.contains(POINT)) {
-            return null;
+            return formatNumberForDisplaying(lastNumber);
         }
         lastNumber += POINT;
         isNewNumber = false;

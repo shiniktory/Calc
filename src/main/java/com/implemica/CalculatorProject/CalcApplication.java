@@ -1,7 +1,5 @@
 package com.implemica.CalculatorProject;
 
-import com.implemica.CalculatorProject.util.OutputFormatter;
-import com.implemica.CalculatorProject.validation.DataValidator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -28,6 +26,8 @@ import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
 import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.validation.DataValidator.isDigit;
 
 /**
  * The class is an entry point to the application.
@@ -81,6 +81,7 @@ public class CalcApplication extends Application {
             });
 
             currentNumberTextField = (TextField) root.lookup("#currentNumberText");
+
             currentNumberTextField.textProperty().addListener((observable, oldValue, newValue) -> {
                 scaleTextFieldFont(primaryStage, currentNumberTextField.getBoundsInLocal().getWidth());
             });
@@ -88,6 +89,7 @@ public class CalcApplication extends Application {
             currentNumberTextField.widthProperty().addListener((observable, oldValue, newValue) -> {
                 scaleTextFieldFont(primaryStage, newValue.doubleValue());
             });
+
 
             primaryStage.show();
         } catch (IOException e) {
@@ -111,33 +113,33 @@ public class CalcApplication extends Application {
     private List<String> labeledButtons = new ArrayList<>();
 
     {
-        fontSizes.put(PERCENT.getCode(), new Double[]{16.0, 19.0, 22.0});
-        fontSizes.put(SQUARE_ROOT.getCode(), new Double[]{16.0, 17.0, 22.0});
-        fontSizes.put(SQUARE.getCode(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(REVERSE.getCode(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(NEGATE.getCode(), new Double[]{25.0, 29.0, 36.0});
-        fontSizes.put(DIVIDE.getCode(), new Double[]{24.0, 32.0, 42.0});
-        fontSizes.put(MULTIPLY.getCode(), new Double[]{15.0, 19.0, 25.0});
-        fontSizes.put(ADD.getCode(), new Double[]{24.0, 33.0, 42.0});
-        fontSizes.put(SUBTRACT.getCode(), new Double[]{24.0, 35.0, 42.0});
-        fontSizes.put(RESULT.getCode(), new Double[]{24.0, 34.0, 42.0});
+        fontSizes.put(PERCENT.id(), new Double[]{16.0, 19.0, 22.0});
+        fontSizes.put(SQUARE_ROOT.id(), new Double[]{16.0, 17.0, 22.0});
+        fontSizes.put(SQUARE.id(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(REVERSE.id(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(NEGATE.id(), new Double[]{25.0, 29.0, 36.0});
+        fontSizes.put(DIVIDE.id(), new Double[]{24.0, 32.0, 42.0});
+        fontSizes.put(MULTIPLY.id(), new Double[]{15.0, 19.0, 25.0});
+        fontSizes.put(ADD.id(), new Double[]{24.0, 33.0, 42.0});
+        fontSizes.put(SUBTRACT.id(), new Double[]{24.0, 35.0, 42.0});
+        fontSizes.put(RESULT.id(), new Double[]{24.0, 34.0, 42.0});
 
         fontSizes.put("numbers", new Double[]{15.0, 20.0, 25.0});
         fontSizes.put("point", new Double[]{15.0, 23.0, 25.0});
 
-        fontSizes.put(LEFT_ERASE.getCode(), new Double[]{15.0, 20.0, 25.0});
-        fontSizes.put(CLEAN_CURRENT.getCode(), new Double[]{14.0, 15.0, 23.0});
-        fontSizes.put(CLEAN.getCode(), new Double[]{14.0, 15.0, 23.0});
+        fontSizes.put(LEFT_ERASE.id(), new Double[]{15.0, 20.0, 25.0});
+        fontSizes.put(CLEAN_CURRENT.id(), new Double[]{14.0, 15.0, 23.0});
+        fontSizes.put(CLEAN.id(), new Double[]{14.0, 15.0, 23.0});
 
         fontSizes.put("currentNumberTF", new Double[]{23.0, 42.0, 66.0});
 
-        labeledButtons.add(NEGATE.getCode());
-        labeledButtons.add(DIVIDE.getCode());
-        labeledButtons.add(MULTIPLY.getCode());
-        labeledButtons.add(SUBTRACT.getCode());
-        labeledButtons.add(ADD.getCode());
-        labeledButtons.add(RESULT.getCode());
-        labeledButtons.add(LEFT_ERASE.getCode());
+        labeledButtons.add(NEGATE.id());
+        labeledButtons.add(DIVIDE.id());
+        labeledButtons.add(MULTIPLY.id());
+        labeledButtons.add(SUBTRACT.id());
+        labeledButtons.add(ADD.id());
+        labeledButtons.add(RESULT.id());
+        labeledButtons.add(LEFT_ERASE.id());
     }
 
     private void scaleButtonFontSize(Parent root, Stage primaryStage) {
@@ -145,9 +147,9 @@ public class CalcApplication extends Application {
 
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
-            String buttonText = button.getText();
+            String buttonId = button.getId();
 
-            double newFontSize = getFontSize(buttonText, getFontBoundIndex(primaryStage));
+            double newFontSize = getFontSize(buttonId, getFontBoundIndex(primaryStage));
             setButtonFontSize(button, newFontSize);
         }
     }
@@ -173,11 +175,11 @@ public class CalcApplication extends Application {
 
     private TextField currentNumberTextField;
 
-    private double getFontSize(String buttonText, int boundIndex) {
-        if (DataValidator.isDigit(buttonText) || OutputFormatter.POINT.equals(buttonText)) {
+    private double getFontSize(String buttonId, int boundIndex) {
+        if (isDigit(buttonId) || POINT.equals(buttonId)) {
             return fontSizes.get("numbers")[boundIndex];
         } else {
-            return fontSizes.get(buttonText)[boundIndex];
+            return fontSizes.get(buttonId)[boundIndex];
         }
     }
 
@@ -208,9 +210,11 @@ public class CalcApplication extends Application {
 
         if (labeledButtons.contains(buttonText)) {
             Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
-            buttonLabel.setFont(new Font(buttonLabel.getFont().getFamily(), newFontSize));
+            Font newFont = new Font(buttonLabel.getFont().getFamily(), newFontSize);
+            buttonLabel.setFont(newFont);
         } else {
-            button.setFont(new Font(button.getFont().getFamily(), newFontSize));
+            Font newFont = new Font(button.getFont().getFamily(), newFontSize);
+            button.setFont(newFont);
         }
     }
 }

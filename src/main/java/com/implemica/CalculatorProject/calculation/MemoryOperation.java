@@ -15,30 +15,34 @@ public enum MemoryOperation {
     /**
      * A string representation of the operation.
      */
-    private final String code;
+    private final String symbol;
 
     /**
      * Constructs a new {@code MemoryOperation} with the given string representation.
      *
-     * @param code a string representation of the operation
+     * @param symbol a string representation of the operation
      */
-    MemoryOperation(String code) {
-        this.code = code;
+    MemoryOperation(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getCode() {
-        return code;
+    public String symbol() {
+        return symbol;
+    }
+
+    public String id() {
+        return name().toLowerCase();
     }
 
     /**
-     * Returns the {@code MemoryOperation} instance with the specified operation code. If not found returns null.
+     * Returns the {@code MemoryOperation} instance with the specified operation symbol. If not found returns null.
      *
-     * @param operationCode a code to search an operation
-     * @return the {@code MemoryOperation} instance with the specified operation code. If not found returns null
+     * @param operationId a symbol to search an operation
+     * @return the {@code MemoryOperation} instance with the specified operation symbol. If not found returns null
      */
-    public static MemoryOperation getOperation(String operationCode) {
+    public static MemoryOperation getOperation(String operationId) {
         for (MemoryOperation operation : values()) {
-            if (operation.code.equals(operationCode)) {
+            if (operation.name().equalsIgnoreCase(operationId)) {
                 return operation;
             }
         }

@@ -10,7 +10,7 @@ public class OperationTest {
 
         // Mathematical operations
         for (MathOperation operation : MathOperation.values()) {
-            testGetMathOperation(operation, operation.getCode());
+            testGetMathOperation(operation, operation.name());
         }
         testGetMathOperation(null, null);
         testGetMathOperation(null, "");
@@ -18,7 +18,7 @@ public class OperationTest {
 
         // Memory operations
         for (MemoryOperation operation : MemoryOperation.values()) {
-            testGetMemoryOperation(operation, operation.getCode());
+            testGetMemoryOperation(operation, operation.name());
         }
         testGetMemoryOperation(null, null);
         testGetMemoryOperation(null, "");

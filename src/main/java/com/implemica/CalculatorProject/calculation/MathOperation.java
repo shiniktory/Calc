@@ -14,7 +14,7 @@ public enum MathOperation {
     /**
      * A string representation of the operation.
      */
-    private final String code;
+    private final String symbol;
 
     /**
      * The flag variable shows is operation binary (true) or unary (false).
@@ -24,34 +24,38 @@ public enum MathOperation {
     /**
      * Constructs a new {@code MathOperation} with the given description.
      *
-     * @param code a string representation of the operation
+     * @param symbol a string representation of the operation
      * @param isBinary the flag shows is operation binary or unary
      */
-    MathOperation(String code, boolean isBinary) {
-        this.code = code;
+    MathOperation(String symbol, boolean isBinary) {
+        this.symbol = symbol;
         this.isBinary = isBinary;
     }
 
     /**
-     * Returns the {@code MathOperation} instance with the specified operation code. If not found returns null.
+     * Returns the {@code MathOperation} instance with the specified operation symbol. If not found returns null.
      *
-     * @param operationCode a code to search an operation
-     * @return the {@code MathOperation} instance with the specified operation code. If not found returns null
+     * @param operationId a symbol to search an operation
+     * @return the {@code MathOperation} instance with the specified operation symbol. If not found returns null
      */
-    public static MathOperation getOperation(String operationCode) {
+    public static MathOperation getOperation(String operationId) {
         for (MathOperation operation : values()) {
-            if (operation.code.equals(operationCode)) {
+            if (operation.name().equalsIgnoreCase(operationId)) {
                 return operation;
             }
         }
         return null;
     }
 
-    public String getCode() {
-        return code;
+    public String symbol() {
+        return symbol;
     }
 
     public boolean isBinary() {
         return isBinary;
+    }
+
+    public String id() {
+        return name().toLowerCase();
     }
 }

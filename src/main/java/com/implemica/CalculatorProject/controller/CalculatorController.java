@@ -155,6 +155,7 @@ public class CalculatorController {
     private void setCurrentNumber(String number) {
         currentNumberText.setText(number);
         currentNumberText.end();
+        prevOperationsText.end();
     }
 
     /**
@@ -179,34 +180,34 @@ public class CalculatorController {
 
         // Unary operations
         if (event.isShiftDown() && key == KeyCode.DIGIT2) {
-            fireButton(SQUARE_ROOT.getCode());
+            fireButton(SQUARE_ROOT.name());
 
             //Binary operations
         } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
-            fireButton(PERCENT.getCode());
+            fireButton(PERCENT.name());
 
         } else if (key == KeyCode.MINUS || key == KeyCode.SUBTRACT) {
-            fireButton(SUBTRACT.getCode());
+            fireButton(SUBTRACT.name());
 
         } else if (key == KeyCode.ADD ||
                 event.isShiftDown() && key == KeyCode.EQUALS) {
-            fireButton(ADD.getCode());
+            fireButton(ADD.name());
 
         } else if (key == KeyCode.MULTIPLY ||
                 event.isShiftDown() && key == KeyCode.DIGIT8) {
-            fireButton(MULTIPLY.getCode());
+            fireButton(MULTIPLY.name());
 
         } else if (key == KeyCode.SLASH || key == KeyCode.DIVIDE) {
-            fireButton(DIVIDE.getCode());
+            fireButton(DIVIDE.name());
 
         } else if (key == KeyCode.BACK_SPACE) {
-            fireButton(LEFT_ERASE.getCode());
+            fireButton(LEFT_ERASE.name());
 
         } else if (key == KeyCode.EQUALS) {
-            fireButton(RESULT.getCode());
+            fireButton(RESULT.name());
 
         } else if (key == KeyCode.ENTER) {
-            fireButton(RESULT.getCode());
+            fireButton(RESULT.name());
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
@@ -219,7 +220,7 @@ public class CalculatorController {
             addPoint();
 
         } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
-            fireButton(CLEAN.getCode());
+            fireButton(CLEAN.name());
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
@@ -251,8 +252,8 @@ public class CalculatorController {
      */
     private void findButtonImpl(String buttonId, Node child) {
         Button button = (Button) child;
-        String buttonText = button.getText();
-        if (buttonText.equals(buttonId) &&
+        String currentButtonId = button.getId();
+        if (currentButtonId.equalsIgnoreCase(buttonId) &&
                 !button.isDisable() &&
                 button.isVisible()) {
 
@@ -361,7 +362,8 @@ public class CalculatorController {
      */
     private MathOperation getOperationFromEvent(Event event) {
         Button buttonClicked = (Button) event.getSource();
-        String operationSymbol = buttonClicked.getText();
+
+        String operationSymbol = buttonClicked.getId();
         return MathOperation.getOperation(operationSymbol);
     }
 
@@ -462,8 +464,8 @@ public class CalculatorController {
      */
     @FXML
     private void memoryButtonHandler(Event event) {
-        String operationCode = ((Button) event.getSource()).getText();
-        MemoryOperation operation = MemoryOperation.getOperation(operationCode);
+        String buttonId = ((Button) event.getSource()).getId();
+        MemoryOperation operation = MemoryOperation.getOperation(buttonId);
         String textToSet;
         try {
             valueProcessor.executeMemoryOperation(operation);
@@ -485,7 +487,7 @@ public class CalculatorController {
     }
 
     private void disableAllOperations(boolean disable) {
-        disableMemoryButtons(true);
+        disableMemoryButtons(true); // TODO it is incorrect! figure out!
         mPlus.setDisable(disable);
         mMinus.setDisable(disable);
         ms.setDisable(disable);
@@ -496,9 +498,9 @@ public class CalculatorController {
     }
 
     private void disableOperationButton(Button button, boolean disable) {
+        String buttonId = button.getId();
+        MathOperation operation = MathOperation.getOperation(buttonId);
         String buttonText = button.getText();
-        MathOperation operation = MathOperation.getOperation(buttonText);
-
         if (operation != null && operation != RESULT ||
                 POINT.equals(buttonText)) {
             button.setDisable(disable);
@@ -569,6 +571,7 @@ public class CalculatorController {
             disableAllButtons(false);
         } else {
             memoryStorage.setVisible(true);
+            memoryStorage.toFront();
             isMemoryStorageShown = true;
             disableAllOperations(true);
             m.setDisable(false);

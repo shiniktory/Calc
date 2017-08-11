@@ -13,18 +13,22 @@ public enum EditOperation {
     /**
      * A string representation of an operation.
      */
-    private final String code;
+    private final String symbol;
 
     /**
-     * Constructs a new {@code EditOperation} with the given code.
+     * Constructs a new {@code EditOperation} with the given symbol.
      *
-     * @param code a string representation of an operation
+     * @param symbol a string representation of an operation
      */
-    EditOperation(String code) {
-        this.code = code;
+    EditOperation(String symbol) {
+        this.symbol = symbol;
     }
 
-    public String getCode() {
-        return code;
+    public String symbol() {
+        return symbol;
+    }
+
+    public String id() {
+        return name().toLowerCase();
     }
 }
