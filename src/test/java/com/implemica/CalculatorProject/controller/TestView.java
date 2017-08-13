@@ -167,8 +167,7 @@ public class TestView {
 
     private void testButtonVisible(boolean expected, String buttonId) {
         Button button = buttons.get(buttonId);
-        button.isVisible();
-        assertEquals(expected, FXTestUtils.isNodeVisible(button));
+        assertEquals(expected, button.isVisible());
     }
 
     private static final double MIN_FONT_SIZE = 10.0;
@@ -247,13 +246,6 @@ public class TestView {
         assertNotEquals(startY, windowAfterMove.getY());
         assertEquals(initWidth, windowAfterMove.getWidth(), 0.0001);
         assertEquals(initHeight, windowAfterMove.getHeight(), 0.0001);
-    }
-
-
-    private void fireButton(String buttonId) {
-        WaitForAsyncUtils.waitForFxEvents();
-        final Button button = buttons.get(buttonId);
-        button.fire();
     }
 
     private void clickButton(String buttonId) {

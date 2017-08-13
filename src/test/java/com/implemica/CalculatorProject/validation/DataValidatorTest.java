@@ -3,6 +3,7 @@ package com.implemica.CalculatorProject.validation;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
 import static org.junit.Assert.assertEquals;
@@ -19,6 +20,10 @@ public class DataValidatorTest {
         assertFalse(isEmptyString("!"));
         assertFalse(isEmptyString("not empty"));
         assertFalse(isEmptyString("...................."));
+
+        Random random = new Random();
+        String randomString = String.valueOf(random.nextInt());
+        assertFalse(isEmptyString(randomString));
     }
 
     @Test
@@ -27,6 +32,9 @@ public class DataValidatorTest {
         for (int i = 0; i < 10; i++) {
             testIsDigit(true, String.valueOf(i));
         }
+        Random random = new Random();
+        String randomDigit = String.valueOf(random.nextInt(10));
+        testIsDigit(true, randomDigit);
 
         // Not valid
         testIsDigit(false, "");
@@ -76,6 +84,12 @@ public class DataValidatorTest {
         testIsNumber(true, "0.9E-2");
         testIsNumber(true, "-2.e-25");
         testIsNumber(true, "2.E-25");
+
+        Random random = new Random();
+        String randomNumber = String.valueOf(random.nextInt());
+        testIsNumber(true, randomNumber);
+        randomNumber = String.valueOf(random.nextDouble());
+        testIsNumber(true, randomNumber);
 
         // Not valid values
         testIsNumber(false, null);

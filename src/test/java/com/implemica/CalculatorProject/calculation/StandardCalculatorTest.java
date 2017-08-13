@@ -102,12 +102,41 @@ public class StandardCalculatorTest {
     @Test
     public void testEnterTooLongNumbers() {
         // enter long number with max length and try to add more digits
-        testTooLongNumber("9,999,999,999,999,999", "-9,999,999,999,999,999",
-                "-9,999,999,999,999,999.");
+        // positive numbers
+        testTooLongNumber("0.0000000000000001", "-0.0000000000000001",
+                "-0.0000000000000001");
+        testTooLongNumber("0.0000005555555555", "-0.0000005555555555",
+                "-0.0000005555555555");
         testTooLongNumber("0.8888888888888888", "-0.8888888888888888",
                 "-0.8888888888888888");
         testTooLongNumber("1.888888888888888", "-1.888888888888888",
                 "-1.888888888888888");
+        testTooLongNumber("1.999999999999999", "-1.999999999999999",
+                "-1.999999999999999");
+        testTooLongNumber("132,132.1321321321", "-132,132.1321321321",
+                "-132,132.1321321321");
+        testTooLongNumber("11,111,111,111,111.11", "-11,111,111,111,111.11",
+                "-11,111,111,111,111.11");
+        testTooLongNumber("9,999,999,999,999,999", "-9,999,999,999,999,999",
+                "-9,999,999,999,999,999.");
+
+        // negative numbers
+        testTooLongNumber("-0.0000000000000001", "0.0000000000000001",
+                "0.0000000000000001");
+        testTooLongNumber("-0.0000005555555555", "0.0000005555555555",
+                "0.0000005555555555");
+        testTooLongNumber("-0.8888888888888888", "0.8888888888888888",
+                "0.8888888888888888");
+        testTooLongNumber("-1.888888888888888", "1.888888888888888",
+                "1.888888888888888");
+        testTooLongNumber("-1.999999999999999", "1.999999999999999",
+                "1.999999999999999");
+        testTooLongNumber("-132,132.1321321321", "132,132.1321321321",
+                "132,132.1321321321");
+        testTooLongNumber("-11,111,111,111,111.11", "11,111,111,111,111.11",
+                "11,111,111,111,111.11");
+        testTooLongNumber("-9,999,999,999,999,999", "9,999,999,999,999,999",
+                "9,999,999,999,999,999.");
     }
 
     private void testTooLongNumber(String number, String negatePressed, String pointPressed) {
@@ -615,19 +644,14 @@ public class StandardCalculatorTest {
 
     @Test
     public void testMemoryOperations() {
-        // with empty memorized value these buttons must be disabled
-        testIsDisableButton(MEMORY_CLEAN, true);
-        testIsDisableButton(MEMORY_RECALL, true);
-        testIsDisableButton(MEMORY_SHOW, true);
-
+        // add to memorized value
         testMemoryOperation("M+ 50 = 50");
         testMemoryOperation("M+ -3 = 47");
         testMemoryOperation("M+ 0.555555 = 47.555555");
         testMemoryOperation("M+ -99999999999 = -99,999,999,951.44445");
+        testMemoryOperation("M+ 0 = -99,999,999,951.44445");
+        testMemoryOperation("M+ 9999999999999999 = 9,999,900,000,000,048");
 
-        testIsDisableButton(MEMORY_CLEAN, false);
-        testIsDisableButton(MEMORY_RECALL, false);
-        testIsDisableButton(MEMORY_SHOW, false);
         fireButton(MEMORY_CLEAN.symbol());
 
         // subtract from memorized value
@@ -635,6 +659,8 @@ public class StandardCalculatorTest {
         testMemoryOperation("M- -3 = -47");
         testMemoryOperation("M- 0.555555 = -47.555555");
         testMemoryOperation("M- -99999999999 = 99,999,999,951.44445");
+        testMemoryOperation("M- 0 = 99,999,999,951.44445");
+        testMemoryOperation("M- 9999999999999999 = -9,999,900,000,000,048");
         fireButton(MEMORY_CLEAN.symbol());
 
         // store value in memorized
@@ -642,17 +668,9 @@ public class StandardCalculatorTest {
         testMemoryOperation("MS -3 = -3");
         testMemoryOperation("MS 0.555555 = 0.555555");
         testMemoryOperation("MS -99999999999 = -99,999,999,999");
+        testMemoryOperation("MS 0 = 0");
+        testMemoryOperation("MS 9999999999999999 = 9,999,999,999,999,999");
         fireButton(MEMORY_CLEAN.symbol());
-
-        testIsDisableButton(MEMORY_CLEAN, true);
-        testIsDisableButton(MEMORY_RECALL, true);
-        testIsDisableButton(MEMORY_SHOW, true);
-    }
-
-    private void testIsDisableButton(MemoryOperation operation, boolean expectedDisabled) {
-        Button memoryButton = buttons.get(operation.symbol());
-        boolean isButtonDisabled = memoryButton.isDisabled();
-        assertEquals(expectedDisabled, isButtonDisabled);
     }
 
     private void testMemoryOperation(String expression) {
@@ -678,37 +696,76 @@ public class StandardCalculatorTest {
     }
 
     @Test
+    public void testDisableMemoryButtons() {
+        // Memory operations that activates all memory buttons
+        testDisablingMemoryButtons(MEMORY_ADD);
+        testDisablingMemoryButtons(MEMORY_SUBTRACT);
+        testDisablingMemoryButtons(MEMORY_STORE);
+    }
+
+    private void testDisablingMemoryButtons(MemoryOperation operation) {
+        // Memory clean, recall and show are disabled by default
+        testIsDisableButton(MEMORY_CLEAN.symbol(), true);
+        testIsDisableButton(MEMORY_RECALL.symbol(), true);
+        testIsDisableButton(MEMORY_SHOW.symbol(), true);
+        // Memory add, subtract and store are active by default
+        testIsDisableButton(MEMORY_ADD.symbol(), false);
+        testIsDisableButton(MEMORY_SUBTRACT.symbol(), false);
+        testIsDisableButton(MEMORY_STORE.symbol(), false);
+
+        fireButton(operation.symbol());
+
+        // After pressing any memory button, all memory buttons become active
+        testIsDisableButton(MEMORY_CLEAN.symbol(), false);
+        testIsDisableButton(MEMORY_RECALL.symbol(), false);
+        testIsDisableButton(MEMORY_SHOW.symbol(), false);
+        testIsDisableButton(MEMORY_ADD.symbol(), false);
+        testIsDisableButton(MEMORY_SUBTRACT.symbol(), false);
+        testIsDisableButton(MEMORY_STORE.symbol(), false);
+        // reset everything
+        fireButton(MEMORY_CLEAN.symbol());
+    }
+
+    private void testIsDisableButton(String buttonId, boolean expectedDisabled) {
+        Button memoryButton = buttons.get(buttonId);
+        boolean isButtonDisabled = memoryButton.isDisabled();
+        assertEquals(expectedDisabled, isButtonDisabled);
+    }
+
+    @Test
     public void testOperationWithWrongArguments() {
 
         // division by zero
-        testOperationForException("555000000 / 0", DIVISION_BY_ZERO_MESSAGE, "555000000 ÷ ");
-        testOperationForException("1000 / 0", DIVISION_BY_ZERO_MESSAGE, "1000 ÷ ");
-        testOperationForException("100 / 0", DIVISION_BY_ZERO_MESSAGE, "100 ÷ ");
-        testOperationForException("0.6666666666666667 / 0", DIVISION_BY_ZERO_MESSAGE, "0.6666666666666667 ÷ ");
-        testOperationForException("0 / 0 ", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
-        testOperationForException("0 / 0.0", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
-        testOperationForException("-0.6666666666666667 / 0", DIVISION_BY_ZERO_MESSAGE, "-0.6666666666666667 ÷ ");
-        testOperationForException("-100 / 0", DIVISION_BY_ZERO_MESSAGE, "-100 ÷ ");
-        testOperationForException("-1000 / 0", DIVISION_BY_ZERO_MESSAGE, "-1000 ÷ ");
-        testOperationForException("-555000000 / 0", DIVISION_BY_ZERO_MESSAGE, "-555000000 ÷ ");
+        testOperationForException("555000000 / 0 = Cannot divide by zero", "555000000 ÷ ");
+        testOperationForException("1000 / 0 = Cannot divide by zero", "1000 ÷ ");
+        testOperationForException("100 / 0 = Cannot divide by zero", "100 ÷ ");
+        testOperationForException("0.6666666666666667 / 0 = Cannot divide by zero", "0.6666666666666667 ÷ ");
+        testOperationForException("0 / 0 = Result is undefined", "0 ÷ ");
+        testOperationForException("0 / 0.0 = Result is undefined", "0 ÷ ");
+        testOperationForException("-0.6666666666666667 / 0 = Cannot divide by zero", "-0.6666666666666667 ÷ ");
+        testOperationForException("-100 / 0 = Cannot divide by zero", "-100 ÷ ");
+        testOperationForException("-1000 / 0 = Cannot divide by zero", "-1000 ÷ ");
+        testOperationForException("-555000000 / 0 = Cannot divide by zero", "-555000000 ÷ ");
 
         // square root with negative argument
-        testOperationForException("√ -5", INVALID_INPUT_MESSAGE, "√(-5)");
-        testOperationForException("√ -5.5", INVALID_INPUT_MESSAGE, "√(-5.5)");
-        testOperationForException("√ -10000000", INVALID_INPUT_MESSAGE, "√(-10000000)");
-        testOperationForException("√ -2147483648", INVALID_INPUT_MESSAGE, "√(-2147483648)");
-        testOperationForException("√ -555555555000005", INVALID_INPUT_MESSAGE, "√(-555555555000005)");
-        testOperationForException("√ -9223372036854775", INVALID_INPUT_MESSAGE, "√(-9223372036854775)");
-        testOperationForException("√ -9999999999999999", INVALID_INPUT_MESSAGE, "√(-9999999999999999)");
+        testOperationForException("√ -5 = Invalid input", "√(-5)");
+        testOperationForException("√ -5.5 = Invalid input", "√(-5.5)");
+        testOperationForException("√ -10000000 = Invalid input", "√(-10000000)");
+        testOperationForException("√ -2147483648 = Invalid input", "√(-2147483648)");
+        testOperationForException("√ -555555555000005 = Invalid input", "√(-555555555000005)");
+        testOperationForException("√ -9223372036854775 = Invalid input", "√(-9223372036854775)");
+        testOperationForException("√ -9999999999999999 = Invalid input", "√(-9999999999999999)");
 
         // reverse with zero base
-        testOperationForException("1/ 0", DIVISION_BY_ZERO_MESSAGE, "1/(0)");
-        testOperationForException("1/ 0.0", DIVISION_BY_ZERO_MESSAGE, "1/(0)");
+        testOperationForException("1/ 0 = Cannot divide by zero", "1/(0)");
+        testOperationForException("1/ 0.0 = Cannot divide by zero", "1/(0)");
     }
 
-    private void testOperationForException(String expression, String expectedErrorMessage, String expectedHistory) {
+    private void testOperationForException(String expression, String expectedHistory) {
         pushKey(KeyCode.ESCAPE);
-        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int equalSignIndex = expression.indexOf("=");
+        String[] expressionParts = expression.substring(0, equalSignIndex).trim().split(ARGUMENT_DELIMITERS);
+        String expectedErrorMessage = expression.substring(equalSignIndex + 1).trim();
 
         if (expressionParts.length == 2) { // Expression for unary operations has format: operation baseNumber
             performUnaryOperations(expressionParts);
@@ -725,48 +782,53 @@ public class StandardCalculatorTest {
     @Test
     public void testPressDisabledButtons() {
         // cause an exception by dividing zero by zero to disable buttons with operations
-        testOperationForException("0 / 0 ", RESULT_IS_UNDEFINED_MESSAGE, "0 ÷ ");
+        testOperationForException("0 / 0 = Result is undefined", "0 ÷ ");
 
         for (MathOperation operation : MathOperation.values()) {
             if (operation != RESULT) {
-                testPressButtonAfterError(operation.id());
+                testIsDisableButton(operation.id(), true);
             }
         }
         for (MemoryOperation operation : MemoryOperation.values()) {
-            testPressButtonAfterError(operation.symbol());
+            testIsDisableButton(operation.symbol(), true);
         }
-        testPressButtonAfterError(POINT);
-        testPressButtonAfterError("history");
+        testIsDisableButton(POINT, true);
+        testIsDisableButton("history", true);
 
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, SHIFT_DOWN);
+        // try to press math operation from keyboard
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.EQUALS, SHIFT_DOWN); // +
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.MINUS);
         testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIVIDE);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, SHIFT_DOWN);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, SHIFT_DOWN);
-        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, SHIFT_DOWN);
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT8, SHIFT_DOWN); // *
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT2, SHIFT_DOWN); // √
+        testKeyPressed(RESULT_IS_UNDEFINED_MESSAGE, KeyCode.DIGIT5, SHIFT_DOWN); // %
 
         // clean error message
         pushKey(KeyCode.ESCAPE);
         testCurrentText("0");
     }
 
-    private void testPressButtonAfterError(String buttonId) {
-        fireButton(buttonId);
-        clickButton(buttonId);
-        testCurrentText(RESULT_IS_UNDEFINED_MESSAGE);
-    }
-
     @Test
     public void testForOverflow() {
         // result is overflow
-        testForOverflow("1.e-9990 / 10000000000", OVERFLOW_MESSAGE);
+        testForOverflow("1.e-9990 / 10000000000 = Overflow");
+        testForOverflow("1.e-9990 / 100000000000 = Overflow");
+        testForOverflow("1.e-9990 / 1000000000000 = Overflow");
+        testForOverflow("1.e-9990 / 10000000000000 = Overflow");
+        testForOverflow("1.e-9990 / 100000000000000 = Overflow");
 
-        testForOverflow("1.e+9990 * 10000000000", OVERFLOW_MESSAGE);
+        testForOverflow("1.e+9990 * 10000000000 = Overflow");
+        testForOverflow("1.e+9990 * 100000000000 = Overflow");
+        testForOverflow("1.e+9990 * 1000000000000 = Overflow");
+        testForOverflow("1.e+9990 * 10000000000000 = Overflow");
+        testForOverflow("1.e+9990 * 100000000000000 = Overflow");
     }
 
-    private void testForOverflow(String expression, String expectedErrorMessage) {
+    private void testForOverflow(String expression) {
         pushKey(KeyCode.ESCAPE);
-        String[] expressionParts = expression.trim().split(ARGUMENT_DELIMITERS);
+        int equalSignIndex = expression.indexOf("=");
+        String[] expressionParts = expression.substring(0, equalSignIndex).trim().split(ARGUMENT_DELIMITERS);
+        String expectedErrorMessage = expression.substring(equalSignIndex + 1).trim();
 
         enterNumber("1");
         MathOperation operation = extractOperation(expressionParts[1]);
@@ -815,11 +877,6 @@ public class StandardCalculatorTest {
         } catch (CalculationException e) {
             // expected
         }
-    }
-
-    private void clickButton(String buttonId) {
-        Button button = buttons.get(buttonId);
-        robot.clickOn(button);
     }
 
     private void testCurrentText(String expected) {

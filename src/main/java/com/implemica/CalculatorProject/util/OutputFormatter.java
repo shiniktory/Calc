@@ -16,16 +16,29 @@ import static java.math.RoundingMode.HALF_UP;
 
 public class OutputFormatter {
 
-
+    /**
+     * The string value contains an exponent symbol.
+     */
     private static final String EXPONENT = "E";
 
+    /**
+     * The string value contains minus sign.
+     */
     public static final String MINUS = "-";
 
+    /**
+     * The value of an empty string.
+     */
     public static final String EMPTY_VALUE = "";
 
-    private static final String MINUS_ZERO = "-0";
-
+    /**
+     * The string value contains a pattern for decimal numbers with exponent.
+     */
     private static final String NUMBER_FORMAT_PATTERN = "0.###############E0";
+
+    /**
+     * The string value contains exponent symbol and plus sign.
+     */
     private static final String EXPONENT_REPLACEMENT = "e+";
 
     /**
@@ -227,7 +240,7 @@ public class OutputFormatter {
             formattedIntPart = formatNumberForDisplaying(number.substring(0, pointIndex));
         }
         String formattedNumber = formattedIntPart + number.substring(pointIndex, number.length());
-        if (number.startsWith(MINUS_ZERO)) {
+        if (number.startsWith(MINUS + ZERO_VALUE)) {
             formattedNumber = MINUS + formattedNumber;
         }
         return formattedNumber;

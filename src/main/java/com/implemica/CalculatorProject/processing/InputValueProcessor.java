@@ -15,6 +15,13 @@ import static com.implemica.CalculatorProject.util.OutputFormatter.*;
 import static com.implemica.CalculatorProject.util.ValueTransformerUtil.getBigDecimalValues;
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
 
+/**
+ * The {@code InputValueProcessor} class holds the components of the mathematical expression
+ * such as number and operations. Grants functionality to input numbers, operations and calculate the
+ * result for it.
+ *
+ * @author V. Kozina-Kravchenko
+ */
 public class InputValueProcessor {
 
     /**
@@ -164,6 +171,16 @@ public class InputValueProcessor {
         return operationResult;
     }
 
+    /**
+     * Executes current called binary operation and returns last entered number if it is the first
+     * binary operation in expression or result of previous binary operations. Also writes to history
+     * expression.
+     *
+     * @param currentOperation a current binary mathematical operation to execute
+     * @return last entered number if it is the first binary operation in expression or result of
+     * previous binary operations
+     * @throws CalculationException if some error while calculations occurred
+     */
     private String executeBinaryOperation(MathOperation currentOperation) throws CalculationException {
         if (operation == null) {
             operation = currentOperation;
@@ -192,6 +209,14 @@ public class InputValueProcessor {
         return formatNumberForDisplaying(previousNumber);
     }
 
+    /**
+     * Returns the result of current called unary mathematical operation with the last entered number.
+     * Also writes to history expression.
+     *
+     * @param currentOperation a current unary mathematical operation to execute
+     * @return the result of current called unary mathematical operation with the last entered number
+     * @throws CalculationException if some error while calculations occurred
+     */
     private String executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
         if (wasUnaryBefore) {
             int lastIndex = expression.size() - 1;
@@ -205,12 +230,30 @@ public class InputValueProcessor {
         return formatNumberForDisplaying(lastNumber);
     }
 
+    /**
+     * Returns the result of calculations for the given mathematical operation and number(s) represented
+     * by string(s).
+     *
+     * @param operation a current mathematical operation to execute
+     * @param arguments the list of numbers represented by strings
+     * @return the result of calculations for the given mathematical operation and number(s) represented
+     * by string(s)
+     * @throws CalculationException if some error while calculations occurred
+     */
     private String getResult(MathOperation operation, String... arguments) throws CalculationException {
         Calculator calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
         BigDecimal result = calculator.calculate();
         return formatToMathView(result);
     }
 
+    /**
+     * Calculates and returns the result of calculations for the current mathematical expression
+     * consists of entered numbers and mathematical operations.
+     *
+     * @return the result of calculations for the current mathematical expression
+     * consists of entered numbers and mathematical operations
+     * @throws CalculationException if some error while calculations occurred
+     */
     public String calculateResult() throws CalculationException {
         if (!wasUnaryBefore && operation == null) { // If nothing entered nothing to calculate
             if (isEmptyString(lastNumber)) {
@@ -232,15 +275,29 @@ public class InputValueProcessor {
         return formatNumberForDisplaying(lastNumber);
     }
 
+    /**
+     * Adds a decimal point to the last entered number and returns this number modified.
+     *
+     * @return a last entered number with decimal point
+     * @throws CalculationException
+     */
     public String addPoint() throws CalculationException {
-        if (lastNumber.contains(POINT)) {
+        if (lastNumber.contains(POINT) && !lastNumber.endsWith(POINT)) {
             return formatNumberForDisplaying(lastNumber);
+        }
+        if (isNewNumber) {
+            previousNumber = String.valueOf(lastNumber);
+            lastNumber = ZERO_VALUE;
         }
         lastNumber += POINT;
         isNewNumber = false;
+
         return formatNumberForDisplaying(lastNumber) + POINT;
     }
 
+    /**
+     * Resets all numbers and operation to default values.
+     */
     public void cleanAll() {
         cleanCurrent();
         previousNumber = ZERO_VALUE;
@@ -249,6 +306,9 @@ public class InputValueProcessor {
         wasUnaryBefore = false;
     }
 
+    /**
+     * Resets the last entered number to default value - zero.
+     */
     public void cleanCurrent() {
         lastNumber = ZERO_VALUE;
         if (!expression.isEmpty() && wasUnaryBefore) {
@@ -258,6 +318,12 @@ public class InputValueProcessor {
         isNewNumber = true;
     }
 
+    /**
+     * Deletes last digit in the current number and returns it's modified value.
+     *
+     * @return the value of last entered number without last digit
+     * @throws CalculationException
+     */
     public String deleteLastDigit() throws CalculationException {
         if (lastNumber.length() == 1) {
             lastNumber = ZERO_VALUE;
@@ -271,7 +337,12 @@ public class InputValueProcessor {
         return formatNumberForDisplaying(lastNumber);
     }
 
-
+    /**
+     * Executes the given operation with memorized number.
+     *
+     * @param operation an operation to execute
+     * @throws CalculationException if some error while calculations occurred
+     */
     public void executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         if (operation == null) {
             return;

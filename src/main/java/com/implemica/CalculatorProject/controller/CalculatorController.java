@@ -569,9 +569,11 @@ public class CalculatorController {
             isMemoryStorageShown = false;
             disableAllOperations(false);
             disableAllButtons(false);
+            mr.setDisable(false);
+            mc.setDisable(false);
+            m.setDisable(false);
         } else {
             memoryStorage.setVisible(true);
-            memoryStorage.toFront();
             isMemoryStorageShown = true;
             disableAllOperations(true);
             m.setDisable(false);
