@@ -15,16 +15,49 @@ import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
  */
 public class DataValidator {
 
+    /**
+     * The maximum length for number without minus sign and point.
+     */
     public static final int MAX_NUMBER_LENGTH = 16;
+
+    /**
+     * The maximum length for number greater than one with point and without minus sign.
+     */
     public static final int MAX_LENGTH_WITH_POINT = 17;
-    public static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
+
+    /**
+     * The maximum length for number with minus sign and without point.
+     */
     public static final int MAX_LENGTH_WITH_MINUS = 17;
+
+    /**
+     * The maximum length for number less than one with point and without minus sign.
+     */
+    public static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
+
+    /**
+     * The maximum length for any number with point and minus.
+     */
     public static final int MAX_LENGTH_WITH_POINT_AND_MINUS = 19;
 
+    /**
+     * The string value of pattern for any digit.
+     */
     private static final String PATTERN_FOR_DIGIT = "\\d";
+
+    /**
+     * The string value of pattern for any number.
+     */
     private static final String PATTERN_FOR_NUMBERS = "[-]?\\d+[.]?[\\d]*[Ee]?([-+]?\\d+)?";
 
+    /**
+     * The minimum number user can enter.
+     */
     private static final BigDecimal MIN_VALUE = new BigDecimal(0.0000000000000001);
+
+    /**
+     * The maximum number user can enter.
+     */
     private static final BigDecimal MAX_VALUE = new BigDecimal(9999999999999999L);
 
     /**
@@ -37,6 +70,12 @@ public class DataValidator {
         return value == null || value.isEmpty();
     }
 
+    /**
+     * Returns true if the specified string represents a digit.
+     *
+     * @param value a string to validate for digit
+     * @return true if the specified string represents a digit
+     */
     public static boolean isDigit(String value) {
         if (isEmptyString(value)) {
             return false;
@@ -62,6 +101,12 @@ public class DataValidator {
         return matcher.matches();
     }
 
+    /**
+     * Returns true if the length of current number represented by string is valid.
+     *
+     * @param number a number to validate represented by string
+     * @return true if the length of current number represented by string is valid
+     */
     public static boolean isNumberLengthValid(String number) {
         if (isEmptyString(number)) {
             return false;
@@ -98,6 +143,13 @@ public class DataValidator {
         return false;
     }
 
+    /**
+     * Returns true if the specified number needs exponential formatting. Validation based on different factors
+     * such as number length and others.
+     *
+     * @param number the number to validate for an exponential formatting need
+     * @return true if the specified number needs exponential formatting
+     */
     public static boolean isExponentFormattingNeed(BigDecimal number) {
         if (isZero(number)) {
             return false;
@@ -125,6 +177,12 @@ public class DataValidator {
         return !stringValue.startsWith(MINUS) && !stringValue.contains(POINT) && stringValue.length() > MAX_NUMBER_LENGTH;
     }
 
+    /**
+     * Returns true if the specified number is zero.
+     *
+     * @param number the number to validate for zero value
+     * @return true if the specified number is zero
+     */
     public static boolean isZero(BigDecimal number) {
         return BigDecimal.ZERO.compareTo(number) == 0;
     }

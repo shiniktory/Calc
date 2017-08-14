@@ -4,7 +4,6 @@ import com.implemica.CalculatorProject.calculation.MathOperation;
 import com.implemica.CalculatorProject.exception.CalculationException;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.regex.Matcher;
@@ -14,6 +13,11 @@ import static com.implemica.CalculatorProject.processing.InputValueProcessor.ZER
 import static com.implemica.CalculatorProject.validation.DataValidator.*;
 import static java.math.RoundingMode.HALF_UP;
 
+/**
+ * The class contains an instruments for formatting number views or expressions for history.
+ *
+ * @author V. Kozina-Kravchenko
+ */
 public class OutputFormatter {
 
     /**
@@ -46,18 +50,54 @@ public class OutputFormatter {
      */
     public static final String POINT = ".";
 
+    /**
+     * The value of character used as decimal separator.
+     */
     private static final char DECIMAL_SEPARATOR = '.';
+
+    /**
+     * The value of character used as group separator.
+     */
     private static final char GROUP_SEPARATOR = ',';
 
+    /**
+     * The value of pattern for exponent with positive degree.
+     */
     private static final String EXPONENT_PATTERN = "[Ee]\\d+";
+
+    /**
+     * The value of pattern for any number with exponent.
+     */
     private static final String NUMBER_WITH_EXPONENT_PATTERN = "([-]?\\d+[.]?\\d*[1-9]*)([0+]*e)(.*)";
+
+    /**
+     * The value of pattern for any number less than one and contains tail of 9 in period.
+     */
     private static final String NUMBER_LESS_ONE_WITH_TRAILING_9_PATTERN = "([-]?\\d+[.]\\d*[0-8]*)(9{2,})(e.*)?";
+
+    /**
+     * The value of pattern for any number greater than one and contains tail of 9 in period.
+     */
     private static final String NUMBER_GREATER_ONE_WITH_TRAILING_9_PATTERN = "([-]?9+[.])(9+)(e.*)?";
 
+    /**
+     * The value of pattern for formatting the history expression for square root operation.
+     */
     private static final String SQUARE_ROOT_PATTERN = "√(%s)";
+
+    /**
+     * The value of pattern for formatting the history expression for square operation.
+     */
     private static final String SQUARE_PATTERN = "sqr(%s)";
+
+    /**
+     * The value of pattern for formatting the history expression for reverse operation.
+     */
     private static final String REVERSE_PATTERN = "1/(%s)";
 
+    /**
+     * The value of an error message about invalid input.
+     */
     private static final String INVALID_INPUT_ERROR = "Invalid input";
 
     /**
@@ -98,14 +138,22 @@ public class OutputFormatter {
         return number.replaceAll(String.valueOf(GROUP_SEPARATOR), EMPTY_VALUE).toLowerCase();
     }
 
-    public static String formatToMathView(BigDecimal calculationResult) throws CalculationException {
-        if (BigDecimal.ZERO.compareTo(calculationResult) == 0) {
+    /**
+     * Formats the specified number to a mathematical view without group delimiters, rounded or transformed to en
+     * exponential view. Returns this formatted number represented by string.
+     *
+     * @param number the number to format
+     * @return a string representation of formatted given number
+     * @throws CalculationException
+     */
+    public static String formatToMathView(BigDecimal number) throws CalculationException {
+        if (BigDecimal.ZERO.compareTo(number) == 0) {
             return ZERO_VALUE;
         }
         //Without trailing zeroes after point and with groups delimiters
-        String number = formatNumberForDisplaying(calculationResult.toString());
-        number = removeGroupDelimiters(number);
-        return number;
+        String numberString = formatNumberForDisplaying(number.toString());
+        numberString = removeGroupDelimiters(numberString);
+        return numberString;
     }
 
     /**
@@ -119,6 +167,9 @@ public class OutputFormatter {
     public static String formatNumberForDisplaying(String numberStr) throws CalculationException {
         if (!isNumber(numberStr)) {
             throw new CalculationException(INVALID_INPUT_ERROR);
+        }
+        if (numberStr.endsWith(POINT)) {
+            numberStr = numberStr.substring(0, numberStr.length() - 1);
         }
         BigDecimal number = new BigDecimal(numberStr);
         if (number.compareTo(BigDecimal.ZERO) == 0) {
@@ -166,6 +217,12 @@ public class OutputFormatter {
         return stringValue;
     }
 
+    /**
+     * Formats the given number to an exponential view and returns this formatted number represented by string.
+     *
+     * @param number a number to format to an exponential view
+     * @return formatted given number represented by string
+     */
     private static String formatToExponentialView(BigDecimal number) {
         DecimalFormat format = new DecimalFormat(NUMBER_FORMAT_PATTERN);
         format.setRoundingMode(HALF_UP);
@@ -174,6 +231,12 @@ public class OutputFormatter {
         return adjustExponentialView(formattedNumber);
     }
 
+    /**
+     * Rounds the given number and returns it's string representation.
+     *
+     * @param number a number to round
+     * @return formatted given number represented by string
+     */
     private static String formatWithRounding(BigDecimal number) {
         DecimalFormat format = new DecimalFormat();
         format.setMaximumFractionDigits(getCountFractionDigits(number.toPlainString()));
@@ -182,6 +245,11 @@ public class OutputFormatter {
         return format.format(number).toLowerCase();
     }
 
+    /**
+     * Returns a {@link DecimalFormatSymbols} instance with configured decimal and group separators.
+     *
+     * @return a {@link DecimalFormatSymbols} instance with configured decimal and group separators
+     */
     private static DecimalFormatSymbols getDelimiters() {
         DecimalFormatSymbols delimiters = new DecimalFormatSymbols();
         delimiters.setDecimalSeparator(DECIMAL_SEPARATOR);
@@ -189,6 +257,13 @@ public class OutputFormatter {
         return delimiters;
     }
 
+    /**
+     * Adjusts the given string contains number formatted to an exponential view. For example, removes trailing
+     * zeroes between point and exponent, adds a plus sign to an exponent positive degree and etc.
+     *
+     * @param number a string representation of a number formatted to an exponential view
+     * @return formatted number represented by string
+     */
     private static String adjustExponentialView(String number) {
         String formattedNumber = number;
         Pattern pattern = Pattern.compile(EXPONENT_PATTERN);
@@ -201,7 +276,7 @@ public class OutputFormatter {
         matcher = pattern.matcher(formattedNumber);
         if (matcher.find()) {
             if (matcher.group(1).contains(POINT)) {
-                formattedNumber = matcher.replaceAll("$1e$3"); // Remove trailing zeroes before exponent
+                formattedNumber = matcher.replaceAll("$1e$3"); // Remove trailing zeroes before exponent by removing group 2
             } else {
                 formattedNumber = matcher.replaceAll("$1.e$3"); // Remove trailing zeroes before exponent and add point
             }
@@ -209,6 +284,12 @@ public class OutputFormatter {
         return formattedNumber;
     }
 
+    /**
+     * Returns a count of fraction digits to the specified number represented by string.
+     *
+     * @param number a string representation of a number to count fraction digits
+     * @return a count of fraction digits to the specified number represented by string
+     */
     private static int getCountFractionDigits(String number) {
         if (!number.contains(POINT)) {
             return 0;
@@ -225,6 +306,13 @@ public class OutputFormatter {
         return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) - 1;
     }
 
+    /**
+     * Adds group delimiters to the specified number represented by string.
+     *
+     * @param number a string representation of a number to add group delimiters
+     * @return a string representation of the given number with group delimiters
+     * @throws CalculationException if the input string is not a number
+     */
     public static String addGroupDelimiters(String number) throws CalculationException {
         if (!isNumber(number)) {
             throw new CalculationException(INVALID_INPUT_ERROR);
@@ -246,16 +334,14 @@ public class OutputFormatter {
         return formattedNumber;
     }
 
-    /*
-    MathOperation      In expression    In current number text field
-
-    Square root ->      √(x)         ->      result
-    Square      ->      sqr(x)       ->      result
-    Reverse     ->      1/(x)        ->      result
-    Percentage  ->      y + result   ->      result
-    Negate      ->      none         ->      result
- */
-
+    /**
+     * Returns a string contains formatted expression for the specified argument and mathematical operation.
+     * For example, square root: √(x); square: sqr(x); reverse: 1/(x).
+     *
+     * @param operation a mathematical operation to use for formatting
+     * @param argument a string contains number or previous formatted expression to use for formatting
+     * @return a string contains formatted expression for the specified argument and mathematical operation
+     */
     public static String formatUnaryOperation(MathOperation operation, String argument) {
         switch (operation) {
             case SQUARE_ROOT:

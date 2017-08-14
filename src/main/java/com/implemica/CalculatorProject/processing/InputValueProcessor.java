@@ -109,6 +109,10 @@ public class InputValueProcessor {
         }
         if (isNewNumber) {
             lastNumber = digit;
+            if (wasUnaryBefore) {
+                expression.remove(expression.size() - 1);
+                wasUnaryBefore = false;
+            }
         } else {
             appendDigit(digit);
         }
@@ -282,17 +286,23 @@ public class InputValueProcessor {
      * @throws CalculationException
      */
     public String addPoint() throws CalculationException {
-        if (lastNumber.contains(POINT) && !lastNumber.endsWith(POINT)) {
-            return formatNumberForDisplaying(lastNumber);
-        }
+
         if (isNewNumber) {
-            previousNumber = String.valueOf(lastNumber);
-            lastNumber = ZERO_VALUE;
+            updateCurrentNumber(ZERO_VALUE);
+        } else {
+            if (lastNumber.contains(POINT) && !lastNumber.endsWith(POINT)) {
+                return formatNumberForDisplaying(lastNumber);
+            }
         }
-        lastNumber += POINT;
         isNewNumber = false;
 
-        return formatNumberForDisplaying(lastNumber) + POINT;
+        if (!lastNumber.contains(POINT)) {
+            lastNumber += POINT;
+            return formatNumberForDisplaying(lastNumber) + POINT;
+        } else if (lastNumber.endsWith(POINT)){
+            return formatNumberForDisplaying(lastNumber) + POINT;
+        }
+        return formatNumberForDisplaying(lastNumber);
     }
 
     /**
@@ -363,6 +373,7 @@ public class InputValueProcessor {
             case MEMORY_STORE:
                 memorizedNumber = formatToMathView(lastNumber);
         }
+
         isNewNumber = true;
     }
 }

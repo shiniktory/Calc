@@ -37,12 +37,18 @@ import static com.implemica.CalculatorProject.validation.DataValidator.isDigit;
 public class CalcApplication extends Application {
 
     /**
-     * A path to the view file.
+     * A path to the view fxml file.
      */
     private static final String CALCULATOR_VIEW_FILE = "/calc.fxml";
 
+    /**
+     * A path to the file with stylesheets.
+     */
     private static final String CSS_FILE = "/winCalc.css";
 
+    /**
+     * A path to the icon image.
+     */
     private static final String ICON_FILE = "/icon.png";
 
     /**
@@ -50,14 +56,35 @@ public class CalcApplication extends Application {
      */
     private static final String APPLICATION_NAME = "Calculator";
 
+    /**
+     * The minimum height of an application's window.
+     */
     private static final double MIN_HEIGHT = 385.0;
+
+    /**
+     * The minimum width of an application's window.
+     */
     private static final double MIN_WIDTH = 220.0;
 
+    /**
+     * A reference to the text field with the current number.
+     */
+    private TextField currentNumberTextField;
 
+    /**
+     * Launches the application.
+     *
+     * @param args an initial arguments for an application
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * Configures the {@link Stage} instance and shows the configured application window.
+     *
+     * @param primaryStage an instance to configure for the current application
+     */
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -90,7 +117,6 @@ public class CalcApplication extends Application {
                 scaleTextFieldFont(primaryStage, newValue.doubleValue());
             });
 
-
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -108,11 +134,19 @@ public class CalcApplication extends Application {
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
     }
 
+    /**
+     * The list of button ids associated with an arrays contains minimum, medium and maximum values
+     * of an appropriate button font size.
+     */
     private static final Map<String, Double[]> fontSizes = new LinkedHashMap<>();
 
+    /**
+     * The list of buttons contains labels.
+     */
     private List<String> labeledButtons = new ArrayList<>();
 
     {
+        // add button's ids and its fonts
         fontSizes.put(PERCENT.id(), new Double[]{16.0, 19.0, 22.0});
         fontSizes.put(SQUARE_ROOT.id(), new Double[]{16.0, 17.0, 22.0});
         fontSizes.put(SQUARE.id(), new Double[]{16.0, 18.0, 22.0});
@@ -131,8 +165,10 @@ public class CalcApplication extends Application {
         fontSizes.put(CLEAN_CURRENT.id(), new Double[]{14.0, 15.0, 23.0});
         fontSizes.put(CLEAN.id(), new Double[]{14.0, 15.0, 23.0});
 
+        // add main textfield and its fonts
         fontSizes.put("currentNumberTF", new Double[]{23.0, 42.0, 66.0});
 
+        // add buttons with label ids
         labeledButtons.add(NEGATE.id());
         labeledButtons.add(DIVIDE.id());
         labeledButtons.add(MULTIPLY.id());
@@ -142,6 +178,12 @@ public class CalcApplication extends Application {
         labeledButtons.add(LEFT_ERASE.id());
     }
 
+    /**
+     * Changes font size on buttons depends on window size to avoid button text overflow.
+     *
+     * @param root         an instance of the {@link Parent} contains all elements of application's UI
+     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
+     */
     private void scaleButtonFontSize(Parent root, Stage primaryStage) {
         GridPane pane = (GridPane) root.lookup("#numbers_operations");
 
@@ -154,6 +196,13 @@ public class CalcApplication extends Application {
         }
     }
 
+    /**
+     * Changes font size in the text field with current entered number depends on window and content sizes
+     * to avoid text truncating.
+     *
+     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
+     * @param currentWidth current window width value
+     */
     private void scaleTextFieldFont(Stage primaryStage, double currentWidth) {
         double defaultFontSize = fontSizes.get("currentNumberTF")[getFontBoundIndex(primaryStage)];
         currentNumberTextField.setFont(
@@ -173,16 +222,13 @@ public class CalcApplication extends Application {
         currentNumberTextField.end();
     }
 
-    private TextField currentNumberTextField;
-
-    private double getFontSize(String buttonId, int boundIndex) {
-        if (isDigit(buttonId) || POINT.equals(buttonId)) {
-            return fontSizes.get("numbers")[boundIndex];
-        } else {
-            return fontSizes.get(buttonId)[boundIndex];
-        }
-    }
-
+    /**
+     * Returns an index of bound calculated based on window width and height.
+     * Example: 0 - smallest window size bound, 1 - medium, 2 - largest.
+     *
+     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
+     * @return an index of bound calculated based on window width and height
+     */
     private int getFontBoundIndex(Stage primaryStage) {
         /*
             if width and height in appropriate scopes -> get for this scope
@@ -205,6 +251,27 @@ public class CalcApplication extends Application {
         return 1;
     }
 
+    /**
+     * Returns font size for the element with specified id and index of current window size bound.
+     *
+     * @param elementId  a value of element id to get font size for
+     * @param boundIndex an index of current window size bound
+     * @return font size for the element with specified id and index of current window size bound
+     */
+    private double getFontSize(String elementId, int boundIndex) {
+        if (isDigit(elementId) || POINT.equals(elementId)) {
+            return fontSizes.get("numbers")[boundIndex];
+        } else {
+            return fontSizes.get(elementId)[boundIndex];
+        }
+    }
+
+    /**
+     * Sets the given font size for the specified button.
+     *
+     * @param button      a button to change font size
+     * @param newFontSize a value of a new font size
+     */
     private void setButtonFontSize(Button button, double newFontSize) {
         String buttonText = button.getText();
 

@@ -389,7 +389,7 @@
                   <Point3D />
                </rotationAxis>
                <left>
-                  <Button id="mode" fx:id="mode" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
+                  <Button id="mode" fx:id="mode" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
                      <font>
                         <Font name="Segoe UI Light Italic" size="36.0" />
                      </font>
@@ -470,7 +470,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Button fx:id="modeClose" alignment="TOP_CENTER" contentDisplay="TOP" ellipsisString=" " maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#hideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
+                        <Button fx:id="modeClose" alignment="TOP_CENTER" contentDisplay="TOP" ellipsisString=" " maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
                            <font>
                               <Font name="Segoe UI Light Italic" size="36.0" />
                            </font>

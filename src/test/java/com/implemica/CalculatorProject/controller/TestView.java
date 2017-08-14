@@ -15,7 +15,6 @@ import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 
@@ -30,6 +29,9 @@ import static org.junit.Assert.*;
 public class TestView {
 
     private static final FxRobot robot = new FxRobot();
+
+    private static final double MIN_FONT_SIZE = 10.0;
+    private static final double MAX_FONT_SIZE = 66.0;
 
     private static TextField currentNumberText;
 
@@ -98,11 +100,12 @@ public class TestView {
     public void testViewPanel() {
         testPaneVisible(false, viewPanel);
 
+        // show view panel
         clickButton("mode");
         WaitForAsyncUtils.waitForFxEvents();
         testPaneVisible(true, viewPanel);
 
-        // Verify is selected item changed
+        // Verify is selected item changed and panel is still visible
         Label firstSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         robot.clickOn(typesList);
         testPaneVisible(true, viewPanel);
@@ -110,6 +113,7 @@ public class TestView {
         assertNotEquals(firstSelected, secondSelected);
         testPaneVisible(true, viewPanel);
 
+        // scroll and click button and verify that panel is still visible
         robot.scroll(DOWN);
         testPaneVisible(true, viewPanel);
         clickButton("infoButton");
@@ -135,7 +139,8 @@ public class TestView {
         // try to press any digit or operation button
         for (int i = 0; i <= 9; i++) {
             String digit = String.valueOf(i);
-            testButtonVisible(false, digit);
+            testButtonDisable(true, digit);
+
             KeyCode digitKey = getKeyCode(digit);
             pushKey(digitKey);
             testCurrentText("0");
@@ -143,7 +148,7 @@ public class TestView {
         testPaneVisible(true, memoryStorage);
 
         for (MathOperation operation : MathOperation.values()) {
-            testButtonVisible(false, operation.id());
+            testButtonDisable(true, operation.id());
         }
         testPaneVisible(true, memoryStorage);
 
@@ -157,22 +162,6 @@ public class TestView {
         testPaneVisible(false, memoryStorage);
     }
 
-    private void testCurrentText(String expected) {
-        assertEquals(expected, currentNumberText.getText());
-    }
-
-    private void testPaneVisible(boolean expected, Pane pane) {
-        assertEquals(expected, pane.isVisible());
-    }
-
-    private void testButtonVisible(boolean expected, String buttonId) {
-        Button button = buttons.get(buttonId);
-        assertEquals(expected, button.isVisible());
-    }
-
-    private static final double MIN_FONT_SIZE = 10.0;
-    private static final double MAX_FONT_SIZE = 66.0;
-
     @Test
     public void testFontResize() {
         double initialFontSize = currentNumberText.getFont().getSize();
@@ -181,14 +170,15 @@ public class TestView {
             pushKey(KeyCode.DIGIT5);
         }
         double currentFontSize = currentNumberText.getFont().getSize();
-        assertNotEquals(initialFontSize, currentFontSize);
+
+        assertTrue(initialFontSize > currentFontSize);
         assertTrue(currentFontSize > MIN_FONT_SIZE);
         assertTrue(currentFontSize < MAX_FONT_SIZE);
 
         // test font size after reset. expected returned to initial size
         pushKey(ESCAPE);
         currentFontSize = currentNumberText.getFont().getSize();
-        assertEquals(initialFontSize, currentFontSize, 0.001);
+        assertEquals(initialFontSize, currentFontSize, 1);
     }
 
     @Test
@@ -244,8 +234,8 @@ public class TestView {
         Window windowAfterMove = robot.targetWindow();
         assertNotEquals(startX, windowAfterMove.getX());
         assertNotEquals(startY, windowAfterMove.getY());
-        assertEquals(initWidth, windowAfterMove.getWidth(), 0.0001);
-        assertEquals(initHeight, windowAfterMove.getHeight(), 0.0001);
+        assertEquals(initWidth, windowAfterMove.getWidth(), 1);
+        assertEquals(initHeight, windowAfterMove.getHeight(), 1);
     }
 
     private void clickButton(String buttonId) {
@@ -255,5 +245,19 @@ public class TestView {
 
     private void pushKey(KeyCode keyCode) {
         robot.push(keyCode);
+    }
+
+
+    private void testCurrentText(String expected) {
+        assertEquals(expected, currentNumberText.getText());
+    }
+
+    private void testPaneVisible(boolean expected, Pane pane) {
+        assertEquals(expected, pane.isVisible());
+    }
+
+    private void testButtonDisable(boolean expected, String buttonId) {
+        Button button = buttons.get(buttonId);
+        assertEquals(expected, button.isDisabled());
     }
 }
