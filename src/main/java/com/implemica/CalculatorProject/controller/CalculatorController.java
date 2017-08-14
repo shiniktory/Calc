@@ -507,7 +507,7 @@ public class CalculatorController {
      * @param disable a boolean value shows disable or enable buttons
      */
     private void disableAllOperations(boolean disable) {
-        disableMemoryButtons(true);
+//        disableMemoryButtons(true); // TODO incorrect
         mPlus.setDisable(disable);
         mMinus.setDisable(disable);
         ms.setDisable(disable);
