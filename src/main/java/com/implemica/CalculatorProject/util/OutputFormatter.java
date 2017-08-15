@@ -197,7 +197,7 @@ public class OutputFormatter {
         }
 
         // remove rounding delta
-        if (numberStr.contains(POINT) && numberStr.length() == MAX_LENGTH_WITH_POINT) { // for positive double
+        if (numberStr.contains(POINT) && !numberStr.toUpperCase().contains(EXPONENT) && numberStr.length() == MAX_LENGTH_WITH_POINT) { // for positive double
             int fractionDigitsCount = number.scale();
 
             BigDecimal fractionalPart = number.remainder(BigDecimal.ONE);

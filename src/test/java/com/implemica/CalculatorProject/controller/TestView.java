@@ -172,13 +172,14 @@ public class TestView {
         double currentFontSize = currentNumberText.getFont().getSize();
 
         assertTrue(initialFontSize > currentFontSize);
+        assertEquals(32.0, currentFontSize, 2);
         assertTrue(currentFontSize > MIN_FONT_SIZE);
         assertTrue(currentFontSize < MAX_FONT_SIZE);
 
         // test font size after reset. expected returned to initial size
         pushKey(ESCAPE);
         currentFontSize = currentNumberText.getFont().getSize();
-        assertEquals(initialFontSize, currentFontSize, 1);
+        assertEquals(initialFontSize, currentFontSize, 2);
     }
 
     @Test

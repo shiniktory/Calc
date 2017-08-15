@@ -329,22 +329,17 @@ public class InputValueProcessor {
     }
 
     /**
-     * Deletes last digit in the current number and returns it's modified value.
+     * Deletes last digit in the current entered number.
      *
-     * @return the value of last entered number without last digit
-     * @throws CalculationException
      */
-    public String deleteLastDigit() throws CalculationException {
-        if (lastNumber.length() == 1) {
-            lastNumber = ZERO_VALUE;
-        }
-        if (lastNumber.length() == 2 && lastNumber.startsWith(MINUS)) {
+    public void deleteLastDigit() {
+        if (lastNumber.length() == 1 ||
+                lastNumber.length() == 2 && lastNumber.startsWith(MINUS)) {
             lastNumber = ZERO_VALUE;
         }
         if (lastNumber.length() > 1) {
             lastNumber = lastNumber.substring(0, lastNumber.length() - 1);
         }
-        return formatNumberForDisplaying(lastNumber);
     }
 
     /**
@@ -373,7 +368,6 @@ public class InputValueProcessor {
             case MEMORY_STORE:
                 memorizedNumber = formatToMathView(lastNumber);
         }
-
         isNewNumber = true;
     }
 }

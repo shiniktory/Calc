@@ -219,7 +219,7 @@ public class CalculatorController {
             fireButton(key.getName());
 
         } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
-            addPoint();
+            fireButton("point");
 
         } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
             fireButton(CLEAN.name());
@@ -458,12 +458,8 @@ public class CalculatorController {
     @FXML
     private void deleteLastNumber() {
         resetAfterError();
-        try {
-            valueProcessor.deleteLastDigit();
-            updateCurrentNumberField();
-        } catch (CalculationException e) {
-            setCurrentNumber(handleException(e));
-        }
+        valueProcessor.deleteLastDigit();
+        updateCurrentNumberField();
     }
 
     /**
@@ -520,7 +516,7 @@ public class CalculatorController {
     /**
      * Disables or enables the given button.
      *
-     * @param button a button to disable or enable
+     * @param button  a button to disable or enable
      * @param disable a boolean value shows disable or enable button
      */
     private void disableOperationButton(Button button, boolean disable) {

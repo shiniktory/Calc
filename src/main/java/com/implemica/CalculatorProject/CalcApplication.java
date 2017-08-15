@@ -39,17 +39,17 @@ public class CalcApplication extends Application {
     /**
      * A path to the view fxml file.
      */
-    private static final String CALCULATOR_VIEW_FILE = "/calc.fxml";
+    private static final String CALCULATOR_VIEW_FILE = "/view/calc.fxml";
 
     /**
      * A path to the file with stylesheets.
      */
-    private static final String CSS_FILE = "/winCalc.css";
+    private static final String CSS_FILE = "/view/winCalc.css";
 
     /**
      * A path to the icon image.
      */
-    private static final String ICON_FILE = "/icon.png";
+    private static final String ICON_FILE = "/view/icon.png";
 
     /**
      * The name of the application.
