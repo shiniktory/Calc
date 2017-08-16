@@ -152,7 +152,7 @@ public class StandardCalculator implements Calculator {
             default:
                 throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
-        checkResultForOverflow(result);
+//        checkResultForOverflow(result);
         return result;
     }
 

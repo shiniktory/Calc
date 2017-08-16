@@ -1,12 +1,14 @@
 package com.implemica.CalculatorProject.calculation;
 
 import com.implemica.CalculatorProject.exception.CalculationException;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -64,8 +67,7 @@ public class StandardCalculatorTest {
 
         // init edit number operations
         for (EditOperation operation : EditOperation.values()) {
-            String operationId = operation.id();
-            addButton(operationId, operationId);
+            addButton(operation.symbol(), operation.id());
         }
 
         // init memory operations
@@ -503,7 +505,7 @@ public class StandardCalculatorTest {
         testCalculations("5 + 9999999999999999 1/ = 5", "5 + 1/(9999999999999999)");
         testCalculations("5 + 9999999999999999 1/ sqr = 5", "5 + sqr(1/(9999999999999999))");
         testCalculations("5 + 0.0000000000000001 1/ = 1.000000000000001e+16", "5 + 1/(0.0000000000000001)");
-        testCalculations("5 + 0.0000000000000001 ± 1/ = -1.e+16", "5 + 1/(0.0000000000000001)");
+        testCalculations("5 + 0.0000000000000001 ± 1/ = -9,999,999,999,999,995", "5 + 1/(-0.0000000000000001)");
 
         testCalculations("5 + 9999999999999999 sqr = 9.999999999999998e+31", "5 + sqr(9999999999999999)");
         testCalculations("5 + 9999999999999999 sqr √ = 1.e+16", "5 + √(sqr(9999999999999999))");
@@ -520,77 +522,83 @@ public class StandardCalculatorTest {
     public void testExponentialView() {
 
         // POSITIVE EXPONENT for numbers greater 9999999999999999
-        // add operation
+        // get maximum number without exponent
         testCalculations("9999999999999998 + 1 = 9,999,999,999,999,999", "9999999999999998 + ");
         testCalculations("9999999999999999 + 0.4 = 9,999,999,999,999,999", "9999999999999999 + ");
         testCalculations("-9999999999999998 + -1 = -9,999,999,999,999,999", "-9999999999999998 + ");
         testCalculations("-9999999999999999 + -0.4 = -9,999,999,999,999,999", "-9999999999999999 + ");
 
-        testCalculations("9999999999999999 + 0.5 = 1.e+16", "9999999999999999 + ");
-        testCalculations("9999999999999999 + 1 = 1.e+16", "9999999999999999 + ");
-        testCalculations("9999999999999999 - -1 = 1.e+16", "9999999999999999 − ");
-        testCalculations("9999999999999999 + 2 = 1.e+16", "9999999999999999 + ");
-        testCalculations("9999999999999999 + 9999999999999999 = 2.e+16", "9999999999999999 + ");
-        testCalculations("9999999999999999 - -9999999999999999 = 2.e+16", "9999999999999999 − ");
-
+        // get number 10,000,000,000,000,000 or greater that must be converted to an exponential view
         testCalculations("-9999999999999999 + -0.5 = -1.e+16", "-9999999999999999 + ");
         testCalculations("-9999999999999999 + -1 = -1.e+16", "-9999999999999999 + ");
         testCalculations("-9999999999999999 - 1 = -1.e+16", "-9999999999999999 − ");
         testCalculations("-9999999999999999 + -2 = -1.e+16", "-9999999999999999 + ");
-        testCalculations("-9999999999999999 * -2 = 2.e+16", "-9999999999999999 × ");
+        testCalculations("9999999999999999 + 0.5 = 1.e+16", "9999999999999999 + ");
+        testCalculations("9999999999999999 + 1 = 1.e+16", "9999999999999999 + ");
+        testCalculations("9999999999999999 - -1 = 1.e+16", "9999999999999999 − ");
+        testCalculations("9999999999999999 + 2 = 1.e+16", "9999999999999999 + ");
         testCalculations("-9999999999999999 * 2 = -2.e+16", "-9999999999999999 × ");
         testCalculations("-9999999999999999 + -9999999999999999 = -2.e+16", "-9999999999999999 + ");
         testCalculations("-9999999999999999 - 9999999999999999 = -2.e+16", "-9999999999999999 − ");
+        testCalculations("9999999999999999 + 9999999999999999 = 2.e+16", "9999999999999999 + ");
+        testCalculations("9999999999999999 - -9999999999999999 = 2.e+16", "9999999999999999 − ");
+        testCalculations("-9999999999999999 * -2 = 2.e+16", "-9999999999999999 × ");
+        testCalculations("-555000000 sqr = 3.08025e+17", "sqr(-555000000)");
         testCalculations("-2147483648 * 2147483647 = -4.611686016279904e+18", "-2147483648 × ");
         testCalculations("9999999999999999 sqr sqr = 9.999999999999996e+63", "sqr(sqr(9999999999999999))");
-        testCalculations("-555000000 sqr = 3.08025e+17", "sqr(-555000000)");
 
 
-        // NEGATIVE EXPONENT for numbers less than 0.001 and have too many digits
-        // reverse operation
+        // NEGATIVE EXPONENT for numbers less than 0.001 and are too long
+        // get number 0.001 or too long numbers greater than 0.001 without exponential view
         testCalculations("0.001 / 10 = 0.0001", "0.001 ÷ ");
+        testCalculations("0.01 / 3 = 0.0033333333333333", "0.01 ÷ ");
+        testCalculations("0.011111111111111 / 10 = 0.0011111111111111", "0.011111111111111 ÷ ");
+        testCalculations("0.099999999999998 / 10 = 0.0099999999999998", "0.099999999999998 ÷ ");
 
-        testCalculations("0.001 / -3 = -3.333333333333333e-4", "0.001 ÷ ");
+        // get numbers less than 0.001 and that are too long. Must be converted to exponential view
+        testCalculations("0.0011111111111111 / 10 = 1.1111111111111e-4", "0.0011111111111111 ÷ ");
+        testCalculations("0.001 / 3 = 3.333333333333333e-4", "0.001 ÷ ");
         testCalculations("-0.001 / -3 = 3.333333333333333e-4", "-0.001 ÷ ");
         testCalculations("55 sqr 1/ = 3.305785123966942e-4", "1/(sqr(55))");
         testCalculations("0.0000007 √ = 8.366600265340755e-4", "√(0.0000007)");
-        testCalculations("0.000000007 √ = 8.366600265340755e-5", "√(0.000000007)");
-        testCalculations("55555 1/ = 1.800018000180002e-5", "1/(55555)");
-        testCalculations("-55555 1/ = -1.800018000180002e-5", "1/(-55555)");
-        testCalculations("5 / 55550 = 9.000900090009001e-5", "5 ÷ ");
+        testCalculations("0.0099999999999998 / 10 = 9.9999999999998e-4", "0.0099999999999998 ÷ ");
         testCalculations("-5 / 55550 = -9.000900090009001e-5", "-5 ÷ ");
-        testCalculations("0.000005 + 0.0000000000005 % = 5.000000000000025e-6", "0.000005 + 2.5e-20");
-        testCalculations("0.000005 + -0.0000000000005 % = 4.999999999999975e-6", "0.000005 + -2.5e-20");
+        testCalculations("-55555 1/ = -1.800018000180002e-5", "1/(-55555)");
+        testCalculations("55555 1/ = 1.800018000180002e-5", "1/(55555)");
+        testCalculations("0.000000007 √ = 8.366600265340755e-5", "√(0.000000007)");
+        testCalculations("5 / 55550 = 9.000900090009001e-5", "5 ÷ ");
         testCalculations("0.000000000007 √ = 2.645751311064591e-6", "√(0.000000000007)");
+        testCalculations("0.000005 + -0.0000000000005 % = 4.999999999999975e-6", "0.000005 + -2.5e-20");
+        testCalculations("0.000005 + 0.0000000000005 % = 5.000000000000025e-6", "0.000005 + 2.5e-20");
         testCalculations("0.0000000000005 √ = 7.071067811865475e-7", "√(0.0000000000005)");
-
-        testCalculations("555000000 1/ = 1.801801801801802e-9", "1/(555000000)");
         testCalculations("-555000000 1/ = -1.801801801801802e-9", "1/(-555000000)");
+        testCalculations("555000000 1/ = 1.801801801801802e-9", "1/(555000000)");
         testCalculations("-5555555555 1/ = -1.80000000018e-10", "1/(-5555555555)");
         testCalculations("5555555555 1/ = 1.80000000018e-10", "1/(5555555555)");
 
         // NEGATIVE EXPONENT for numbers less than 0.0000000000000001
-        // multiply operation
-        testCalculations("0.000005 * 0.0000000000005 = 2.5e-18", "0.000005 × ");
-        testCalculations("0.000005 * -0.0000000000005 = -2.5e-18", "0.000005 × ");
-        testCalculations("0.0000000000000001 * 0.1 = 1.e-17", "0.0000000000000001 × ");
-        testCalculations("-0.0000000000000001 * 0.1 = -1.e-17", "-0.0000000000000001 × ");
-        testCalculations("-0.0000000000000001 * -0.1 = 1.e-17", "-0.0000000000000001 × ");
-        testCalculations("-0.000005 * 0.0000000000005 = -2.5e-18", "-0.000005 × ");
-        testCalculations("-0.000005 * -0.0000000000005 = 2.5e-18", "-0.000005 × ");
+        // get minimum number (closest to zero) without exponential view
+        testCalculations("0.000000000000001 / 10 = 0.0000000000000001", "0.000000000000001 ÷ ");
+        testCalculations("0.000000000000001 - 0.0000000000000009 = 0.0000000000000001", "0.000000000000001 − ");
+        testCalculations("-0.000000000000001 / 10 = -0.0000000000000001", "-0.000000000000001 ÷ ");
+        testCalculations("-0.000000000000001 - -0.0000000000000009 = -0.0000000000000001", "-0.000000000000001 − ");
 
-        testCalculations("0.1 / 9999999999999999 = 1.e-17", "0.1 ÷ ");
+        // get number 0.00000000000000009 or less that must be converted to an exponential view
+        testCalculations("-0.0000000000000001 * 0.1 = -1.e-17", "-0.0000000000000001 × ");
         testCalculations("0.1 / -9999999999999999 = -1.e-17", "0.1 ÷ ");
+        testCalculations("0.1 / 9999999999999999 = 1.e-17", "0.1 ÷ ");
+        testCalculations("-0.0000000000000001 * -0.1 = 1.e-17", "-0.0000000000000001 × ");
+        testCalculations("0.0000000000000001 * 0.1 = 1.e-17", "0.0000000000000001 × ");
         testCalculations("0.0000000000000001 / -2 = -5.e-17", "0.0000000000000001 ÷ ");
         testCalculations("-0.0000000000000001 / -2 = 5.e-17", "-0.0000000000000001 ÷ ");
-
         testCalculations("0.0000000000000001 - 10 % = 9.e-17", "0.0000000000000001 − 1.e-17");
-        testCalculations("0.0000000000000001 + 10 % = 1.1e-16", "0.0000000000000001 + 1.e-17");
-
+        testCalculations("0.000005 * -0.0000000000005 = -2.5e-18", "0.000005 × ");
+        testCalculations("-0.000005 * 0.0000000000005 = -2.5e-18", "-0.000005 × ");
+        testCalculations("0.000005 * 0.0000000000005 = 2.5e-18", "0.000005 × ");
+        testCalculations("-0.000005 * -0.0000000000005 = 2.5e-18", "-0.000005 × ");
         testCalculations("0.0000000000005 sqr = 2.5e-25", "sqr(0.0000000000005)");
-        testCalculations("0.0000000000000001 sqr = 1.e-32", "sqr(0.0000000000000001)");
         testCalculations("-0.0000000000005 sqr = 2.5e-25", "sqr(-0.0000000000005)");
-
+        testCalculations("0.0000000000000001 sqr = 1.e-32", "sqr(0.0000000000000001)");
     }
 
     private void testCalculations(String expression, String expectedHistory) {
@@ -614,8 +622,14 @@ public class StandardCalculatorTest {
                 enterNumber(argument);
             } else {
                 MathOperation operation = extractOperation(argument);
-                wasBinaryOperation = operation.isBinary();
-                fireButton(operation.id());
+                if (operation != null) {
+                    if (operation.isBinary()) {
+                        wasBinaryOperation = true;
+                    }
+                    fireButton(operation.id());
+                } else {
+                    fireButton(argument);
+                }
             }
         }
         return wasBinaryOperation;
@@ -671,33 +685,132 @@ public class StandardCalculatorTest {
 
     @Test
     public void testPressingOperationsWithoutFirstNumber() {
-        // single operations
+
+        testPressOperation("+ = 0", "0 + ");
         testPressOperation("+ 10 = 10", "0 + ");
-        testPressOperation("- 10 = -10", "0 − ");
-        testPressOperation("* 10 = 0", "0 × ");
-        testPressOperation("/ 10 = 0", "0 ÷ ");
-        testPressOperation("% = 0", "0");
-        testPressOperation("√ = 0", "√(0)");
-        testPressOperation("sqr = 0", "sqr(0)");
-        testPressOperation("1/ = Cannot divide by zero", "1/(0)");
-        testPressOperation("± = 0", "");
-
-        // operation combinations
+        testPressOperation("+ 5 + - = 0", "0 + 5 − ");
+        testPressOperation("+ 5 sqr √ = 5", "0 + √(sqr(5))");
         testPressOperation("+ √ = 0", "0 + √(0)");
-        testPressOperation("- sqr = 0", "0 − sqr(0)");
-        testPressOperation("* ± = 0", "0 × ");
-        testPressOperation("/ % = Result is undefined", "0 ÷ 0");
-        testPressOperation("% √ = 0", "√(0)");
-        testPressOperation("√ sqr = 0", "sqr(√(0))");
-        testPressOperation("sqr 1/ = Cannot divide by zero", "1/(sqr(0))");
-        testPressOperation("± 1/ = Cannot divide by zero", "1/(0)");
-        testPressOperation("± ±= 0", "");
-
-        // binary operation combinations
+        testPressOperation("+ √ CE = 0", "0 + ");
+        testPressOperation("+ % √ sqr = 0", "0 + sqr(√(0))");
+        testPressOperation("+ / - * = 0", "0 × ");
         testPressOperation("+ - - = 0", "0 − ");
+        testPressOperation("+ ± 5 / = 1", "0 + 5 ÷ ");
+        testPressOperation("+ 55 ⌫ 2 = 52", "0 + ");
+        testPressOperation("+ -5 ⌫ = 0", "0 + ");
+        testPressOperation("+ 5 sqr CE = 0", "0 + ");
+
+        testPressOperation("- = 0", "0 − ");
+        testPressOperation("- 10 = -10", "0 − ");
+        testPressOperation("- sqr = 0", "0 − sqr(0)");
+        testPressOperation("- sqr √ = 0", "0 − √(sqr(0))");
         testPressOperation("- + / = Result is undefined", "0 ÷ ");
+        testPressOperation("- sqr + = 0", "0 − sqr(0) +");
+        testPressOperation("- C = 0", "");
+        testPressOperation("- % CE = 0", "0 − ");
+        testPressOperation("- - % = 0", "0 − 0");
+        testPressOperation("- / * 999 ⌫ = 0", "0 × ");
+        testPressOperation("- 5 1/ = -0.2", "0 − 1/(5)");
+        testPressOperation("- 5 1/ CE = 0", "0 − ");
+        testPressOperation("- . % % % = 0", "0 − 0");
+
+        testPressOperation("* = 0", "0 × ");
+        testPressOperation("* 10 = 0", "0 × ");
+        testPressOperation("* ± = 0", "0 × ");
         testPressOperation("* / + = 0", "0 + ");
-        testPressOperation("- + * = 0", "0 × ");
+        testPressOperation("* sqr = 0", "0 × sqr(0)");
+        testPressOperation("* sqr √ = 0", "0 × √(sqr(0))");
+        testPressOperation("* ± 5 ± / = 0", "0 × -5 ÷ ");
+        testPressOperation("* 55 ⌫ 2 = 0", "0 × ");
+        testPressOperation("* -5 ⌫ = 0", "0 × ");
+        testPressOperation("* 5 sqr CE = 0", "0 × ");
+        testPressOperation("* sqr + = 0", "0 × sqr(0) + ");
+        testPressOperation("* C = 0", "");
+        testPressOperation("* % CE = 0", "0 × ");
+
+        testPressOperation("/ = Result is undefined", "0 ÷ ");
+        testPressOperation("/ 10 = 0", "0 ÷ ");
+        testPressOperation("/ % = Result is undefined", "0 ÷ 0");
+        testPressOperation("/ sqr = Result is undefined", "0 ÷ sqr(0)");
+        testPressOperation("/ sqr √ = Result is undefined", "0 ÷ √(sqr(0))");
+        testPressOperation("/ ± 5 ± * = 0", "0 ÷ -5 × ");
+        testPressOperation("/ 55 ⌫ 2 = 0", "0 ÷ ");
+        testPressOperation("/ -5 ⌫ = Result is undefined", "0 ÷ ");
+        testPressOperation("/ 5 sqr CE = Result is undefined", "0 ÷ ");
+        testPressOperation("/ sqr sqr = Result is undefined", "0 ÷ sqr(sqr(0))");
+        testPressOperation("/ C = 0", "");
+        testPressOperation("/ 5 1/ = 0", "0 ÷ 1/(5)");
+        testPressOperation("/ 5 1/ CE = Result is undefined", "0 ÷ ");
+
+        testPressOperation("% = 0", "0");
+        testPressOperation("5 % = 0", "0");
+        testPressOperation(". % = 0", "0");
+        testPressOperation("% + = 0", "0 + ");
+        testPressOperation("% √ = 0", "√(0)");
+        testPressOperation("% % = 0", "0");
+        testPressOperation("10 % + % CE = 0", "0 + ");
+        testPressOperation("% sqr % = 0", "0");
+        testPressOperation("% 21 % = 0", "0");
+        testPressOperation("% + - 2 1/ = -0.5", "0 − 1/(2)");
+        testPressOperation("% C % = 0", "0");
+        testPressOperation("% 2 sqr = 4", "sqr(2)");
+        testPressOperation("% ± * 3. * = 0", "0 × 3 × ");
+
+        testPressOperation("√ = 0", "√(0)");
+        testPressOperation("√ √ = 0", "√(√(0))");
+        testPressOperation("√ sqr = 0", "sqr(√(0))");
+        testPressOperation("55 ⌫ 2 √ = 7.211102550927979", "√(52)");
+        testPressOperation("-5 ⌫ √ = 0", "√(0)");
+        testPressOperation("√ sqr CE = 0", "");
+        testPressOperation("2 ± √ = Invalid input", "√(-2)");
+        testPressOperation("√ C = 0", "");
+        testPressOperation("√ C √ = 0", "√(0)");
+        testPressOperation("5 √ 22 = 22", "");
+        testPressOperation("√ 1/ = Cannot divide by zero", "1/(√(0))");
+        testPressOperation("√ sqr 1/ = Cannot divide by zero", "1/(sqr(√(0)))");
+        testPressOperation("√ + 2 √ = 1.414213562373095", "√(0) + √(2)");
+
+        testPressOperation("sqr = 0", "sqr(0)");
+        testPressOperation("sqr sqr = 0", "sqr(sqr(0))");
+        testPressOperation("sqr 1/ = Cannot divide by zero", "1/(sqr(0))");
+        testPressOperation("55 ⌫ 2 sqr = 2,704", "sqr(52)");
+        testPressOperation("5 ± ⌫ sqr = 0", "sqr(0)");
+        testPressOperation("sqr sqr CE = 0", "");
+        testPressOperation("2 ± sqr = 4", "sqr(-2)");
+        testPressOperation("sqr C = 0", "");
+        testPressOperation("sqr C sqr = 0", "sqr(0)");
+        testPressOperation("sqr 22 = 22", "");
+        testPressOperation("5 sqr 1/ = 0.04", "1/(sqr(5))");
+        testPressOperation("sqr sqr * = 0", "sqr(sqr(0)) × ");
+        testPressOperation("sqr + 2 sqr = 4", "sqr(0) + sqr(2)");
+
+        testPressOperation("1/ = Cannot divide by zero", "1/(0)");
+        testPressOperation(". 1/ = Cannot divide by zero", "1/(0)");
+        testPressOperation("5 1/ = 0.2", "1/(5)");
+        testPressOperation("5 1/ ± = -0.2", "1/(5)");
+        testPressOperation("5 1/ 1/ = 5", "1/(1/(5))");
+        testPressOperation("1/ C 1/ = Cannot divide by zero", "1/(0)");
+        testPressOperation("1/ CE 1/ = Cannot divide by zero", "1/(0)");
+        testPressOperation("5 1/ + 1/ = 5.2", "1/(5) + 1/(0.2)");
+        testPressOperation("5 1/ + 1/ CE = 0.2", "1/(5) + ");
+        testPressOperation("5 1/ sqr . sqr = 0", "sqr(0)");
+        testPressOperation("5 1/ sqr = 0.04", "sqr(1/(5))");
+        testPressOperation("5 1/ 25 1/ = 0.04", "1/(25)");
+        testPressOperation("5 1/ % = 0", "0");
+
+        testPressOperation("± = 0", "");
+        testPressOperation("± 1/ = Cannot divide by zero", "1/(0)");
+        testPressOperation("± ± = 0", "");
+        testPressOperation("2 ± ± = 2", "");
+        testPressOperation("2 ± 1/ = -0.5", "1/(-2)");
+        testPressOperation("2 ± + ± = 0", "-2 + ");
+        testPressOperation("2 ± ⌫ = 0", "");
+        testPressOperation("2 ± 5 sqr = 625", "sqr(-25)");
+        testPressOperation(". 5 ± - . = -0.5", "-0.5 − ");
+        testPressOperation("± * = 0", "0 × ");
+        testPressOperation("± / * √ CE = 0", "0 × ");
+        testPressOperation("± / * √ = 0", "0 × √(0)");
+        testPressOperation("± 2 ± 1 ± = 21", "");
 
         // press point button without entering a digit and verify current number
         pushKey(ESCAPE);
@@ -712,7 +825,9 @@ public class StandardCalculatorTest {
         String[] arguments = expression.substring(0, equalSignIndex).split(ARGUMENT_DELIMITERS);
 
         boolean wasBinaryOperation = enterArguments(arguments);
+        WaitForAsyncUtils.waitForFxEvents();
         testHistory(expectedHistory);
+        // if were only unary operations no need to press "=", result is already showed in text field
         testOperationResult(expectedResult, wasBinaryOperation);
     }
 
@@ -752,7 +867,7 @@ public class StandardCalculatorTest {
         String expectedErrorMessage = expression.substring(equalSignIndex + 1).trim();
 
         boolean wasBinaryOperation = enterArguments(expressionParts);
-
+        // if were only unary operations no need to press "=", result is already showed in text field
         testOperationResult(expectedErrorMessage, wasBinaryOperation);
         testHistory(expectedHistory);
     }
@@ -817,7 +932,7 @@ public class StandardCalculatorTest {
         }
 
         //reset entered number and check for 0 (default value for new number)
-        fireButton(CLEAN_CURRENT.id());
+        fireButton(CLEAN_CURRENT.symbol());
         testCurrentText("0");
         WaitForAsyncUtils.waitForFxEvents();
         // recall memorized value
@@ -830,7 +945,7 @@ public class StandardCalculatorTest {
     }
 
     @Test
-    public void testDisableMemoryButtons() {
+    public void testDisablingMemoryButtons() {
         // Memory operations that activates all memory buttons
         testDisablingMemoryButtons(MEMORY_ADD);
         testDisablingMemoryButtons(MEMORY_SUBTRACT);
@@ -839,28 +954,28 @@ public class StandardCalculatorTest {
 
     private void testDisablingMemoryButtons(MemoryOperation operation) {
         // Memory clean, recall and show are disabled by default
-        testMemoryButtonEnable(MEMORY_CLEAN, false);
-        testMemoryButtonEnable(MEMORY_RECALL, false);
-        testMemoryButtonEnable(MEMORY_SHOW, false);
+        testMemoryButtonIsEnable(MEMORY_CLEAN, false);
+        testMemoryButtonIsEnable(MEMORY_RECALL, false);
+        testMemoryButtonIsEnable(MEMORY_SHOW, false);
         // Memory add, subtract and store are enable by default
-        testMemoryButtonEnable(MEMORY_ADD, true);
-        testMemoryButtonEnable(MEMORY_SUBTRACT, true);
-        testMemoryButtonEnable(MEMORY_STORE, true);
+        testMemoryButtonIsEnable(MEMORY_ADD, true);
+        testMemoryButtonIsEnable(MEMORY_SUBTRACT, true);
+        testMemoryButtonIsEnable(MEMORY_STORE, true);
 
         fireButton(operation.symbol());
 
         // After pressing any memory button, all memory buttons become enable
-        testMemoryButtonEnable(MEMORY_CLEAN, true);
-        testMemoryButtonEnable(MEMORY_RECALL, true);
-        testMemoryButtonEnable(MEMORY_SHOW, true);
-        testMemoryButtonEnable(MEMORY_ADD, true);
-        testMemoryButtonEnable(MEMORY_SUBTRACT, true);
-        testMemoryButtonEnable(MEMORY_STORE, true);
+        testMemoryButtonIsEnable(MEMORY_CLEAN, true);
+        testMemoryButtonIsEnable(MEMORY_RECALL, true);
+        testMemoryButtonIsEnable(MEMORY_SHOW, true);
+        testMemoryButtonIsEnable(MEMORY_ADD, true);
+        testMemoryButtonIsEnable(MEMORY_SUBTRACT, true);
+        testMemoryButtonIsEnable(MEMORY_STORE, true);
         // reset everything
         fireButton(MEMORY_CLEAN.symbol());
     }
 
-    private void testMemoryButtonEnable(MemoryOperation operation, boolean isEnable) {
+    private void testMemoryButtonIsEnable(MemoryOperation operation, boolean isEnable) {
         testButtonEnable(operation.symbol(), isEnable);
     }
 
@@ -893,7 +1008,9 @@ public class StandardCalculatorTest {
         testOperationKeyPressedAfterException(KeyCode.DIGIT8, SHIFT_DOWN); // *
         testOperationKeyPressedAfterException(KeyCode.DIGIT2, SHIFT_DOWN); // √
         testOperationKeyPressedAfterException(KeyCode.DIGIT5, SHIFT_DOWN); // %
-        testOperationKeyPressedAfterException(KeyCode.PERIOD); // %
+        testOperationKeyPressedAfterException(KeyCode.PERIOD); // .
+        testOperationKeyPressedAfterException(KeyCode.Q); // sqr
+        testOperationKeyPressedAfterException(KeyCode.R); // 1/
 
         // clean error message
         pushKey(KeyCode.ESCAPE);
@@ -908,36 +1025,41 @@ public class StandardCalculatorTest {
     @Test
     public void testForOverflow() {
         // the lower bound for overflow
-        testForOverflow("1.e-9999 / 10 = Overflow");
-        testForOverflow("1.e-9999 / 100 = Overflow");
-        testForOverflow("1.e-9999 / 1000 = Overflow");
-        testForOverflow("1.e-9999 * 0.1 = Overflow");
-        testForOverflow("1.e-9999 - 1 % = Overflow");
-        testForOverflow("1.e-9999 √ sqr = Overflow");
+        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
+//        testForOverflow("1.e-9999 / 100 = Overflow");
+//        testForOverflow("1.e-9999 / 1000 = Overflow");
+        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
+        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
+        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
 
         // the upper bound for overflow
-        testForOverflow("1.e+9999 * 10 = Overflow");
-        testForOverflow("1.e+9999 * 100 = Overflow");
-        testForOverflow("1.e+9999 * 1000 = Overflow");
-        testForOverflow("1.e+9999 sqr = Overflow");
-        testForOverflow("1.e+9999 / 0.1 = Overflow");
-        testForOverflow("1.e+9999 + 1000 % = Overflow");
+        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
+//        testForOverflow("1.e+9999 * 100 = Overflow");
+//        testForOverflow("1.e+9999 * 1000 = Overflow");
+        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
+        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
+        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
     }
 
-    private void testForOverflow(String expression) {
+    private void testForOverflow(String expression, String expectedHistory) {
         pushKey(KeyCode.ESCAPE);
         int equalSignIndex = expression.indexOf("=");
         String[] expressionParts = expression.substring(0, equalSignIndex).trim().split(ARGUMENT_DELIMITERS);
         String expectedErrorMessage = expression.substring(equalSignIndex + 1).trim();
 
-        // divide or multiply 1 to 1000000000 (1.e+9)
-        enterNumber("1");
-        MathOperation operation = extractOperation(expressionParts[1]);
-        fireButton(operation.id());
-        enterNumber("1000000000");
-
         // the last valid number before overflow
         String firstNumber = expressionParts[0];
+
+        // divide or multiply 1 to 1000000000 (1.e+9)
+        enterNumber("1");
+        MathOperation operation;
+        if (firstNumber.contains("+")) {
+            operation = MULTIPLY;
+        } else {
+            operation = DIVIDE;
+        }
+        fireButton(operation.id());
+        enterNumber("1000000000");
 
         // press result button many times to get too large or too small number
         while (!currentNumberText.getText().trim().equals(firstNumber.trim())) {
@@ -945,10 +1067,13 @@ public class StandardCalculatorTest {
         }
 
         // try to get overflow message
-        fireButton(operation.id()); // TODO change it to enterArguments(arrayOfTheRestArguments)
-        String secondNumber = expressionParts[2];
-        enterNumber(secondNumber);
-        testCalculation(expectedErrorMessage);
+        boolean wasBinaryOperation = enterArguments(Arrays.copyOfRange(expressionParts, 1, expressionParts.length));
+        if (expression.contains("%")) { // no need to press "=" because exception throws after calculating percentage and "=" resets it to zero
+            wasBinaryOperation = false;
+        }
+        testHistory(expectedHistory);
+        // if were only unary operations no need to press "=", result is already showed in text field
+        testOperationResult(expectedErrorMessage, wasBinaryOperation);
     }
 
     @Test
@@ -982,6 +1107,7 @@ public class StandardCalculatorTest {
     }
 
     private void testCurrentText(String expected) {
+        WaitForAsyncUtils.waitForFxEvents();
         assertEquals(expected, currentNumberText.getText());
     }
 

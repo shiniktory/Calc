@@ -184,6 +184,12 @@ public class CalculatorController {
         if (event.isShiftDown() && key == KeyCode.DIGIT2) {
             fireButton(SQUARE_ROOT.name());
 
+        } else if (key == KeyCode.Q) {
+            fireButton(SQUARE.name());
+
+        } else if (key == KeyCode.R) {
+            fireButton(REVERSE.name());
+
             //Binary operations
         } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
             fireButton(PERCENT.name());
@@ -426,6 +432,7 @@ public class CalculatorController {
             valueProcessor.cleanAll();
         }
         setCurrentNumber(textToSet);
+        prevOperationsText.setText(valueProcessor.getExpression());
     }
 
     /**

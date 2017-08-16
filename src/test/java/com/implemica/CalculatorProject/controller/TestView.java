@@ -139,7 +139,7 @@ public class TestView {
         // try to press any digit or operation button
         for (int i = 0; i <= 9; i++) {
             String digit = String.valueOf(i);
-            testButtonEnable(false, digit);
+            testButtonIsEnable(false, digit);
 
             KeyCode digitKey = getKeyCode(digit);
             pushKey(digitKey);
@@ -148,7 +148,7 @@ public class TestView {
         testPaneVisible(true, memoryStorage);
 
         for (MathOperation operation : MathOperation.values()) {
-            testButtonEnable(false, operation.id());
+            testButtonIsEnable(false, operation.id());
         }
         testPaneVisible(true, memoryStorage);
 
@@ -257,7 +257,7 @@ public class TestView {
         assertEquals(expected, pane.isVisible());
     }
 
-    private void testButtonEnable(boolean expected, String buttonId) {
+    private void testButtonIsEnable(boolean expected, String buttonId) {
         Button button = buttons.get(buttonId);
         assertEquals(expected, !button.isDisabled());
     }

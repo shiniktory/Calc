@@ -158,6 +158,7 @@ public class InputValueProcessor {
                 expression.add(formatToMathView(lastNumber));
             }
             wasUnaryBefore = true;
+            checkResultForOverflow(new BigDecimal(lastNumber));
             return formatNumberForDisplaying(lastNumber);
         }
         if (currentOperation == NEGATE) {
@@ -172,6 +173,7 @@ public class InputValueProcessor {
             operationResult = executeUnaryOperation(currentOperation);
         }
         isNewNumber = true;
+        checkResultForOverflow(new BigDecimal(operationResult));
         return operationResult;
     }
 
@@ -249,6 +251,28 @@ public class InputValueProcessor {
         BigDecimal result = calculator.calculate();
         return formatToMathView(result);
     }
+    /**
+     * The upper bound of number's value after what will be thrown an exception about overflow.
+     */
+    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
+
+    /**
+     * The lower bound of number's value under what will be thrown an exception about overflow.
+     */
+    private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
+
+    /**
+     * An error message about number's value is too large or too small.
+     */
+    private static final String OVERFLOW_ERROR = "Overflow";
+
+    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
+        BigDecimal absResult = result.abs();
+        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
+                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
+            throw new CalculationException(OVERFLOW_ERROR);
+        }
+    }
 
     /**
      * Calculates and returns the result of calculations for the current mathematical expression
@@ -276,6 +300,7 @@ public class InputValueProcessor {
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
+        checkResultForOverflow(new BigDecimal(lastNumber));
         return formatNumberForDisplaying(lastNumber);
     }
 
@@ -289,6 +314,9 @@ public class InputValueProcessor {
 
         if (isNewNumber) {
             updateCurrentNumber(ZERO_VALUE);
+            if (wasUnaryBefore) {
+                expression.remove(expression.size() - 1);
+            }
         } else {
             if (lastNumber.contains(POINT) && !lastNumber.endsWith(POINT)) {
                 return formatNumberForDisplaying(lastNumber);
