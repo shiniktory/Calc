@@ -18,7 +18,7 @@ import static org.testfx.framework.junit.ApplicationTest.launch;
         ValueTransformerUtilTest.class,
         DataValidatorTest.class,
         OutputFormatterTest.class,
-//        TestView.class
+        TestView.class
 })
 @RunWith(Suite.class)
 public class AllTests {

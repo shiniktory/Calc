@@ -11,6 +11,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -171,10 +172,21 @@ public class TestView {
         }
         double currentFontSize = currentNumberText.getFont().getSize();
 
+        // test font size become smaller
         assertTrue(initialFontSize > currentFontSize);
+        assertTrue((initialFontSize - currentFontSize) > 5);
         assertEquals(32.0, currentFontSize, 2);
         assertTrue(currentFontSize > MIN_FONT_SIZE);
         assertTrue(currentFontSize < MAX_FONT_SIZE);
+
+        // test text width and height are less than text field parameters
+        Text currentText = new Text(currentNumberText.getText());
+        currentText.setFont(currentNumberText.getFont());
+        double textWidth = currentText.getBoundsInLocal().getWidth();
+        double textHeight = currentText.getBoundsInLocal().getHeight();
+
+        assertTrue(currentNumberText.getWidth() > textWidth);
+        assertTrue(currentNumberText.getHeight() > textHeight);
 
         // test font size after reset. expected returned to initial size
         pushKey(ESCAPE);

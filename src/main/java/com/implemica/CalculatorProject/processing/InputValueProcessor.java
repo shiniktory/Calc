@@ -173,7 +173,6 @@ public class InputValueProcessor {
             operationResult = executeUnaryOperation(currentOperation);
         }
         isNewNumber = true;
-        checkResultForOverflow(new BigDecimal(operationResult));
         return operationResult;
     }
 
@@ -197,6 +196,7 @@ public class InputValueProcessor {
             operation = currentOperation;
             expression.set(expression.size() - 1, currentOperation.symbol());
             wasUnaryBefore = false;
+            checkResultForOverflow(new BigDecimal(lastNumber));
             return formatNumberForDisplaying(lastNumber);
         }
 
@@ -206,7 +206,7 @@ public class InputValueProcessor {
         expression.add(currentOperation.symbol());
         if (expression.size() > 2) { // If was already added more than one number and binary operation performed
             previousNumber = getResult(operation, previousNumber, lastNumber);
-
+            checkResultForOverflow(new BigDecimal(previousNumber));
         } else {
             previousNumber = formatToMathView(lastNumber);
         }
@@ -232,6 +232,7 @@ public class InputValueProcessor {
             expression.add(formatUnaryOperation(currentOperation, formatToMathView(lastNumber)));
         }
         lastNumber = getResult(currentOperation, lastNumber);
+        checkResultForOverflow(new BigDecimal(lastNumber));
         wasUnaryBefore = true;
         return formatNumberForDisplaying(lastNumber);
     }

@@ -883,32 +883,53 @@ public class StandardCalculatorTest {
     @Test
     public void testMemoryOperations() {
         // add to memorized value
+        testMemoryOperation("M+ = 0");
         testMemoryOperation("50 M+ = 50");
         testMemoryOperation("50 M+ -3 M+ = 47");
+        testMemoryOperation("50 M+ M+ = 100");
         testMemoryOperation("50 M+ -3 M+ 0.555555 M+ = 47.555555");
         testMemoryOperation("50 M+ -3 M+ 0.555555 M+ -99999999999 M+ = -99,999,999,951.44445");
-        testMemoryOperation("50 M+ M+ = 100");
-        testMemoryOperation("M+ = 0");
+        testMemoryOperation("50 M+ M- = 0");
         testMemoryOperation("9999999999999999 M+ M- = 0");
+        testMemoryOperation("50 M+ M- M- = -50");
+        testMemoryOperation("50 M+ 0 MS 3 M- M- = -6");
+        testMemoryOperation("M+ MS MS 5 M- = -5");
+        testMemoryOperation("90 M+ MC 5 M- = -5");
+        testMemoryOperation("90 M+ MR MC M+ = 90");
+        testMemoryOperation("10 M+ M+ MR M+ = 40");
 
         // subtract from memorized value
+        testMemoryOperation("M- = 0");
         testMemoryOperation("50 M- = -50");
         testMemoryOperation("50 M- -3 M- = -47");
         testMemoryOperation("50 M- -3 M- 0.555555 M- = -47.555555");
         testMemoryOperation("50 M- -3 M- 0.555555 M- -99999999999 M- = 99,999,999,951.44445");
         testMemoryOperation("50 M- M- = -100");
-        testMemoryOperation("M- = 0");
+        testMemoryOperation("50 M- MS = 50");
+        testMemoryOperation("50 M- MS M+ = 100");
+        testMemoryOperation("50 M- MC MS = 50");
+        testMemoryOperation("M- MC MS 2 M- M- = -4");
+        testMemoryOperation("M- 5 M- M- = -10");
+        testMemoryOperation("2 M- M- MR M- M- = 4");
+        testMemoryOperation("2 M- M- MR M+ M+ = -12");
         testMemoryOperation("9999999999999999 M- M+ = 0");
 
         // store value in memorized
-        testMemoryOperation("9999999999999999 MS MS = 9,999,999,999,999,999");
+        testMemoryOperation("MS = 0");
         testMemoryOperation("50 MS = 50");
-        testMemoryOperation("50 MS M+ = 100");
-        testMemoryOperation("50 MS M- = 0");
         testMemoryOperation("0.555555 MS = 0.555555");
         testMemoryOperation("-3 MS = -3");
         testMemoryOperation("-99999999999 MS = -99,999,999,999");
-        testMemoryOperation("MS = 0");
+        testMemoryOperation("9999999999999999 MS MS = 9,999,999,999,999,999");
+        testMemoryOperation("50 MS M+ = 100");
+        testMemoryOperation("50 MS M- = 0");
+        testMemoryOperation("50 MS MR MC M- = -50");
+        testMemoryOperation("50 MS MS M+ = 100");
+        testMemoryOperation("50 MS MC M- MS = 50");
+        testMemoryOperation("50 MS M+ 5 M+ 150 M- = -45");
+        testMemoryOperation("50 MS M+ M+ MR M+ = 300");
+        testMemoryOperation("MS MC 2 MS MR 0 M+ = 2");
+
         fireButton(MEMORY_CLEAN.symbol());
     }
 
@@ -1026,16 +1047,14 @@ public class StandardCalculatorTest {
     public void testForOverflow() {
         // the lower bound for overflow
         testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
-//        testForOverflow("1.e-9999 / 100 = Overflow");
-//        testForOverflow("1.e-9999 / 1000 = Overflow");
+        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
         testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
         testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
         testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
 
         // the upper bound for overflow
         testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
-//        testForOverflow("1.e+9999 * 100 = Overflow");
-//        testForOverflow("1.e+9999 * 1000 = Overflow");
+        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
         testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
         testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
         testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
