@@ -1,14 +1,12 @@
 package com.implemica.CalculatorProject.calculation;
 
 import com.implemica.CalculatorProject.exception.CalculationException;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseButton;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -523,8 +521,13 @@ public class StandardCalculatorTest {
 
         // POSITIVE EXPONENT for numbers greater 9999999999999999
         // get maximum number without exponent
+        testCalculations("9999999999999997 + 2.499999999999999 = 9,999,999,999,999,999", "9999999999999997 + ");
+        testCalculations("9999999999999998 + 1.499999999999999 = 9,999,999,999,999,999", "9999999999999998 + ");
         testCalculations("9999999999999998 + 1 = 9,999,999,999,999,999", "9999999999999998 + ");
         testCalculations("9999999999999999 + 0.4 = 9,999,999,999,999,999", "9999999999999999 + ");
+        testCalculations("9999999999999999 + 0.4999999999999999 = 9,999,999,999,999,999", "9999999999999999 + ");
+        testCalculations("-9999999999999997 + -2.499999999999999 = -9,999,999,999,999,999", "-9999999999999997 + ");
+        testCalculations("-9999999999999998 + -1.499999999999999 = -9,999,999,999,999,999", "-9999999999999998 + ");
         testCalculations("-9999999999999998 + -1 = -9,999,999,999,999,999", "-9999999999999998 + ");
         testCalculations("-9999999999999999 + -0.4 = -9,999,999,999,999,999", "-9999999999999999 + ");
 
@@ -548,14 +551,18 @@ public class StandardCalculatorTest {
         testCalculations("9999999999999999 sqr sqr = 9.999999999999996e+63", "sqr(sqr(9999999999999999))");
 
 
-        // NEGATIVE EXPONENT for numbers less than 0.001 and are too long
-        // get number 0.001 or too long numbers greater than 0.001 without exponential view
+        // NEGATIVE EXPONENT for numbers less than 0.001 and its count of digits in fraction part is more than 16
+        // get number 0.001 or numbers less zero with more than 16 digits in fraction part without exponential view
         testCalculations("0.001 / 10 = 0.0001", "0.001 ÷ ");
         testCalculations("0.01 / 3 = 0.0033333333333333", "0.01 ÷ ");
         testCalculations("0.011111111111111 / 10 = 0.0011111111111111", "0.011111111111111 ÷ ");
         testCalculations("0.099999999999998 / 10 = 0.0099999999999998", "0.099999999999998 ÷ ");
+        testCalculations("-0.001 / 10 = -0.0001", "-0.001 ÷ ");
+        testCalculations("-0.01 / 3 = -0.0033333333333333", "-0.01 ÷ ");
+        testCalculations("-0.011111111111111 / 10 = -0.0011111111111111", "-0.011111111111111 ÷ ");
+        testCalculations("-0.099999999999998 / 10 = -0.0099999999999998", "-0.099999999999998 ÷ ");
 
-        // get numbers less than 0.001 and that are too long. Must be converted to exponential view
+        // get numbers less than 0.001 and that have more than 16 digits in fraction part. Must be converted to exponential view
         testCalculations("0.0011111111111111 / 10 = 1.1111111111111e-4", "0.0011111111111111 ÷ ");
         testCalculations("0.001 / 3 = 3.333333333333333e-4", "0.001 ÷ ");
         testCalculations("-0.001 / -3 = 3.333333333333333e-4", "-0.001 ÷ ");
@@ -579,8 +586,11 @@ public class StandardCalculatorTest {
         // NEGATIVE EXPONENT for numbers less than 0.0000000000000001
         // get minimum number (closest to zero) without exponential view
         testCalculations("0.000000000000001 / 10 = 0.0000000000000001", "0.000000000000001 ÷ ");
+        testCalculations("0.000000000000001 * 0.1 = 0.0000000000000001", "0.000000000000001 × ");
         testCalculations("0.000000000000001 - 0.0000000000000009 = 0.0000000000000001", "0.000000000000001 − ");
+        testCalculations("0.0000000000000005 - 0.0000000000000004 = 0.0000000000000001", "0.0000000000000005 − ");
         testCalculations("-0.000000000000001 / 10 = -0.0000000000000001", "-0.000000000000001 ÷ ");
+        testCalculations("-0.000000000000001 * 0.1 = 0.0000000000000001", "-0.000000000000001 × ");
         testCalculations("-0.000000000000001 - -0.0000000000000009 = -0.0000000000000001", "-0.000000000000001 − ");
 
         // get number 0.00000000000000009 or less that must be converted to an exponential view
@@ -611,6 +621,7 @@ public class StandardCalculatorTest {
 
         WaitForAsyncUtils.waitForFxEvents();
         testHistory(expectedHistory);
+        // if were only unary operations no need to press "=", result is already showed in text field
         testCalculation(expectedResult);
     }
 
@@ -975,32 +986,32 @@ public class StandardCalculatorTest {
 
     private void testDisablingMemoryButtons(MemoryOperation operation) {
         // Memory clean, recall and show are disabled by default
-        testMemoryButtonIsEnable(MEMORY_CLEAN, false);
-        testMemoryButtonIsEnable(MEMORY_RECALL, false);
-        testMemoryButtonIsEnable(MEMORY_SHOW, false);
+        testIsMemoryButtonEnable(MEMORY_CLEAN, false);
+        testIsMemoryButtonEnable(MEMORY_RECALL, false);
+        testIsMemoryButtonEnable(MEMORY_SHOW, false);
         // Memory add, subtract and store are enable by default
-        testMemoryButtonIsEnable(MEMORY_ADD, true);
-        testMemoryButtonIsEnable(MEMORY_SUBTRACT, true);
-        testMemoryButtonIsEnable(MEMORY_STORE, true);
+        testIsMemoryButtonEnable(MEMORY_ADD, true);
+        testIsMemoryButtonEnable(MEMORY_SUBTRACT, true);
+        testIsMemoryButtonEnable(MEMORY_STORE, true);
 
         fireButton(operation.symbol());
 
         // After pressing any memory button, all memory buttons become enable
-        testMemoryButtonIsEnable(MEMORY_CLEAN, true);
-        testMemoryButtonIsEnable(MEMORY_RECALL, true);
-        testMemoryButtonIsEnable(MEMORY_SHOW, true);
-        testMemoryButtonIsEnable(MEMORY_ADD, true);
-        testMemoryButtonIsEnable(MEMORY_SUBTRACT, true);
-        testMemoryButtonIsEnable(MEMORY_STORE, true);
+        testIsMemoryButtonEnable(MEMORY_CLEAN, true);
+        testIsMemoryButtonEnable(MEMORY_RECALL, true);
+        testIsMemoryButtonEnable(MEMORY_SHOW, true);
+        testIsMemoryButtonEnable(MEMORY_ADD, true);
+        testIsMemoryButtonEnable(MEMORY_SUBTRACT, true);
+        testIsMemoryButtonEnable(MEMORY_STORE, true);
         // reset everything
         fireButton(MEMORY_CLEAN.symbol());
     }
 
-    private void testMemoryButtonIsEnable(MemoryOperation operation, boolean isEnable) {
-        testButtonEnable(operation.symbol(), isEnable);
+    private void testIsMemoryButtonEnable(MemoryOperation operation, boolean isEnable) {
+        testIsButtonEnable(operation.symbol(), isEnable);
     }
 
-    private void testButtonEnable(String buttonId, boolean expectedEnable) {
+    private void testIsButtonEnable(String buttonId, boolean expectedEnable) {
         Button memoryButton = buttons.get(buttonId);
         boolean isButtonEnable = !memoryButton.isDisabled();
         assertEquals(expectedEnable, isButtonEnable);
@@ -1013,14 +1024,14 @@ public class StandardCalculatorTest {
 
         for (MathOperation operation : MathOperation.values()) {
             if (operation != RESULT) {
-                testButtonEnable(operation.id(), false);
+                testIsButtonEnable(operation.id(), false);
             }
         }
         for (MemoryOperation operation : MemoryOperation.values()) {
-            testButtonEnable(operation.symbol(), false);
+            testIsButtonEnable(operation.symbol(), false);
         }
-        testButtonEnable(POINT, false);
-        testButtonEnable("history", false);
+        testIsButtonEnable(POINT, false);
+        testIsButtonEnable("history", false);
 
         // try to press math operation from keyboard
         testOperationKeyPressedAfterException(KeyCode.EQUALS, SHIFT_DOWN); // +
@@ -1042,6 +1053,7 @@ public class StandardCalculatorTest {
         pushKey(keyCode, modifiers);
         testCurrentText(RESULT_IS_UNDEFINED_MESSAGE);
     }
+
 
     @Test
     public void testForOverflow() {

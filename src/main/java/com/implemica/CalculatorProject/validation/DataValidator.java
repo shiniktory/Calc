@@ -58,7 +58,18 @@ public class DataValidator {
     /**
      * The maximum number user can enter.
      */
-    private static final BigDecimal MAX_VALUE = new BigDecimal(9999999999999999L);
+    private static final BigDecimal MAX_VALUE = new BigDecimal(9999999999999999.5);
+
+    /**
+     * The upper bound of number's value after what will be thrown an exception about overflow.
+     */
+    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
+
+    /**
+     * The lower bound of number's value under what will be thrown an exception about overflow.
+     */
+    private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
+
 
     /**
      * Returns true if the specified string is null or empty.
@@ -171,7 +182,7 @@ public class DataValidator {
             return true;
         }
 
-        if (stringValue.startsWith(MINUS + ZERO_VALUE + POINT) && stringValue.length() > MAX_LENGTH_WITH_POINT_AND_MINUS) {
+        if (stringValue.startsWith(MINUS + ZERO_VALUE + POINT) && stringValue.length() > MAX_LENGTH_WITH_POINT_AND_MINUS + 2) {
             return true;
         }
         return !stringValue.startsWith(MINUS) && !stringValue.contains(POINT) && stringValue.length() > MAX_NUMBER_LENGTH;
@@ -185,5 +196,15 @@ public class DataValidator {
      */
     public static boolean isZero(BigDecimal number) {
         return BigDecimal.ZERO.compareTo(number) == 0;
+    }
+
+    public static boolean isResultForOverflow(BigDecimal result) {
+        boolean isResultOverflow = false;
+        BigDecimal absResult = result.abs();
+        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
+                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
+            isResultOverflow = true;
+        }
+        return isResultOverflow;
     }
 }

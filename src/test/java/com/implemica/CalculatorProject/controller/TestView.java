@@ -12,11 +12,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxToolkit;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.util.LinkedHashMap;
@@ -99,68 +101,68 @@ public class TestView {
 
     @Test
     public void testViewPanel() {
-        testPaneVisible(false, viewPanel);
+        testIsPaneVisible(false, viewPanel);
 
         // show view panel
         clickButton("mode");
         WaitForAsyncUtils.waitForFxEvents();
-        testPaneVisible(true, viewPanel);
+        testIsPaneVisible(true, viewPanel);
 
         // Verify is selected item changed and panel is still visible
         Label firstSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         robot.clickOn(typesList);
-        testPaneVisible(true, viewPanel);
+        testIsPaneVisible(true, viewPanel);
         Label secondSelected = (Label) typesList.getSelectionModel().getSelectedItem();
         assertNotEquals(firstSelected, secondSelected);
-        testPaneVisible(true, viewPanel);
+        testIsPaneVisible(true, viewPanel);
 
         // scroll and click button and verify that panel is still visible
         robot.scroll(DOWN);
-        testPaneVisible(true, viewPanel);
+        testIsPaneVisible(true, viewPanel);
         clickButton("infoButton");
-        testPaneVisible(true, viewPanel);
+        testIsPaneVisible(true, viewPanel);
 
         // hide calculator view panel
         clickButton("modeClose");
         WaitForAsyncUtils.waitForFxEvents();
-        testPaneVisible(false, viewPanel);
+        testIsPaneVisible(false, viewPanel);
     }
 
     @Test
     public void testMemoryPanel() {
         // by default memory panel must be invisible
-        testPaneVisible(false, memoryStorage);
+        testIsPaneVisible(false, memoryStorage);
 
         // show memory panel
         clickButton(MEMORY_STORE.id());
         clickButton(MEMORY_SHOW.id());
         WaitForAsyncUtils.waitForFxEvents();
-        testPaneVisible(true, memoryStorage);
+        testIsPaneVisible(true, memoryStorage);
 
         // try to press any digit or operation button
         for (int i = 0; i <= 9; i++) {
             String digit = String.valueOf(i);
-            testButtonIsEnable(false, digit);
+            testIsButtonEnable(false, digit);
 
             KeyCode digitKey = getKeyCode(digit);
             pushKey(digitKey);
             testCurrentText("0");
         }
-        testPaneVisible(true, memoryStorage);
+        testIsPaneVisible(true, memoryStorage);
 
         for (MathOperation operation : MathOperation.values()) {
-            testButtonIsEnable(false, operation.id());
+            testIsButtonEnable(false, operation.id());
         }
-        testPaneVisible(true, memoryStorage);
+        testIsPaneVisible(true, memoryStorage);
 
         pushKey(BACK_SPACE);
         testCurrentText("0");
-        testPaneVisible(true, memoryStorage);
+        testIsPaneVisible(true, memoryStorage);
         WaitForAsyncUtils.waitForFxEvents();
         // hide panel
         clickButton(MEMORY_SHOW.id());
         WaitForAsyncUtils.waitForFxEvents();
-        testPaneVisible(false, memoryStorage);
+        testIsPaneVisible(false, memoryStorage);
     }
 
     @Test
@@ -191,7 +193,7 @@ public class TestView {
         // test font size after reset. expected returned to initial size
         pushKey(ESCAPE);
         currentFontSize = currentNumberText.getFont().getSize();
-        assertEquals(initialFontSize, currentFontSize, 2);
+        assertEquals(initialFontSize, currentFontSize, 0.0001);
     }
 
     @Test
@@ -205,7 +207,10 @@ public class TestView {
         testWindowResize(40, 30);
         testWindowResize(-40, -30);
         testWindowResize(-50, -60);
+        testWindowResize(-100, -100);
         testWindowResize(50, 60);
+        testWindowResize(150, 260);
+        testWindowResize(150, 260);
     }
 
     private void testWindowResize(double byX, double byY) {
@@ -228,8 +233,15 @@ public class TestView {
 
     private void testWindowParams(double startWidth, double startHeight) {
         Window window = robot.targetWindow();
-        assertNotEquals(startWidth, window.getWidth());
-        assertNotEquals(startHeight, window.getHeight());
+        double windowWidth = window.getWidth();
+        double windowHeight = window.getHeight();
+        Stage currentStage = FxToolkit.toolkitContext().getRegisteredStage();
+
+        boolean doesParametersChanged = startWidth != windowWidth || startHeight != windowHeight;
+        boolean isMinBoundParameter = windowWidth == currentStage.getMinWidth() || windowHeight == currentStage.getMinHeight();
+        boolean isMaxBoundParameter = windowWidth == currentStage.getMaxWidth() || windowHeight == currentStage.getMaxHeight();
+
+        assertTrue(doesParametersChanged || isMinBoundParameter || isMaxBoundParameter);
     }
 
     @Test
@@ -260,16 +272,15 @@ public class TestView {
         robot.push(keyCode);
     }
 
-
     private void testCurrentText(String expected) {
         assertEquals(expected, currentNumberText.getText());
     }
 
-    private void testPaneVisible(boolean expected, Pane pane) {
+    private void testIsPaneVisible(boolean expected, Pane pane) {
         assertEquals(expected, pane.isVisible());
     }
 
-    private void testButtonIsEnable(boolean expected, String buttonId) {
+    private void testIsButtonEnable(boolean expected, String buttonId) {
         Button button = buttons.get(buttonId);
         assertEquals(expected, !button.isDisabled());
     }

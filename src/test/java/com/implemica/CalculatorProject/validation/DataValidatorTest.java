@@ -233,7 +233,7 @@ public class DataValidatorTest {
         testExponentNeed(true, "-0.000000000000000099");
         testExponentNeed(true, "-0.00000055632559999999");
         testExponentNeed(true, "-0.00001000005000009");
-        testExponentNeed(true, "-9999999999999999.91");
+        testExponentNeed(true, "-99999999999999999.91");
         testExponentNeed(true, "-165145454687943158");
         testExponentNeed(true, "-555555555555555599");
         testExponentNeed(true, "-990000000000000111.00000001");

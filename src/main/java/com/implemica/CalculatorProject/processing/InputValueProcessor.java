@@ -158,7 +158,7 @@ public class InputValueProcessor {
                 expression.add(formatToMathView(lastNumber));
             }
             wasUnaryBefore = true;
-            checkResultForOverflow(new BigDecimal(lastNumber));
+            checkResultForOverflow(lastNumber);
             return formatNumberForDisplaying(lastNumber);
         }
         if (currentOperation == NEGATE) {
@@ -196,7 +196,7 @@ public class InputValueProcessor {
             operation = currentOperation;
             expression.set(expression.size() - 1, currentOperation.symbol());
             wasUnaryBefore = false;
-            checkResultForOverflow(new BigDecimal(lastNumber));
+            checkResultForOverflow(lastNumber);
             return formatNumberForDisplaying(lastNumber);
         }
 
@@ -206,7 +206,7 @@ public class InputValueProcessor {
         expression.add(currentOperation.symbol());
         if (expression.size() > 2) { // If was already added more than one number and binary operation performed
             previousNumber = getResult(operation, previousNumber, lastNumber);
-            checkResultForOverflow(new BigDecimal(previousNumber));
+            checkResultForOverflow(previousNumber);
         } else {
             previousNumber = formatToMathView(lastNumber);
         }
@@ -232,7 +232,7 @@ public class InputValueProcessor {
             expression.add(formatUnaryOperation(currentOperation, formatToMathView(lastNumber)));
         }
         lastNumber = getResult(currentOperation, lastNumber);
-        checkResultForOverflow(new BigDecimal(lastNumber));
+        checkResultForOverflow(lastNumber);
         wasUnaryBefore = true;
         return formatNumberForDisplaying(lastNumber);
     }
@@ -252,25 +252,14 @@ public class InputValueProcessor {
         BigDecimal result = calculator.calculate();
         return formatToMathView(result);
     }
-    /**
-     * The upper bound of number's value after what will be thrown an exception about overflow.
-     */
-    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
-
-    /**
-     * The lower bound of number's value under what will be thrown an exception about overflow.
-     */
-    private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
 
     /**
      * An error message about number's value is too large or too small.
      */
     private static final String OVERFLOW_ERROR = "Overflow";
 
-    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
-        BigDecimal absResult = result.abs();
-        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
-                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
+    private void checkResultForOverflow(String result) throws CalculationException {
+        if (isResultForOverflow(new BigDecimal(result))) {
             throw new CalculationException(OVERFLOW_ERROR);
         }
     }
@@ -301,7 +290,7 @@ public class InputValueProcessor {
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
-        checkResultForOverflow(new BigDecimal(lastNumber));
+        checkResultForOverflow(lastNumber);
         return formatNumberForDisplaying(lastNumber);
     }
 

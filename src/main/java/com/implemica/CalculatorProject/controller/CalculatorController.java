@@ -8,6 +8,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -51,11 +52,6 @@ public class CalculatorController {
      * input data.
      */
     private final InputValueProcessor valueProcessor = new InputValueProcessor();
-
-    /**
-     * The value of a default font for the text field with current number.
-     */
-    private static final Font DEFAULT_FONT = Font.font("Segoe UI Semibold", FontWeight.BOLD, 42);
 
     /**
      * The string value of a prefix for numpad digits.
@@ -242,13 +238,15 @@ public class CalculatorController {
      * @param code a string value of a code to find button
      */
     private void fireButton(String code) {
-        String keyCode = code;
-        if (code.contains(NUMPAD_PREFIX)) {
-            keyCode = code.substring(NUMPAD_PREFIX.length());
-        }
-        for (Node child : numbersAndOperations.getChildren()) {
-            fireButtonImpl(keyCode, child);
-        }
+        Platform.runLater(() -> {
+            String keyCode = code;
+            if (code.contains(NUMPAD_PREFIX)) {
+                keyCode = code.substring(NUMPAD_PREFIX.length());
+            }
+            for (Node child : numbersAndOperations.getChildren()) {
+                fireButtonImpl(keyCode, child);
+            }
+        });
     }
 
     /**
@@ -510,14 +508,15 @@ public class CalculatorController {
      * @param disable a boolean value shows disable or enable buttons
      */
     private void disableAllOperations(boolean disable) {
-//        disableMemoryButtons(true); // TODO incorrect
         mPlus.setDisable(disable);
         mMinus.setDisable(disable);
         ms.setDisable(disable);
-        for (Node children : numbersAndOperations.getChildren()) {
-            Button button = (Button) children;
-            disableOperationButton(button, disable);
-        }
+        Platform.runLater(() -> {
+            for (Node children : numbersAndOperations.getChildren()) {
+                Button button = (Button) children;
+                disableOperationButton(button, disable);
+            }
+        });
     }
 
     /**
@@ -627,8 +626,10 @@ public class CalculatorController {
      * @param disable a boolean value shows disable or enable buttons
      */
     private void disableAllButtons(boolean disable) {
-        for (Node node : numbersAndOperations.getChildren()) {
-            node.setDisable(disable);
-        }
+        Platform.runLater(() -> {
+            for (Node node : numbersAndOperations.getChildren()) {
+                node.setDisable(disable);
+            }
+        });
     }
 }

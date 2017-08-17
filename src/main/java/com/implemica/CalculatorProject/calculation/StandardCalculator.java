@@ -57,21 +57,6 @@ public class StandardCalculator implements Calculator {
     private static final int SCALE = 10100;
 
     /**
-     * The upper bound of number's value after what will be thrown an exception about overflow.
-     */
-    private static final BigDecimal MAX_NUMBER = new BigDecimal("1.e+10000");
-
-    /**
-     * The lower bound of number's value under what will be thrown an exception about overflow.
-     */
-    private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
-
-    /**
-     * An error message about number's value is too large or too small.
-     */
-    private static final String OVERFLOW_ERROR = "Overflow";
-
-    /**
      * The value of 100 represented as {@link BigDecimal} number.
      */
     private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
@@ -152,23 +137,7 @@ public class StandardCalculator implements Calculator {
             default:
                 throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
-//        checkResultForOverflow(result);
         return result;
-    }
-
-    /**
-     * Checks if absolute result value is greater than {@link StandardCalculator#MAX_NUMBER} or less than
-     * {@link StandardCalculator#MIN_NUMBER}.
-     *
-     * @param result the value of result to check
-     * @throws CalculationException if result is too large or too small
-     */
-    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
-        BigDecimal absResult = result.abs();
-        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
-                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
-            throw new CalculationException(OVERFLOW_ERROR);
-        }
     }
 
     /**

@@ -301,7 +301,7 @@ public class OutputFormatter {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 2;
         }
         if (number.startsWith(ZERO_VALUE + POINT)) {
-            return MAX_LENGTH_WITH_POINT - number.indexOf(POINT);
+            return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) ;
         }
         return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) - 1;
     }
