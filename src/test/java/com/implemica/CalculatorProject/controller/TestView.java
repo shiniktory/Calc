@@ -78,7 +78,7 @@ public class TestView {
 
         // panels with calculator's view types and memorized values
         viewPanel = find("#viewTypesPanel");
-        typesList = find("#viewTypes");
+        typesList = find("#viewTypesList");
         memoryStorage = find("#memoryStorage");
     }
 

@@ -76,10 +76,15 @@ public class InputValueProcessor {
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
     /**
+     * An error message about number's value is too large or too small.
+     */
+    private static final String OVERFLOW_ERROR = "Overflow";
+
+    /**
      * Returns the last entered number formatted with group delimiters represented by string.
      *
      * @return the last entered number formatted with group delimiters represented by string
-     * @throws CalculationException if last entered number is not a number
+     * @throws CalculationException if last entered value is not a number
      */
     public String getLastNumber() throws CalculationException {
         return addGroupDelimiters(lastNumber);
@@ -109,10 +114,7 @@ public class InputValueProcessor {
         }
         if (isNewNumber) {
             lastNumber = digit;
-            if (wasUnaryBefore) {
-                expression.remove(expression.size() - 1);
-                wasUnaryBefore = false;
-            }
+            removeLastUnaryFromHistory();
         } else {
             appendDigit(digit);
         }
@@ -128,13 +130,11 @@ public class InputValueProcessor {
         if (!isNumberLengthValid(lastNumber + digit)) {
             return;
         }
-        if (ZERO_VALUE.equals(lastNumber) && ZERO_VALUE.equals(digit)) {
-            return;
-        }
-        if (!ZERO_VALUE.equals(lastNumber)) {
-            lastNumber += digit;
-        } else if (ZERO_VALUE.equals(lastNumber)) {
+        if (ZERO_VALUE.equals(lastNumber) && !ZERO_VALUE.equals(digit)) {
             lastNumber = digit;
+
+        } else if (!ZERO_VALUE.equals(lastNumber)) {
+            lastNumber += digit;
         }
     }
 
@@ -150,30 +150,16 @@ public class InputValueProcessor {
         if (currentOperation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_FOUND);
         }
-        if (currentOperation == PERCENT) {
-            lastNumber = getResult(PERCENT, previousNumber, lastNumber);
-            if (wasUnaryBefore && !expression.isEmpty()) {
-                expression.set(expression.size() - 1, formatToMathView(lastNumber));
-            } else {
-                expression.add(formatToMathView(lastNumber));
-            }
-            wasUnaryBefore = true;
-            checkResultForOverflow(lastNumber);
-            return formatNumberForDisplaying(lastNumber);
-        }
-        if (currentOperation == NEGATE) {
-            lastNumber = getResult(NEGATE, lastNumber);
-            return formatNumberForDisplaying(lastNumber);
-        }
 
         String operationResult;
         if (currentOperation.isBinary()) {
             operationResult = executeBinaryOperation(currentOperation);
+            isNewNumber = true;
         } else {
             operationResult = executeUnaryOperation(currentOperation);
         }
-        isNewNumber = true;
-        return operationResult;
+        checkResultForOverflow(operationResult);
+        return formatNumberForDisplaying(operationResult);
     }
 
     /**
@@ -187,32 +173,62 @@ public class InputValueProcessor {
      * @throws CalculationException if some error while calculations occurred
      */
     private String executeBinaryOperation(MathOperation currentOperation) throws CalculationException {
+        if (currentOperation == PERCENT) {
+            return executePercentOperation();
+        }
         if (operation == null) {
             operation = currentOperation;
         }
 
-        // If no new number entered need to change last operation to new
-        if (isNewNumber && expression.size() > 1 && !wasUnaryBefore) {
-            operation = currentOperation;
-            expression.set(expression.size() - 1, currentOperation.symbol());
-            wasUnaryBefore = false;
-            checkResultForOverflow(lastNumber);
-            return formatNumberForDisplaying(lastNumber);
-        }
-
         if (!wasUnaryBefore) {
-            expression.add(formatToMathView(lastNumber));
+            // if after last binary operation pressed new binary instead entering number. need to replace this operation
+            if (isNewNumber && expression.size() > 1) {
+                operation = currentOperation;
+                replaceLastArgumentInHistory(currentOperation.symbol());
+
+                return lastNumber;
+            }
+            addToHistory(formatToMathView(lastNumber));
         }
-        expression.add(currentOperation.symbol());
-        if (expression.size() > 2) { // If was already added more than one number and binary operation performed
-            previousNumber = getResult(operation, previousNumber, lastNumber);
-            checkResultForOverflow(previousNumber);
-        } else {
-            previousNumber = formatToMathView(lastNumber);
-        }
+        addToHistory(currentOperation.symbol());
+
+        updatePreviousNumber();
         operation = currentOperation;
         wasUnaryBefore = false;
-        return formatNumberForDisplaying(previousNumber);
+
+        return previousNumber;
+    }
+
+    /**
+     * Executes a percentage operation and returns the result.
+     *
+     * @return
+     * @throws CalculationException
+     */
+    private String executePercentOperation() throws CalculationException {
+        lastNumber = getResult(PERCENT, previousNumber, lastNumber);
+        updateHistoryForPercentage();
+        wasUnaryBefore = true; // for history expression percentage formats like unary operation
+
+        return lastNumber;
+    }
+
+    private void updateHistoryForPercentage() throws CalculationException {
+        if (wasUnaryBefore && !expression.isEmpty()) { // replace last unary operation in history expression
+            replaceLastArgumentInHistory(formatToMathView(lastNumber));
+        } else {
+            addToHistory(formatToMathView(lastNumber));
+        }
+    }
+
+    private void updatePreviousNumber() throws CalculationException {
+        // If was already entered more than one number and binary operation execute last binary operation
+        if (expression.size() > 2) {
+            previousNumber = getResult(operation, previousNumber, lastNumber);
+
+        } else { // or store last entered number in previous to enter new number
+            previousNumber = formatToMathView(lastNumber);
+        }
     }
 
     /**
@@ -224,17 +240,27 @@ public class InputValueProcessor {
      * @throws CalculationException if some error while calculations occurred
      */
     private String executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
-        if (wasUnaryBefore) {
-            int lastIndex = expression.size() - 1;
-            String lastUnary = expression.get(lastIndex);
-            expression.set(lastIndex, formatUnaryOperation(currentOperation, lastUnary));
-        } else {
-            expression.add(formatUnaryOperation(currentOperation, formatToMathView(lastNumber)));
+        if (currentOperation == NEGATE) {
+            lastNumber = getResult(NEGATE, lastNumber);
+            return lastNumber;
         }
+        updateHistoryForUnary(currentOperation);
         lastNumber = getResult(currentOperation, lastNumber);
-        checkResultForOverflow(lastNumber);
         wasUnaryBefore = true;
-        return formatNumberForDisplaying(lastNumber);
+        isNewNumber = true;
+        return lastNumber;
+    }
+
+    private void updateHistoryForUnary(MathOperation currentOperation) throws CalculationException {
+        if (wasUnaryBefore) {
+            String lastUnary = expression.get(expression.size() - 1);
+            String formattedCurrentUnary = formatUnaryOperation(currentOperation, lastUnary);
+            replaceLastArgumentInHistory(formattedCurrentUnary);
+
+        } else {
+            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formatToMathView(lastNumber));
+            addToHistory(formattedCurrentUnary);
+        }
     }
 
     /**
@@ -250,13 +276,9 @@ public class InputValueProcessor {
     private String getResult(MathOperation operation, String... arguments) throws CalculationException {
         Calculator calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
         BigDecimal result = calculator.calculate();
+
         return formatToMathView(result);
     }
-
-    /**
-     * An error message about number's value is too large or too small.
-     */
-    private static final String OVERFLOW_ERROR = "Overflow";
 
     private void checkResultForOverflow(String result) throws CalculationException {
         if (isResultForOverflow(new BigDecimal(result))) {
@@ -274,53 +296,40 @@ public class InputValueProcessor {
      */
     public String calculateResult() throws CalculationException {
         if (!wasUnaryBefore && operation == null) { // If nothing entered nothing to calculate
-            if (isEmptyString(lastNumber)) {
-                return ZERO_VALUE;
-            } else {
-                return formatNumberForDisplaying(lastNumber);
-            }
+            return formatNumberForDisplaying(lastNumber);
         }
+
         if (expression.isEmpty() && !wasUnaryBefore) { // If "=" pressed without entering new number perform last operation
             lastNumber = getResult(operation, lastNumber, tempNumber);
         } else if (operation != null) {
-            // If binary operation pressed, remember last number
+            // If was binary operation, remember last number and execute this operation
             tempNumber = String.valueOf(lastNumber);
             lastNumber = getResult(operation, previousNumber, lastNumber);
-        } // If all operations were unary return result (last number) and reset all
+        }
+
+        // If all operations were unary return result (last number) and reset all
+        checkResultForOverflow(lastNumber);
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
-        checkResultForOverflow(lastNumber);
         return formatNumberForDisplaying(lastNumber);
     }
 
     /**
-     * Adds a decimal point to the last entered number and returns this number modified.
-     *
-     * @return a last entered number with decimal point
-     * @throws CalculationException
+     * Adds a decimal point to the last entered number. Updates history and resets last number to zero if point
+     * pressed after unary operation.
      */
-    public String addPoint() throws CalculationException {
+    public void addPoint() {
 
-        if (isNewNumber) {
+        if (isNewNumber) { // If point pressed when expected entering new number need to replace last number by zero
             updateCurrentNumber(ZERO_VALUE);
-            if (wasUnaryBefore) {
-                expression.remove(expression.size() - 1);
-            }
-        } else {
-            if (lastNumber.contains(POINT) && !lastNumber.endsWith(POINT)) {
-                return formatNumberForDisplaying(lastNumber);
-            }
+            isNewNumber = false;
+            removeLastUnaryFromHistory();
         }
-        isNewNumber = false;
 
         if (!lastNumber.contains(POINT)) {
             lastNumber += POINT;
-            return formatNumberForDisplaying(lastNumber) + POINT;
-        } else if (lastNumber.endsWith(POINT)){
-            return formatNumberForDisplaying(lastNumber) + POINT;
         }
-        return formatNumberForDisplaying(lastNumber);
     }
 
     /**
@@ -339,16 +348,12 @@ public class InputValueProcessor {
      */
     public void cleanCurrent() {
         lastNumber = ZERO_VALUE;
-        if (!expression.isEmpty() && wasUnaryBefore) {
-            expression.remove(expression.size() - 1);
-            wasUnaryBefore = false;
-        }
+        removeLastUnaryFromHistory();
         isNewNumber = true;
     }
 
     /**
      * Deletes last digit in the current entered number.
-     *
      */
     public void deleteLastDigit() {
         if (lastNumber.length() == 1 ||
@@ -387,5 +392,33 @@ public class InputValueProcessor {
                 memorizedNumber = formatToMathView(lastNumber);
         }
         isNewNumber = true;
+    }
+
+    /**
+     * Replaces last element in history expression by the given one.
+     *
+     * @param replacement a string value to replace last element in history by
+     */
+    private void replaceLastArgumentInHistory(String replacement) {
+        expression.set(expression.size() - 1, replacement);
+    }
+
+    /**
+     * Adds the given string with argument to history expression.
+     *
+     * @param argument a string with argument to add into history
+     */
+    private void addToHistory(String argument) {
+        expression.add(argument);
+    }
+
+    /**
+     * Removes last element from history expression.
+     */
+    private void removeLastUnaryFromHistory() {
+        if (wasUnaryBefore) {
+            expression.remove(expression.size() - 1);
+            wasUnaryBefore = false;
+        }
     }
 }
