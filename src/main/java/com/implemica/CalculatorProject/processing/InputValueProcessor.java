@@ -191,7 +191,6 @@ public class InputValueProcessor {
             addToHistory(formatToMathView(lastNumber));
         }
         addToHistory(currentOperation.symbol());
-
         updatePreviousNumber();
         operation = currentOperation;
         wasUnaryBefore = false;
@@ -200,10 +199,10 @@ public class InputValueProcessor {
     }
 
     /**
-     * Executes a percentage operation and returns the result.
+     * Executes a percentage operation and returns the result of it.
      *
-     * @return
-     * @throws CalculationException
+     * @return the result of percentage operation
+     * @throws CalculationException if some error occurred while calculations
      */
     private String executePercentOperation() throws CalculationException {
         lastNumber = getResult(PERCENT, previousNumber, lastNumber);
@@ -213,11 +212,17 @@ public class InputValueProcessor {
         return lastNumber;
     }
 
+    /**
+     * Updates a history expression for percentage operation by adding or replacing the last argument.
+     *
+     * @throws CalculationException
+     */
     private void updateHistoryForPercentage() throws CalculationException {
+        String formattedLastNumber = formatToMathView(lastNumber);
         if (wasUnaryBefore && !expression.isEmpty()) { // replace last unary operation in history expression
-            replaceLastArgumentInHistory(formatToMathView(lastNumber));
+            replaceLastArgumentInHistory(formattedLastNumber);
         } else {
-            addToHistory(formatToMathView(lastNumber));
+            addToHistory(formattedLastNumber);
         }
     }
 
