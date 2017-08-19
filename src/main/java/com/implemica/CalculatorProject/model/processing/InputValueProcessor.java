@@ -1,19 +1,19 @@
-package com.implemica.CalculatorProject.processing;
+package com.implemica.CalculatorProject.model.processing;
 
-import com.implemica.CalculatorProject.calculation.Calculator;
-import com.implemica.CalculatorProject.calculation.StandardCalculator;
-import com.implemica.CalculatorProject.calculation.MathOperation;
-import com.implemica.CalculatorProject.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.calculation.Calculator;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
+import com.implemica.CalculatorProject.model.calculation.MathOperation;
+import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.*;
-import static com.implemica.CalculatorProject.util.ValueTransformerUtil.getBigDecimalValues;
-import static com.implemica.CalculatorProject.validation.DataValidator.*;
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.*;
+import static com.implemica.CalculatorProject.model.util.ValueTransformerUtil.getBigDecimalValues;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 
 /**
  * The {@code InputValueProcessor} class holds the components of the mathematical expression
@@ -215,7 +215,7 @@ public class InputValueProcessor {
     /**
      * Updates a history expression for percentage operation by adding or replacing the last argument.
      *
-     * @throws CalculationException
+     * @throws CalculationException if last entered value is not a number
      */
     private void updateHistoryForPercentage() throws CalculationException {
         String formattedLastNumber = formatToMathView(lastNumber);
@@ -226,6 +226,11 @@ public class InputValueProcessor {
         }
     }
 
+    /**
+     * Updates the value of previous entered number.
+     *
+     * @throws CalculationException
+     */
     private void updatePreviousNumber() throws CalculationException {
         // If was already entered more than one number and binary operation execute last binary operation
         if (expression.size() > 2) {
@@ -247,6 +252,9 @@ public class InputValueProcessor {
     private String executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == NEGATE) {
             lastNumber = getResult(NEGATE, lastNumber);
+            if (wasUnaryBefore){
+                updateHistoryForUnary(NEGATE);
+            }
             return lastNumber;
         }
         updateHistoryForUnary(currentOperation);
@@ -256,6 +264,13 @@ public class InputValueProcessor {
         return lastNumber;
     }
 
+    /**
+     * Updates a history expression after last unary operation by replacing the last unary argument or adding a
+     * new argument.
+     *
+     * @param currentOperation a current unary operation to add to history
+     * @throws CalculationException
+     */
     private void updateHistoryForUnary(MathOperation currentOperation) throws CalculationException {
         if (wasUnaryBefore) {
             String lastUnary = expression.get(expression.size() - 1);
@@ -263,7 +278,8 @@ public class InputValueProcessor {
             replaceLastArgumentInHistory(formattedCurrentUnary);
 
         } else {
-            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formatToMathView(lastNumber));
+            String formattedLastNumber = formatToMathView(lastNumber);
+            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formattedLastNumber);
             addToHistory(formattedCurrentUnary);
         }
     }
@@ -285,8 +301,15 @@ public class InputValueProcessor {
         return formatToMathView(result);
     }
 
+    /**
+     * Checks the given number as result of an operations for overflow.
+     *
+     * @param result the number to check for overflow
+     * @throws CalculationException if result is out of valid bounds
+     */
     private void checkResultForOverflow(String result) throws CalculationException {
-        if (isResultForOverflow(new BigDecimal(result))) {
+        BigDecimal resultValue = new BigDecimal(result);
+        if (isResultOverflow(resultValue)) {
             throw new CalculationException(OVERFLOW_ERROR);
         }
     }
@@ -373,7 +396,7 @@ public class InputValueProcessor {
     /**
      * Executes the given operation with memorized number.
      *
-     * @param operation an operation to execute
+     * @param operation a memory operation to execute
      * @throws CalculationException if some error while calculations occurred
      */
     public void executeMemoryOperation(MemoryOperation operation) throws CalculationException {

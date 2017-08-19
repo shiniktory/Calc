@@ -1,10 +1,10 @@
 package com.implemica.CalculatorProject.controller;
 
-import com.implemica.CalculatorProject.calculation.EditOperation;
-import com.implemica.CalculatorProject.calculation.MathOperation;
-import com.implemica.CalculatorProject.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.exception.CalculationException;
-import com.implemica.CalculatorProject.processing.InputValueProcessor;
+import com.implemica.CalculatorProject.model.calculation.EditOperation;
+import com.implemica.CalculatorProject.model.calculation.MathOperation;
+import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
+import com.implemica.CalculatorProject.model.processing.InputValueProcessor;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
@@ -34,11 +34,11 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import static com.implemica.CalculatorProject.calculation.EditOperation.*;
-import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.MEMORY_CLEAN;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
+import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.MEMORY_CLEAN;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 
 /**
  * The {@code CalculatorController} class is a chain between calculator's view and calculations. It accepts and handles
@@ -429,9 +429,11 @@ public class CalculatorController {
      * @param number the number to set
      */
     private void setCurrentNumber(String number) {
-        currentNumberText.setText(number);
-        currentNumberText.end();
-        prevOperationsText.end();
+        Platform.runLater(() -> {
+            currentNumberText.setText(number);
+            currentNumberText.end();
+            prevOperationsText.end();
+        });
     }
 
     /**
@@ -439,8 +441,11 @@ public class CalculatorController {
      */
     private void updateHistoryExpression() {
         String history = valueProcessor.getExpression();
-        prevOperationsText.setText(history);
-        prevOperationsText.end();
+        Platform.runLater(() -> {
+            prevOperationsText.setText(history);
+            prevOperationsText.end();
+        });
+
     }
 
     /**

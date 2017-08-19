@@ -1,6 +1,6 @@
 package com.implemica.CalculatorProject.controller;
 
-import com.implemica.CalculatorProject.calculation.*;
+import com.implemica.CalculatorProject.model.calculation.*;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,7 +24,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
+import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static javafx.geometry.VerticalDirection.DOWN;
 import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assert.*;

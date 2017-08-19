@@ -1,11 +1,11 @@
-package com.implemica.CalculatorProject.validation;
+package com.implemica.CalculatorProject.model.validation;
 
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Random;
 
-import static com.implemica.CalculatorProject.validation.DataValidator.*;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

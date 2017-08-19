@@ -1,12 +1,12 @@
-package com.implemica.CalculatorProject.validation;
+package com.implemica.CalculatorProject.model.validation;
 
 import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.CalculatorProject.processing.InputValueProcessor.ZERO_VALUE;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.model.processing.InputValueProcessor.ZERO_VALUE;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.MINUS;
 
 /**
  * The {@code DataValidator} class contains methods for validation of input data.
@@ -198,7 +198,7 @@ public class DataValidator {
         return BigDecimal.ZERO.compareTo(number) == 0;
     }
 
-    public static boolean isResultForOverflow(BigDecimal result) {
+    public static boolean isResultOverflow(BigDecimal result) {
         boolean isResultOverflow = false;
         BigDecimal absResult = result.abs();
         if (MAX_NUMBER.compareTo(absResult) <= 0 ||

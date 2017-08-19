@@ -1,6 +1,6 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 

@@ -1,7 +1,7 @@
-package com.implemica.CalculatorProject.util;
+package com.implemica.CalculatorProject.model.util;
 
-import com.implemica.CalculatorProject.calculation.MathOperation;
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.calculation.MathOperation;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -9,8 +9,10 @@ import java.text.DecimalFormatSymbols;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.CalculatorProject.processing.InputValueProcessor.ZERO_VALUE;
-import static com.implemica.CalculatorProject.validation.DataValidator.*;
+import static com.implemica.CalculatorProject.model.processing.InputValueProcessor.ZERO_VALUE;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
+import static java.math.BigDecimal.ROUND_HALF_UP;
+import static java.math.BigDecimal.ROUND_UP;
 import static java.math.RoundingMode.HALF_UP;
 
 /**
@@ -96,6 +98,11 @@ public class OutputFormatter {
     private static final String REVERSE_PATTERN = "1/(%s)";
 
     /**
+     * The value of pattern for formatting the history expression for negate operation.
+     */
+    private static final String NEGATE_PATTERN = "negate(%s)";
+
+    /**
      * The value of an error message about invalid input.
      */
     private static final String INVALID_INPUT_ERROR = "Invalid input";
@@ -105,27 +112,30 @@ public class OutputFormatter {
      * from the number and trailing zeroes in fractional part of the number and converts to exponential view
      * if needed.
      *
-     * @param number the string with number to format
+     * @param numberStr the string with number to format
      * @return the formatted string containing number for the next calculations
      */
-    public static String formatToMathView(String number) throws CalculationException {
-        String formattedNumberStr = removeGroupDelimiters(number);
+    public static String formatToMathView(String numberStr) throws CalculationException {
+        String formattedNumberStr = removeGroupDelimiters(numberStr);
         if (!isNumber(formattedNumberStr)) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
-        BigDecimal formattedNumber = new BigDecimal(formattedNumberStr);
+        BigDecimal number = new BigDecimal(formattedNumberStr);
         int scale = 0;
-        if (isZero(formattedNumber)) {
-            return formattedNumber.setScale(0, HALF_UP).toString();
-        }
         if (formattedNumberStr.contains(POINT)) {
-            if (formattedNumberStr.toUpperCase().contains(EXPONENT)) {
-                scale = new BigDecimal(number).scale();
-            } else {
-                scale = formattedNumberStr.length() - formattedNumberStr.indexOf(POINT) - 1;
-            }
+            scale = getScale(formattedNumberStr);
         }
-        return formatToMathView(formattedNumber.setScale(scale, HALF_UP));
+        return formatToMathView(number.setScale(scale, HALF_UP));
+    }
+
+    private static int getScale(String number) {
+        int scale;
+        if (number.toUpperCase().contains(EXPONENT)) {
+            scale = new BigDecimal(number).scale();
+        } else {
+            scale = number.length() - number.indexOf(POINT) - 1;
+        }
+        return scale;
     }
 
     /**
@@ -147,9 +157,6 @@ public class OutputFormatter {
      * @throws CalculationException
      */
     public static String formatToMathView(BigDecimal number) throws CalculationException {
-        if (BigDecimal.ZERO.compareTo(number) == 0) {
-            return ZERO_VALUE;
-        }
         //Without trailing zeroes after point and with groups delimiters
         String numberString = formatNumberForDisplaying(number.toString());
         numberString = removeGroupDelimiters(numberString);
@@ -170,44 +177,57 @@ public class OutputFormatter {
         }
         if (numberStr.endsWith(POINT)) {
             numberStr = numberStr.substring(0, numberStr.length() - 1);
+            return formatNumberForDisplaying(numberStr) + POINT;
         }
+
         BigDecimal number = new BigDecimal(numberStr);
-        if (number.compareTo(BigDecimal.ZERO) == 0) {
+        if (isZero(number)) {
             return ZERO_VALUE;
         }
 
         if (!numberStr.toUpperCase().contains(EXPONENT)) { // Round if there are trailing "9"
             if (number.abs().compareTo(BigDecimal.ONE) > 0) {
                 Pattern pattern2 = Pattern.compile(NUMBER_GREATER_ONE_WITH_TRAILING_9_PATTERN);
-                Matcher matcher2 = pattern2.matcher(removeGroupDelimiters(numberStr));
+                Matcher matcher2 = pattern2.matcher(numberStr);
                 if (matcher2.matches() && numberStr.length() >= MAX_LENGTH_WITH_POINT) {
                     // If after point is all 9s up to max length
                     int scale = 0;
-                    String roundedNumber = number.setScale(scale, BigDecimal.ROUND_UP).toString();
+                    String roundedNumber = number.setScale(scale, ROUND_UP).toString();
                     return addGroupDelimiters(roundedNumber);
                 }
             } else {
                 Pattern pattern = Pattern.compile(NUMBER_LESS_ONE_WITH_TRAILING_9_PATTERN);
-                Matcher matcher = pattern.matcher(removeGroupDelimiters(numberStr));
+                Matcher matcher = pattern.matcher(numberStr);
                 if (matcher.matches() && numberStr.length() > MAX_LENGTH_WITH_POINT) {
                     int scale = numberStr.indexOf(matcher.group(2)) - numberStr.indexOf(POINT) - 1;
-                    return number.setScale(scale, BigDecimal.ROUND_UP).toString();
+                    return number.setScale(scale, ROUND_UP).toString();
                 }
             }
         }
 
-        // remove rounding delta
-        if (numberStr.contains(POINT) && !numberStr.toUpperCase().contains(EXPONENT) && numberStr.length() == MAX_LENGTH_WITH_POINT) { // for positive double
-            int fractionDigitsCount = number.scale();
+        number = roundMeasurementError(numberStr);
+        return formatNumberView(number);
+    }
 
+    private static BigDecimal roundMeasurementError(String numberStr) {
+        BigDecimal number = new BigDecimal(numberStr);
+        // remove rounding delta
+        if (numberStr.contains(POINT) &&
+                !numberStr.toUpperCase().contains(EXPONENT) &&
+                numberStr.length() == MAX_LENGTH_WITH_POINT) { // for positive double
+
+            int fractionDigitsCount = number.scale();
             BigDecimal fractionalPart = number.remainder(BigDecimal.ONE);
 
             BigDecimal correlation = new BigDecimal("1.e-" + fractionDigitsCount).multiply(new BigDecimal(5));
             if (fractionalPart.compareTo(correlation) < 0) {
-                number = number.setScale(fractionDigitsCount - 1, BigDecimal.ROUND_HALF_UP);
+                number = number.setScale(fractionDigitsCount - 1, ROUND_HALF_UP);
             }
         }
+        return number;
+    }
 
+    private static String formatNumberView(BigDecimal number) {
         String stringValue;
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialView(number);
@@ -301,7 +321,7 @@ public class OutputFormatter {
             return MAX_LENGTH_WITH_POINT_AND_MINUS - number.indexOf(POINT) - 2;
         }
         if (number.startsWith(ZERO_VALUE + POINT)) {
-            return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) ;
+            return MAX_LENGTH_WITH_POINT - number.indexOf(POINT);
         }
         return MAX_LENGTH_WITH_POINT - number.indexOf(POINT) - 1;
     }
@@ -317,18 +337,36 @@ public class OutputFormatter {
         if (!isNumber(number)) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
-        if (new BigDecimal(number).compareTo(BigDecimal.ZERO) == 0) {
+        if (isZero(new BigDecimal(number))) {
             return number;
         }
-        String formattedIntPart;
+
+        String intPart;
+        String fractionPart;
         int pointIndex = number.indexOf(POINT);
         if (pointIndex == -1) {
-            return formatNumberForDisplaying(number);
+            intPart = number;
+            fractionPart = EMPTY_VALUE;
         } else {
-            formattedIntPart = formatNumberForDisplaying(number.substring(0, pointIndex));
+            intPart = number.substring(0, pointIndex);
+            fractionPart = number.substring(pointIndex);
         }
-        String formattedNumber = formattedIntPart + number.substring(pointIndex, number.length());
-        if (number.startsWith(MINUS + ZERO_VALUE)) {
+
+        return getFormattedNumber(intPart, fractionPart);
+    }
+
+    /**
+     * Returns number constructed from the given integer and fraction parts. Integer part formats with group delimiters.
+     *
+     * @param intPart a string value of an integer part of number
+     * @param fractionPart a string value of a fraction part of number
+     * @return number constructed from the given integer and fraction parts
+     */
+    private static String getFormattedNumber(String intPart, String fractionPart) {
+        String formattedIntPart = formatNumberView(new BigDecimal(intPart));
+        String formattedNumber = formattedIntPart + fractionPart;
+
+        if (intPart.startsWith(MINUS + ZERO_VALUE)) {
             formattedNumber = MINUS + formattedNumber;
         }
         return formattedNumber;
@@ -339,7 +377,7 @@ public class OutputFormatter {
      * For example, square root: √(x); square: sqr(x); reverse: 1/(x).
      *
      * @param operation a mathematical operation to use for formatting
-     * @param argument a string contains number or previous formatted expression to use for formatting
+     * @param argument  a string contains number or previous formatted expression to use for formatting
      * @return a string contains formatted expression for the specified argument and mathematical operation
      */
     public static String formatUnaryOperation(MathOperation operation, String argument) {
@@ -350,6 +388,8 @@ public class OutputFormatter {
                 return String.format(SQUARE_PATTERN, argument);
             case REVERSE:
                 return String.format(REVERSE_PATTERN, argument);
+            case NEGATE:
+                return String.format(NEGATE_PATTERN, argument);
         }
         return EMPTY_VALUE;
     }

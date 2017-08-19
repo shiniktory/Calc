@@ -1,11 +1,11 @@
 package com.implemica.CalculatorProject;
 
-import com.implemica.CalculatorProject.calculation.StandardCalculatorTest;
-import com.implemica.CalculatorProject.calculation.OperationTest;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest;
+import com.implemica.CalculatorProject.model.calculation.OperationTest;
 import com.implemica.CalculatorProject.controller.TestView;
-import com.implemica.CalculatorProject.util.OutputFormatterTest;
-import com.implemica.CalculatorProject.util.ValueTransformerUtilTest;
-import com.implemica.CalculatorProject.validation.DataValidatorTest;
+import com.implemica.CalculatorProject.model.util.OutputFormatterTest;
+import com.implemica.CalculatorProject.model.util.ValueTransformerUtilTest;
+import com.implemica.CalculatorProject.model.validation.DataValidatorTest;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

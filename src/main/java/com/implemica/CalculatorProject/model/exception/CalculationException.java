@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.exception;
+package com.implemica.CalculatorProject.model.exception;
 
 /**
  * The {@code CalculationException} is the class that extends {@link Exception}. Designed

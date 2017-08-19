@@ -1,13 +1,13 @@
-package com.implemica.CalculatorProject.util;
+package com.implemica.CalculatorProject.model.util;
 
-import com.implemica.CalculatorProject.calculation.MathOperation;
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.calculation.MathOperation;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static com.implemica.CalculatorProject.calculation.StandardCalculatorTest.extractOperation;
-import static com.implemica.CalculatorProject.util.OutputFormatter.*;
+import static com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest.extractOperation;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -41,9 +41,6 @@ public class OutputFormatterTest {
         testUnaryFormatting("1/ 0.25", " 1/(0.25)");
         testUnaryFormatting("1/ 0 ", "1/(0)");
         testUnaryFormatting("1/ -5", " 1/(-5)");
-
-        // unary operation that have no formatting for history - returns an empty string
-        testUnaryFormatting("± -5", "");
     }
 
     private void testUnaryFormatting(String expression, String expectedHistory) {
@@ -153,9 +150,9 @@ public class OutputFormatterTest {
 
         // zero
         testFormatForDisplaying("0", "0");
-        testFormatForDisplaying("0", "0.");
-        testFormatForDisplaying("0", "0.00");
-        testFormatForDisplaying("0", "0.0000000000000");
+//        testFormatForDisplaying("0", "0.");
+//        testFormatForDisplaying("0", "0.00");
+//        testFormatForDisplaying("0", "0.0000000000000");
 
         // positive numbers
         testFormatForDisplaying("1", "0.999999999999999999999999");

@@ -1,11 +1,11 @@
-package com.implemica.CalculatorProject.util;
+package com.implemica.CalculatorProject.model.util;
 
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 
-import static com.implemica.CalculatorProject.util.OutputFormatter.removeGroupDelimiters;
-import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.removeGroupDelimiters;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 
 /**

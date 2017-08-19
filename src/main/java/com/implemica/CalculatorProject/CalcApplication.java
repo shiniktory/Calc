@@ -1,6 +1,7 @@
 package com.implemica.CalculatorProject;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -22,12 +23,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN;
-import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
-import static com.implemica.CalculatorProject.calculation.EditOperation.LEFT_ERASE;
-import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.validation.DataValidator.isDigit;
+import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN;
+import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
+import static com.implemica.CalculatorProject.model.calculation.EditOperation.LEFT_ERASE;
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
+import static javafx.scene.text.FontWeight.*;
 
 /**
  * The class is an entry point to the application.
@@ -44,12 +46,12 @@ public class CalcApplication extends Application {
     /**
      * A path to the file with stylesheets.
      */
-    private static final String CSS_FILE = "/view/winCalc.css";
+    private static final String CSS_FILE = "view/winCalc.css";
 
     /**
      * A path to the icon image.
      */
-    private static final String ICON_FILE = "/view/icon.png";
+    private static final String ICON_FILE = "view/icon.png";
 
     /**
      * The name of the application.
@@ -66,6 +68,15 @@ public class CalcApplication extends Application {
      */
     private static final double MIN_WIDTH = 220.0;
 
+    /**
+     * The default font family name for textfield.
+     */
+    private static final String TEXTFIELD_FONT_NAME = "Segoe UI Semibold";
+
+    /**
+     * The value of id for the textfield with current number.
+     */
+    private static final String CURRENT_NUMBER_TEXTFIELD_ID = "#currentNumberText";
     /**
      * A reference to the text field with the current number.
      */
@@ -99,6 +110,7 @@ public class CalcApplication extends Application {
             primaryStage.initStyle(StageStyle.DECORATED);
             primaryStage.setResizable(true);
 
+            // add listeners for window resizing
             primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
                 scaleButtonFontSize(root, primaryStage);
             });
@@ -107,8 +119,8 @@ public class CalcApplication extends Application {
                 scaleButtonFontSize(root, primaryStage);
             });
 
-            currentNumberTextField = (TextField) root.lookup("#currentNumberText");
-
+            // add listeners for textfield and its content resizing
+            currentNumberTextField = (TextField) root.lookup(CURRENT_NUMBER_TEXTFIELD_ID);
             currentNumberTextField.textProperty().addListener((observable, oldValue, newValue) -> {
                 scaleTextFieldFont(primaryStage, currentNumberTextField.getBoundsInLocal().getWidth());
             });
@@ -166,7 +178,7 @@ public class CalcApplication extends Application {
         fontSizes.put(CLEAN.id(), new Double[]{14.0, 15.0, 23.0});
 
         // add main textfield and its fonts
-        fontSizes.put("currentNumberTF", new Double[]{23.0, 42.0, 66.0});
+        fontSizes.put(CURRENT_NUMBER_TEXTFIELD_ID, new Double[]{23.0, 42.0, 66.0});
 
         // add buttons with label ids
         labeledButtons.add(NEGATE.id());
@@ -204,22 +216,49 @@ public class CalcApplication extends Application {
      * @param currentWidth current window width value
      */
     private void scaleTextFieldFont(Stage primaryStage, double currentWidth) {
-        double defaultFontSize = fontSizes.get("currentNumberTF")[getFontBoundIndex(primaryStage)];
-        currentNumberTextField.setFont(
-                Font.font("Segoe UI Semibold", FontWeight.BOLD, defaultFontSize));
+        Font font = getFontForTextField(primaryStage, currentWidth);
+        currentNumberTextField.setFont(font);
+        Platform.runLater(() -> currentNumberTextField.end());
+    }
+
+    /**
+     * Returns a {@link Font} for the textfield with current number with calculated font size to fit text to
+     * the textfield.
+     *
+     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
+     * @param currentWidth current window width value
+     * @return a {@link Font} for the textfield with current number with calculated font size to fit text to
+     * the textfield
+     */
+    private Font getFontForTextField(Stage primaryStage, double currentWidth) {
+        int defaultFontSizeIndex = getFontBoundIndex(primaryStage);
+        double defaultFontSize = fontSizes.get(CURRENT_NUMBER_TEXTFIELD_ID)[defaultFontSizeIndex];
+        Font defaultFont = findFontForTextField(defaultFontSize);
 
         Text text = new Text(currentNumberTextField.getText());
-        text.setFont(currentNumberTextField.getFont());
+        text.setFont(defaultFont);
 
+        // calculate scale
+        double newFontSize = defaultFontSize;
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentWidth / textWidth - 0.1;
-
         if (scale < 1.0) {
-            double newFontSize = currentNumberTextField.getFont().getSize() * scale;
-            currentNumberTextField.setFont(new Font(currentNumberTextField.getFont().getFamily(),
-                    newFontSize));
+            newFontSize = defaultFont.getSize() * scale;
         }
-        currentNumberTextField.end();
+
+        return findFontForTextField(newFontSize);
+    }
+
+    /**
+     * Finds and returns {@link Font} instance that has {@link CalcApplication#TEXTFIELD_FONT_NAME} family,
+     * {@link FontWeight#BOLD} and the given size.
+     *
+     * @param fontSize a value of font size to apply to the current font
+     * @return {@link Font} instance that has {@link CalcApplication#TEXTFIELD_FONT_NAME} family,
+     * {@link FontWeight#BOLD} and the given size
+     */
+    private Font findFontForTextField(double fontSize) {
+        return Font.font(TEXTFIELD_FONT_NAME, BOLD, fontSize);
     }
 
     /**

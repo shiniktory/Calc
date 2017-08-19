@@ -1,6 +1,6 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -18,13 +18,13 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.implemica.CalculatorProject.calculation.EditOperation.CLEAN_CURRENT;
-import static com.implemica.CalculatorProject.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.calculation.MemoryOperation.*;
-import static com.implemica.CalculatorProject.util.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.util.OutputFormatter.removeGroupDelimiters;
-import static com.implemica.CalculatorProject.validation.DataValidator.isNumber;
+import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.util.OutputFormatter.removeGroupDelimiters;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.PERIOD;
@@ -452,7 +452,7 @@ public class StandardCalculatorTest {
         testCalculations("0 sqr sqr = 0", "sqr(sqr(0))");
         testCalculations("0.005 sqr sqr = 0.000000000625", "sqr(sqr(0.005))");
         testCalculations("700 sqr √ = 700", "√(sqr(700))");
-        testCalculations("55 sqr ± = -3,025", "sqr(55)");
+        testCalculations("55 sqr ± = -3,025", "negate(sqr(55))");
     }
 
     @Test
@@ -470,7 +470,7 @@ public class StandardCalculatorTest {
         testCalculations("0 √ √ = 0", "√(√(0))");
         testCalculations("700 √ sqr = 700", "sqr(√(700))");
         testCalculations("50 √ √ = 2.659147948472494", "√(√(50))");
-        testCalculations("55 √ ± = -7.416198487095663", "√(55)");
+        testCalculations("55 √ ± = -7.416198487095663", "negate(√(55))");
         testCalculations("9999999999999999 √ 1/ = 0.00000001", "1/(√(9999999999999999))");
     }
 
@@ -493,7 +493,7 @@ public class StandardCalculatorTest {
         // with more than one unary operations for one number
         testCalculations("5 1/ 1/ = 5", "1/(1/(5))");
         testCalculations("-5 1/ 1/ = -5", "1/(1/(-5))");
-        testCalculations("-5 1/ ± = 0.2", "1/(-5)");
+        testCalculations("-5 1/ ± = 0.2", "negate(1/(-5))");
         testCalculations("35 1/ √ = 0.1690308509457034", "√(1/(35))");
         testCalculations("-5 1/ sqr = 0.04", "sqr(1/(-5))");
     }
@@ -511,7 +511,7 @@ public class StandardCalculatorTest {
         testCalculations("5 + 0.0000000000000001 sqr 1/ = 1.e+32", "5 + 1/(sqr(0.0000000000000001))");
 
         testCalculations("5 + 9999999999999999 √ = 100,000,005", "5 + √(9999999999999999)");
-        testCalculations("5 + 9999999999999999 √ ± = -99,999,995", "5 + √(9999999999999999)");
+        testCalculations("5 + 9999999999999999 √ ± = -99,999,995", "5 + negate(√(9999999999999999))");
         testCalculations("5 + 0.0000000000000001 √ = 5.00000001", "5 + √(0.0000000000000001)");
         testCalculations("5 + 0.0000000000000001 √ 1/ = 100,000,005", "5 + 1/(√(0.0000000000000001))");
     }
@@ -689,9 +689,8 @@ public class StandardCalculatorTest {
                 return ADD;
             case "%":
                 return PERCENT;
-            default:
-                return MathOperation.getOperation(operation);
         }
+        return null;
     }
 
     @Test
@@ -765,7 +764,7 @@ public class StandardCalculatorTest {
         testPressOperation("% + - 2 1/ = -0.5", "0 − 1/(2)");
         testPressOperation("% C % = 0", "0");
         testPressOperation("% 2 sqr = 4", "sqr(2)");
-        testPressOperation("% ± * 3. * = 0", "0 × 3 × ");
+        testPressOperation("% ± * 3. * = 0", "negate(0) × 3 × ");
 
         testPressOperation("√ = 0", "√(0)");
         testPressOperation("√ √ = 0", "√(√(0))");
@@ -798,7 +797,7 @@ public class StandardCalculatorTest {
         testPressOperation("1/ = Cannot divide by zero", "1/(0)");
         testPressOperation(". 1/ = Cannot divide by zero", "1/(0)");
         testPressOperation("5 1/ = 0.2", "1/(5)");
-        testPressOperation("5 1/ ± = -0.2", "1/(5)");
+        testPressOperation("5 1/ ± = -0.2", "negate(1/(5))");
         testPressOperation("5 1/ 1/ = 5", "1/(1/(5))");
         testPressOperation("1/ C 1/ = Cannot divide by zero", "1/(0)");
         testPressOperation("1/ CE 1/ = Cannot divide by zero", "1/(0)");
@@ -1055,22 +1054,22 @@ public class StandardCalculatorTest {
     }
 
 
-//    @Test
-//    public void testForOverflow() {
-//        // the lower bound for overflow
-//        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
-//        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
-//        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
-//        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
-//        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
-//
-//        // the upper bound for overflow
-//        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
-//        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
-//        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
-//        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
-//        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
-//    }
+    @Test
+    public void testForOverflow() {
+        // the lower bound for overflow
+        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
+        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
+        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
+        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
+        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
+
+        // the upper bound for overflow
+        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
+        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
+        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
+        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
+        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
+    }
 
     private void testForOverflow(String expression, String expectedHistory) {
         pushKey(KeyCode.ESCAPE);
@@ -1145,6 +1144,9 @@ public class StandardCalculatorTest {
     private void fireButton(String buttonId) {
         WaitForAsyncUtils.waitForFxEvents();
         final Button button = buttons.get(buttonId);
+        if (button == null) {
+            throw new IllegalArgumentException("Wrong button id. Your id is " + buttonId);
+        }
         button.fire();
     }
 

@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
 /**
  * The enum contains operations for editing fields with numbers such as reset current number,

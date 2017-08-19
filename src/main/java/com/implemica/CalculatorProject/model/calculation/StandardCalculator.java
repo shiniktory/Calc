@@ -1,12 +1,12 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
 
-import com.implemica.CalculatorProject.exception.CalculationException;
+import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static com.implemica.CalculatorProject.validation.DataValidator.isZero;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isZero;
 import static java.lang.String.format;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ROUND_HALF_UP;

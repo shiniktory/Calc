@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
 /**
  * The enum contains a Mathematical operation types with its string representations.

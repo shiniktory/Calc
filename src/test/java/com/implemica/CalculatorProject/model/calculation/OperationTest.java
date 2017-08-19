@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.calculation;
+package com.implemica.CalculatorProject.model.calculation;
 
 import org.junit.Assert;
 import org.junit.Test;
