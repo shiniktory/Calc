@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.model.util;
+package com.implemica.CalculatorProject.model.formatting;
 
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest.extractOperation;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.*;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -85,7 +85,7 @@ public class OutputFormatterTest {
         assertEquals(expectedNoDelimiters, numberWithoutGroupDelimiters);
 
         // Add group delimiters to number got before and check it's equivalence with input number
-        String numberWithGroupDelimiters = addGroupDelimiters(numberWithoutGroupDelimiters);
+        String numberWithGroupDelimiters = formatEnteredNumber(new BigDecimal(numberWithoutGroupDelimiters));
         assertEquals(inputWithDelimiters, numberWithGroupDelimiters);
     }
 
@@ -123,7 +123,7 @@ public class OutputFormatterTest {
 
     private void testFormatNumberToMathView(String expected, String inputNumber) throws CalculationException {
         // formatting string contains number
-        assertEquals(expected, formatToMathView(inputNumber));
+        assertEquals(expected, formatToMathView(new BigDecimal(inputNumber)));
 
         // formatting number
         BigDecimal number = new BigDecimal(removeGroupDelimiters(inputNumber));
@@ -171,35 +171,6 @@ public class OutputFormatterTest {
     }
 
     private void testFormatForDisplaying(String expected, String inputNumber) throws CalculationException {
-        assertEquals(expected, formatNumberForDisplaying(inputNumber));
-    }
-
-    @Test
-    public void testInvalidInput() {
-
-        testFormatNotNumber("");
-        testFormatNotNumber(" ");
-        testFormatNotNumber(".");
-        testFormatNotNumber("...");
-        testFormatNotNumber("--1");
-        testFormatNotNumber("1--");
-        testFormatNotNumber("1...1");
-        testFormatNotNumber("1eee-10");
-        testFormatNotNumber("1.e+-10");
-        testFormatNotNumber("1.e+10.");
-        testFormatNotNumber("+40");
-        testFormatNotNumber("40+");
-        testFormatNotNumber("40.+");
-        testFormatNotNumber("some string");
-    }
-
-    private void testFormatNotNumber(String notNumber) {
-        try {
-            formatNumberForDisplaying(notNumber);
-            formatToMathView(notNumber);
-            fail("Expected CalculationException with input not a number. Your input is " + notNumber);
-        } catch (CalculationException e) {
-            //expected
-        }
+        assertEquals(expected, formatNumberForDisplaying(new BigDecimal(inputNumber)));
     }
 }

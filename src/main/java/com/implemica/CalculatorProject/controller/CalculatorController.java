@@ -4,7 +4,7 @@ import com.implemica.CalculatorProject.model.calculation.EditOperation;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
-import com.implemica.CalculatorProject.model.processing.InputValueProcessor;
+import com.implemica.CalculatorProject.model.InputValueProcessor;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
@@ -16,9 +16,9 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -31,13 +31,17 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
 import java.awt.*;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.MEMORY_CLEAN;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.formatEnteredNumber;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.formatNumberForDisplaying;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 
 /**
@@ -163,40 +167,40 @@ public class CalculatorController {
 
         // Unary operations
         if (event.isShiftDown() && key == KeyCode.DIGIT2) {
-            fireButton(SQUARE_ROOT.name());
+            fireButton(SQUARE_ROOT.id());
 
         } else if (key == KeyCode.Q) {
-            fireButton(SQUARE.name());
+            fireButton(SQUARE.id());
 
         } else if (key == KeyCode.R) {
-            fireButton(REVERSE.name());
+            fireButton(REVERSE.id());
 
             //Binary operations
         } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
-            fireButton(PERCENT.name());
+            fireButton(PERCENT.id());
 
         } else if (key == KeyCode.MINUS || key == KeyCode.SUBTRACT) {
-            fireButton(SUBTRACT.name());
+            fireButton(SUBTRACT.id());
 
         } else if (key == KeyCode.ADD ||
                 event.isShiftDown() && key == KeyCode.EQUALS) {
-            fireButton(ADD.name());
+            fireButton(ADD.id());
 
         } else if (key == KeyCode.MULTIPLY ||
                 event.isShiftDown() && key == KeyCode.DIGIT8) {
-            fireButton(MULTIPLY.name());
+            fireButton(MULTIPLY.id());
 
         } else if (key == KeyCode.SLASH || key == KeyCode.DIVIDE) {
-            fireButton(DIVIDE.name());
+            fireButton(DIVIDE.id());
 
         } else if (key == KeyCode.BACK_SPACE) {
-            fireButton(LEFT_ERASE.name());
+            fireButton(LEFT_ERASE.id());
 
         } else if (key == KeyCode.EQUALS) {
-            fireButton(RESULT.name());
+            fireButton(RESULT.id());
 
         } else if (key == KeyCode.ENTER) {
-            fireButton(RESULT.name());
+            fireButton(RESULT.id());
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
@@ -209,7 +213,7 @@ public class CalculatorController {
             fireButton(POINT_BUTTON_ID);
 
         } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
-            fireButton(CLEAN.name());
+            fireButton(CLEAN.id());
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
@@ -308,14 +312,24 @@ public class CalculatorController {
         // if it is digit button
         if (isNumber(buttonId)) {
             resetAfterError();
-            valueProcessor.updateCurrentNumber(button.getText());
-            textToSet = valueProcessor.getLastNumber();
+            String buttonText = button.getText();
+            boolean isDigitAppended = false;
+            if (isDigit(buttonText)) {
+                isDigitAppended = valueProcessor.enterDigit(Integer.parseInt(buttonText));
+            }
+            if (isDigitAppended) {
+                textToSet = formatEnteredNumber(valueProcessor.getLastNumber());
+            }
         }
 
         // if it is a button with decimal point
         if (POINT_BUTTON_ID.equals(buttonId)) {
             valueProcessor.addPoint();
-            textToSet = valueProcessor.getLastNumber();
+            String currentNumber = formatEnteredNumber(valueProcessor.getLastNumber());
+            if (!currentNumber.contains(POINT)) {
+                currentNumber += POINT;
+            }
+            textToSet = currentNumber;
         }
 
         // if it is a button with mathematical operation
@@ -347,12 +361,14 @@ public class CalculatorController {
      * @throws CalculationException if some error occurred while calculations
      */
     private String executeMathOperation(MathOperation operation) throws CalculationException {
+        BigDecimal result;
         if (operation != RESULT) {
-            return valueProcessor.executeMathOperation(operation);
+            result = valueProcessor.executeMathOperation(operation);
         } else {
             resetAfterError();
-            return valueProcessor.calculateResult();
+            result = valueProcessor.calculateResult();
         }
+        return formatNumberForDisplaying(result);
     }
 
     /**
@@ -372,7 +388,7 @@ public class CalculatorController {
         } else {
             enableMemoryStateButtons(true);
         }
-        return valueProcessor.getLastNumber();
+        return formatNumberForDisplaying(valueProcessor.getLastNumber());
     }
 
     /**
@@ -388,13 +404,15 @@ public class CalculatorController {
         if (operation == CLEAN) {
             valueProcessor.cleanAll();
             isErrorOccurred = false;
+
         } else if (operation == CLEAN_CURRENT) {
             valueProcessor.cleanCurrent();
             isErrorOccurred = false;
+
         } else if (operation == LEFT_ERASE) {
             valueProcessor.deleteLastDigit();
         }
-        return valueProcessor.getLastNumber();
+        return formatEnteredNumber(valueProcessor.getLastNumber());
     }
 
     /**
@@ -403,7 +421,7 @@ public class CalculatorController {
     private void resetAfterError() throws CalculationException {
         if (isErrorOccurred) {
             enableAllOperations(true);
-            setCurrentNumber(valueProcessor.getLastNumber());
+            setCurrentNumber(formatNumberForDisplaying(valueProcessor.getLastNumber()));
             updateHistoryExpression();
             isErrorOccurred = false;
         }

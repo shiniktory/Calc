@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject;
+package com.implemica.CalculatorProject.view;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -27,7 +27,7 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.CL
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static javafx.scene.text.FontWeight.*;
 
@@ -36,22 +36,22 @@ import static javafx.scene.text.FontWeight.*;
  *
  * @author V. Kozina-Kravchenko
  */
-public class CalcApplication extends Application {
+public class CalculatorApplication extends Application {
 
     /**
      * A path to the view fxml file.
      */
-    private static final String CALCULATOR_VIEW_FILE = "/view/calc.fxml";
+    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calc.fxml";
 
     /**
      * A path to the file with stylesheets.
      */
-    private static final String CSS_FILE = "view/winCalc.css";
+    private static final String CSS_FILE = "com/implemica/CalculatorProject/view/winCalc.css";
 
     /**
      * A path to the icon image.
      */
-    private static final String ICON_FILE = "view/icon.png";
+    private static final String ICON_FILE = "com/implemica/CalculatorProject/view/icon.png";
 
     /**
      * The name of the application.
@@ -81,15 +81,6 @@ public class CalcApplication extends Application {
      * A reference to the text field with the current number.
      */
     private TextField currentNumberTextField;
-
-    /**
-     * Launches the application.
-     *
-     * @param args an initial arguments for an application
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     /**
      * Configures the {@link Stage} instance and shows the configured application window.
@@ -250,11 +241,11 @@ public class CalcApplication extends Application {
     }
 
     /**
-     * Finds and returns {@link Font} instance that has {@link CalcApplication#TEXTFIELD_FONT_NAME} family,
+     * Finds and returns {@link Font} instance that has {@link CalculatorApplication#TEXTFIELD_FONT_NAME} family,
      * {@link FontWeight#BOLD} and the given size.
      *
      * @param fontSize a value of font size to apply to the current font
-     * @return {@link Font} instance that has {@link CalcApplication#TEXTFIELD_FONT_NAME} family,
+     * @return {@link Font} instance that has {@link CalculatorApplication#TEXTFIELD_FONT_NAME} family,
      * {@link FontWeight#BOLD} and the given size
      */
     private Font findFontForTextField(double fontSize) {

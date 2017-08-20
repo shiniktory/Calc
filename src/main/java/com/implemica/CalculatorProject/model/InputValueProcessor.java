@@ -1,19 +1,20 @@
-package com.implemica.CalculatorProject.model.processing;
+package com.implemica.CalculatorProject.model;
 
 import com.implemica.CalculatorProject.model.calculation.Calculator;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.*;
-import static com.implemica.CalculatorProject.model.util.ValueTransformerUtil.getBigDecimalValues;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
+import static java.math.BigDecimal.ZERO;
 
 /**
  * The {@code InputValueProcessor} class holds the components of the mathematical expression
@@ -27,7 +28,7 @@ public class InputValueProcessor {
     /**
      * The value of previous entered number represented by string. By default it is zero.
      */
-    private String previousNumber = ZERO_VALUE;
+    private BigDecimal previousNumber = ZERO;
 
     /**
      * The last requested binary operation.
@@ -37,12 +38,12 @@ public class InputValueProcessor {
     /**
      * The value of last entered number represented by string. By default it is zero.
      */
-    private String lastNumber = ZERO_VALUE;
+    private BigDecimal lastNumber = ZERO;
 
     /**
      * The value of last memorized value represented by string. By default it is zero.
      */
-    private String memorizedNumber = ZERO_VALUE;
+    private BigDecimal memorizedNumber = ZERO;
 
     /**
      * The list of expression parts (numbers and operations) used for history showing.
@@ -53,7 +54,7 @@ public class InputValueProcessor {
      * The value of temporary number stores last entered number before calculation result. Used as argument
      * for calculations with multiple pressings result button. Default value is zero.
      */
-    private String tempNumber = ZERO_VALUE;
+    private BigDecimal tempNumber = ZERO;
 
     /**
      * The flag variable shows is entering a new number or continuing type previous number.
@@ -65,10 +66,7 @@ public class InputValueProcessor {
      */
     private boolean wasUnaryBefore = false;
 
-    /**
-     * The string contains a zero value. Uses as default value for some fields with numbers.
-     */
-    public static final String ZERO_VALUE = "0";
+    private boolean needAddPoint = false;
 
     /**
      * An error message about requested operation not found.
@@ -86,8 +84,8 @@ public class InputValueProcessor {
      * @return the last entered number formatted with group delimiters represented by string
      * @throws CalculationException if last entered value is not a number
      */
-    public String getLastNumber() throws CalculationException {
-        return addGroupDelimiters(lastNumber);
+    public BigDecimal getLastNumber() throws CalculationException {
+        return lastNumber;
     }
 
     /**
@@ -108,17 +106,18 @@ public class InputValueProcessor {
      *
      * @param digit to add to the last entered number
      */
-    public void updateCurrentNumber(String digit) {
-        if (!isDigit(digit)) {
-            return;
-        }
+    public boolean enterDigit(int digit) {
+        boolean isDigitAdded;
         if (isNewNumber) {
-            lastNumber = digit;
+            lastNumber = BigDecimal.valueOf(digit);
             removeLastUnaryFromHistory();
+            needAddPoint = false;
+            isDigitAdded = true;
         } else {
-            appendDigit(digit);
+            isDigitAdded = appendDigit(digit);
         }
         isNewNumber = false;
+        return isDigitAdded;
     }
 
     /**
@@ -126,16 +125,27 @@ public class InputValueProcessor {
      *
      * @param digit a digit to append to the current number
      */
-    private void appendDigit(String digit) {
-        if (!isNumberLengthValid(lastNumber + digit)) {
-            return;
+    private boolean appendDigit(int digit) {
+        if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
+            return false;
         }
-        if (ZERO_VALUE.equals(lastNumber) && !ZERO_VALUE.equals(digit)) {
-            lastNumber = digit;
+        if (isZero(lastNumber) && lastNumber.scale() == 0 && digit != 0 && !needAddPoint) {
+            lastNumber = BigDecimal.valueOf(digit);
+        } else {
+            lastNumber = new BigDecimal(getNewNumberValue(digit));
+            needAddPoint = false;
+        }
+        return true;
+    }
 
-        } else if (!ZERO_VALUE.equals(lastNumber)) {
-            lastNumber += digit;
+    private String getNewNumberValue(int digit) {
+        String newLastNumberValue = lastNumber.toPlainString();
+        if (needAddPoint && !newLastNumberValue.contains(POINT)) {
+            newLastNumberValue += POINT + digit;
+        } else {
+            newLastNumberValue += digit;
         }
+        return newLastNumberValue;
     }
 
     /**
@@ -146,12 +156,12 @@ public class InputValueProcessor {
      * @return last entered number or operation result if needed for some operations
      * @throws CalculationException if some error while calculations occurred
      */
-    public String executeMathOperation(MathOperation currentOperation) throws CalculationException {
+    public BigDecimal executeMathOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_FOUND);
         }
 
-        String operationResult;
+        BigDecimal operationResult;
         if (currentOperation.isBinary()) {
             operationResult = executeBinaryOperation(currentOperation);
             isNewNumber = true;
@@ -159,7 +169,7 @@ public class InputValueProcessor {
             operationResult = executeUnaryOperation(currentOperation);
         }
         checkResultForOverflow(operationResult);
-        return formatNumberForDisplaying(operationResult);
+        return operationResult;
     }
 
     /**
@@ -172,7 +182,7 @@ public class InputValueProcessor {
      * previous binary operations
      * @throws CalculationException if some error while calculations occurred
      */
-    private String executeBinaryOperation(MathOperation currentOperation) throws CalculationException {
+    private BigDecimal executeBinaryOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == PERCENT) {
             return executePercentOperation();
         }
@@ -204,7 +214,7 @@ public class InputValueProcessor {
      * @return the result of percentage operation
      * @throws CalculationException if some error occurred while calculations
      */
-    private String executePercentOperation() throws CalculationException {
+    private BigDecimal executePercentOperation() throws CalculationException {
         lastNumber = getResult(PERCENT, previousNumber, lastNumber);
         updateHistoryForPercentage();
         wasUnaryBefore = true; // for history expression percentage formats like unary operation
@@ -229,7 +239,7 @@ public class InputValueProcessor {
     /**
      * Updates the value of previous entered number.
      *
-     * @throws CalculationException
+     * @throws CalculationException if some error while calculations occurred
      */
     private void updatePreviousNumber() throws CalculationException {
         // If was already entered more than one number and binary operation execute last binary operation
@@ -237,7 +247,7 @@ public class InputValueProcessor {
             previousNumber = getResult(operation, previousNumber, lastNumber);
 
         } else { // or store last entered number in previous to enter new number
-            previousNumber = formatToMathView(lastNumber);
+            previousNumber = lastNumber;
         }
     }
 
@@ -249,18 +259,18 @@ public class InputValueProcessor {
      * @return the result of current called unary mathematical operation with the last entered number
      * @throws CalculationException if some error while calculations occurred
      */
-    private String executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
+    private BigDecimal executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == NEGATE) {
             lastNumber = getResult(NEGATE, lastNumber);
-            if (wasUnaryBefore){
+            if (wasUnaryBefore) {
                 updateHistoryForUnary(NEGATE);
             }
-            return lastNumber;
+        } else {
+            updateHistoryForUnary(currentOperation);
+            lastNumber = getResult(currentOperation, lastNumber);
+            wasUnaryBefore = true;
+            isNewNumber = true;
         }
-        updateHistoryForUnary(currentOperation);
-        lastNumber = getResult(currentOperation, lastNumber);
-        wasUnaryBefore = true;
-        isNewNumber = true;
         return lastNumber;
     }
 
@@ -269,9 +279,8 @@ public class InputValueProcessor {
      * new argument.
      *
      * @param currentOperation a current unary operation to add to history
-     * @throws CalculationException
      */
-    private void updateHistoryForUnary(MathOperation currentOperation) throws CalculationException {
+    private void updateHistoryForUnary(MathOperation currentOperation) {
         if (wasUnaryBefore) {
             String lastUnary = expression.get(expression.size() - 1);
             String formattedCurrentUnary = formatUnaryOperation(currentOperation, lastUnary);
@@ -294,11 +303,14 @@ public class InputValueProcessor {
      * by string(s)
      * @throws CalculationException if some error while calculations occurred
      */
-    private String getResult(MathOperation operation, String... arguments) throws CalculationException {
-        Calculator calculator = new StandardCalculator(operation, getBigDecimalValues(arguments));
+    private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
+        Calculator calculator = new StandardCalculator(operation, arguments);
         BigDecimal result = calculator.calculate();
 
-        return formatToMathView(result);
+        if (isZero(result)) {
+            result = ZERO.setScale(0, RoundingMode.HALF_UP);
+        }
+        return result;
     }
 
     /**
@@ -307,9 +319,8 @@ public class InputValueProcessor {
      * @param result the number to check for overflow
      * @throws CalculationException if result is out of valid bounds
      */
-    private void checkResultForOverflow(String result) throws CalculationException {
-        BigDecimal resultValue = new BigDecimal(result);
-        if (isResultOverflow(resultValue)) {
+    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
+        if (isResultOverflow(result)) {
             throw new CalculationException(OVERFLOW_ERROR);
         }
     }
@@ -322,16 +333,21 @@ public class InputValueProcessor {
      * consists of entered numbers and mathematical operations
      * @throws CalculationException if some error while calculations occurred
      */
-    public String calculateResult() throws CalculationException {
-        if (!wasUnaryBefore && operation == null) { // If nothing entered nothing to calculate
-            return formatNumberForDisplaying(lastNumber);
-        }
+    public BigDecimal calculateResult() throws CalculationException {
 
+        if (wasUnaryBefore || operation != null) {
+            calculateResultImpl();
+        } // If nothing entered nothing to calculate
+        return lastNumber;
+    }
+
+    private void calculateResultImpl() throws CalculationException {
         if (expression.isEmpty() && !wasUnaryBefore) { // If "=" pressed without entering new number perform last operation
             lastNumber = getResult(operation, lastNumber, tempNumber);
+
         } else if (operation != null) {
             // If was binary operation, remember last number and execute this operation
-            tempNumber = String.valueOf(lastNumber);
+            tempNumber = lastNumber;
             lastNumber = getResult(operation, previousNumber, lastNumber);
         }
 
@@ -340,7 +356,6 @@ public class InputValueProcessor {
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
-        return formatNumberForDisplaying(lastNumber);
     }
 
     /**
@@ -350,13 +365,15 @@ public class InputValueProcessor {
     public void addPoint() {
 
         if (isNewNumber) { // If point pressed when expected entering new number need to replace last number by zero
-            updateCurrentNumber(ZERO_VALUE);
+            enterDigit(0);
             isNewNumber = false;
             removeLastUnaryFromHistory();
         }
 
-        if (!lastNumber.contains(POINT)) {
-            lastNumber += POINT;
+        BigDecimal reminder = lastNumber.remainder(BigDecimal.ONE);
+        if (isZero(reminder)) {
+            lastNumber = new BigDecimal(lastNumber.toPlainString() + POINT);
+            needAddPoint = true;
         }
     }
 
@@ -365,7 +382,7 @@ public class InputValueProcessor {
      */
     public void cleanAll() {
         cleanCurrent();
-        previousNumber = ZERO_VALUE;
+        previousNumber = ZERO;
         operation = null;
         expression.clear();
         wasUnaryBefore = false;
@@ -375,21 +392,29 @@ public class InputValueProcessor {
      * Resets the last entered number to default value - zero.
      */
     public void cleanCurrent() {
-        lastNumber = ZERO_VALUE;
+        lastNumber = ZERO;
         removeLastUnaryFromHistory();
         isNewNumber = true;
+        needAddPoint = false;
     }
 
     /**
      * Deletes last digit in the current entered number.
      */
     public void deleteLastDigit() {
-        if (lastNumber.length() == 1 ||
-                lastNumber.length() == 2 && lastNumber.startsWith(MINUS)) {
-            lastNumber = ZERO_VALUE;
-        }
-        if (lastNumber.length() > 1) {
-            lastNumber = lastNumber.substring(0, lastNumber.length() - 1);
+        String lastNumberStr = lastNumber.toPlainString();
+        if (lastNumberStr.length() == 1 ||
+                lastNumberStr.length() == 2 && lastNumberStr.startsWith(MINUS)) {
+
+            lastNumber = ZERO.setScale(0, RoundingMode.HALF_UP);
+            needAddPoint = false;
+
+        } else {
+            String newLastNumberValue = lastNumberStr.substring(0, lastNumberStr.length() - 1);
+            if (newLastNumberValue.endsWith(POINT)) {
+                needAddPoint = true;
+            }
+            lastNumber = new BigDecimal(newLastNumberValue);
         }
     }
 
@@ -405,10 +430,10 @@ public class InputValueProcessor {
         }
         switch (operation) {
             case MEMORY_CLEAN:
-                memorizedNumber = ZERO_VALUE;
+                memorizedNumber = ZERO;
                 break;
             case MEMORY_RECALL:
-                lastNumber = String.valueOf(memorizedNumber);
+                lastNumber = memorizedNumber;
                 break;
             case MEMORY_ADD:
                 memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
@@ -417,7 +442,7 @@ public class InputValueProcessor {
                 memorizedNumber = getResult(SUBTRACT, memorizedNumber, lastNumber);
                 break;
             case MEMORY_STORE:
-                memorizedNumber = formatToMathView(lastNumber);
+                memorizedNumber = lastNumber;
         }
         isNewNumber = true;
     }

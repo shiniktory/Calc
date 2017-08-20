@@ -1,12 +1,13 @@
 package com.implemica.CalculatorProject.model.validation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.CalculatorProject.model.processing.InputValueProcessor.ZERO_VALUE;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.model.util.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.MINUS;
+import static java.math.BigDecimal.ZERO;
 
 /**
  * The {@code DataValidator} class contains methods for validation of input data.
@@ -18,22 +19,22 @@ public class DataValidator {
     /**
      * The maximum length for number without minus sign and point.
      */
-    public static final int MAX_NUMBER_LENGTH = 16;
+    private static final int MAX_NUMBER_LENGTH = 16;
 
     /**
      * The maximum length for number greater than one with point and without minus sign.
      */
-    public static final int MAX_LENGTH_WITH_POINT = 17;
+    private static final int MAX_LENGTH_WITH_POINT = 17;
 
     /**
      * The maximum length for number with minus sign and without point.
      */
-    public static final int MAX_LENGTH_WITH_MINUS = 17;
+    private static final int MAX_LENGTH_WITH_MINUS = 17;
 
     /**
      * The maximum length for number less than one with point and without minus sign.
      */
-    public static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
+    private static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
 
     /**
      * The maximum length for any number with point and minus.
@@ -53,12 +54,12 @@ public class DataValidator {
     /**
      * The minimum number user can enter.
      */
-    private static final BigDecimal MIN_VALUE = new BigDecimal(0.0000000000000001);
+    private static final BigDecimal MIN_VALUE = new BigDecimal("0.0000000000000001");
 
     /**
      * The maximum number user can enter.
      */
-    private static final BigDecimal MAX_VALUE = new BigDecimal(9999999999999999.5);
+    private static final BigDecimal MAX_VALUE = new BigDecimal("9999999999999999.5");
 
     /**
      * The upper bound of number's value after what will be thrown an exception about overflow.
@@ -122,8 +123,8 @@ public class DataValidator {
         if (isEmptyString(number)) {
             return false;
         }
-
-        if (number.startsWith(ZERO_VALUE + POINT) &&
+        // TODO try to change with one return
+        if (number.startsWith("0" + POINT) &&
                 number.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
             return true;
         }
@@ -137,7 +138,7 @@ public class DataValidator {
                 number.length() <= MAX_LENGTH_WITH_MINUS) {
             return true;
         }
-        if (number.startsWith(MINUS + ZERO_VALUE + POINT) &&
+        if (number.startsWith(MINUS + "0" + POINT) &&
                 number.length() <= MAX_LENGTH_WITH_POINT_AND_MINUS) {
             return true;
         }
@@ -166,26 +167,17 @@ public class DataValidator {
             return false;
         }
 
-        if (number.abs().compareTo(MIN_VALUE) < 0 || number.abs().compareTo(MAX_VALUE) > 0) {
+        if (number.abs().compareTo(MIN_VALUE) < 0 || number.abs().compareTo(MAX_VALUE) >= 0) {
             return true;
         }
 
-        String stringValue = number.toPlainString();
-        if (number.abs().compareTo(new BigDecimal(0.001)) < 0 &&
-                number.stripTrailingZeros().scale() > 16) {
-            return true;
-        }
+        BigDecimal tailLessMinValue = number.remainder(MIN_VALUE).abs().setScale(21, RoundingMode.HALF_UP);
 
-        if (stringValue.startsWith(MINUS) &&
-                !stringValue.contains(POINT) &&
-                stringValue.length() > MAX_LENGTH_WITH_MINUS) {
+        if (number.abs().compareTo(new BigDecimal("0.001")) < 0 &&
+                tailLessMinValue.compareTo(new BigDecimal("0.000000000000000000001")) >= 0) {
             return true;
         }
-
-        if (stringValue.startsWith(MINUS + ZERO_VALUE + POINT) && stringValue.length() > MAX_LENGTH_WITH_POINT_AND_MINUS + 2) {
-            return true;
-        }
-        return !stringValue.startsWith(MINUS) && !stringValue.contains(POINT) && stringValue.length() > MAX_NUMBER_LENGTH;
+        return false;
     }
 
     /**
@@ -195,14 +187,14 @@ public class DataValidator {
      * @return true if the specified number is zero
      */
     public static boolean isZero(BigDecimal number) {
-        return BigDecimal.ZERO.compareTo(number) == 0;
+        return ZERO.compareTo(number) == 0;
     }
 
     public static boolean isResultOverflow(BigDecimal result) {
         boolean isResultOverflow = false;
         BigDecimal absResult = result.abs();
         if (MAX_NUMBER.compareTo(absResult) <= 0 ||
-                absResult.compareTo(BigDecimal.ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
+                absResult.compareTo(ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
             isResultOverflow = true;
         }
         return isResultOverflow;
