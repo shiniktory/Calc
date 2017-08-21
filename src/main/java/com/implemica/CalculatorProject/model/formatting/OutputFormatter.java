@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
+import static java.lang.String.format;
 import static java.math.BigDecimal.*;
 import static java.math.RoundingMode.HALF_UP;
 
@@ -32,7 +33,18 @@ public class OutputFormatter {
     /**
      * The value of an empty string.
      */
-    public static final String EMPTY_VALUE = "";
+    private static final String EMPTY_VALUE = "";
+
+    /**
+     * The string contains zero value.
+     */
+    public static final String ZERO_VALUE = "0";
+
+    /**
+     * Tha value of {@link BigDecimal} number with fraction part with nines. Used to detect number with fraction part
+     * with nine in period.
+     */
+    private static final BigDecimal FRACTION_PART_WITH_NINES = BigDecimal.valueOf(0.99);
 
     /**
      * The string value contains a pattern for decimal numbers with exponent.
@@ -84,53 +96,84 @@ public class OutputFormatter {
      */
     private static final String NEGATE_PATTERN = "negate(%s)";
 
-
-    private static final int FRACTION_LENGTH_WITH_MINUS_ZERO = 18;
-    private static final int FRACTION_LENGTH_WITH_MINUS_AND_POINT = 17;
-    private static final int FRACTION_LENGTH_WITH_ZERO = 17;
+    /**
+     * The maximum fraction part length for numbers with point, that are positive and
+     * greater than {@link BigDecimal#ONE}.
+     */
     private static final int FRACTION_LENGTH_WITH_POINT = 16;
 
+    /**
+     * The maximum fraction part length for numbers with point, that are positive and
+     * less than {@link BigDecimal#ONE}.
+     */
+    private static final int FRACTION_LENGTH_WITH_ZERO = 17;
 
     /**
-     * Formats the specified number represented by string to Mathematical view. Removes group delimiters
-     * from the number and trailing zeroes in fractional part of the number and converts to exponential view
-     * if needed.
+     * The maximum fraction part length for numbers with point, that are negative and
+     * less than {@link BigDecimal#ONE}.
+     */
+    private static final int FRACTION_LENGTH_WITH_MINUS_ZERO = 18;
+
+    /**
+     * The maximum fraction part length for numbers with point, that are negative and
+     * greater than {@link BigDecimal#ONE}.
+     */
+    private static final int FRACTION_LENGTH_WITH_MINUS_AND_POINT = 17;
+
+    /**
+     * The {@link DecimalFormat} instance configured to format number to an exponential view without group
+     * delimiters.
+     */
+    private static DecimalFormat mathFormatWithExponent = getMathFormatWithExponent();
+
+    /**
+     * The {@link DecimalFormat} instance configured to format number with rounding without group delimiters.
+     */
+    private static DecimalFormat mathFormatWithRounding = getMathFormatWithRounding();
+
+    /**
+     * The {@link DecimalFormat} instance configured to format number to an exponential view with group
+     * delimiters.
+     */
+    private static DecimalFormat exponentialFormatWithGroups = getExponentialFormatWithGroups();
+
+    /**
+     * The {@link DecimalFormat} instance configured to format number with rounding with group delimiters.
+     */
+    private static DecimalFormat roundingFormatWithGroups = getRoundingFormatWithGroups();
+
+    /**
+     * Returns the formatted specified number to Mathematical view (without group delimiters). Removes trailing zeroes in
+     * fractional part of the number, rounds or converts to exponential view if needed.
      *
-     * @param number
-     * @return the formatted string containing number for the next calculations
+     * @param number a {@link BigDecimal} number to format
+     * @return the formatted string containing number rounded or converted to an exponential view without
+     * group delimiters
      */
     public static String formatToMathView(BigDecimal number) {
-
-        DecimalFormat mathFormat = new DecimalFormat(); // TODO move DecimalFormat as field
-
-        mathFormat.setGroupingUsed(false);
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setDecimalSeparator(DECIMAL_SEPARATOR);
-        mathFormat.setDecimalFormatSymbols(symbols);
-        mathFormat.setRoundingMode(HALF_UP);
+        String formattedNumber;
         if (isExponentFormattingNeed(number)) {
-            mathFormat.applyPattern(NUMBER_FORMAT_PATTERN);
-            mathFormat.setDecimalSeparatorAlwaysShown(true);
+            formattedNumber = mathFormatWithExponent.format(number).toLowerCase();
+            formattedNumber = adjustExponentialView(formattedNumber);
+
         } else {
-            mathFormat.setMaximumFractionDigits(getCountFractionDigits(number.toPlainString()));
+            int maxFractionDigitsCount = getCountFractionDigits(number.toPlainString());
+            mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
+            formattedNumber = mathFormatWithRounding.format(number).toLowerCase();
         }
 
-        String formattedNumber = mathFormat.format(number).toLowerCase();
-        if (formattedNumber.contains(EXPONENT)) {
-            formattedNumber = adjustExponentialView(formattedNumber);
-        }
         return formattedNumber;
     }
 
     /**
-     * Returns the formatted specified number represented by string for displaying in
-     * calculator's text field. Removes trailing zeroes, round or adds an exponent if
-     * necessary and adds group delimiters to number.
+     * Returns the formatted specified number with group delimiters. Removes trailing zeroes, rounds or converts to an
+     * exponential view if necessary to number.
      *
-     * @param number
-     * @return the formatted specified number represented by string for displaying
+     * @param number a {@link BigDecimal} number to format
+     * @return the formatted string containing number rounded or converted to an exponential view with
+     * group delimiters
      */
-    public static String formatNumberForDisplaying(BigDecimal number) {
+    public static String formatNumberWithGroupDelimiters(BigDecimal number) {
         String stringValue;
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialView(number);
@@ -140,33 +183,38 @@ public class OutputFormatter {
         return stringValue;
     }
 
+    /**
+     * Formats the specified number by adding group delimiters. Do not change the fraction part on a number.
+     * Returns the string contains this formatted number.
+     *
+     * @param number a {@link BigDecimal} number to format
+     * @return the string contains this formatted number
+     */
     public static String formatEnteredNumber(BigDecimal number) {
-
         String formattedIntPart = formatWithRounding(number.setScale(0, ROUND_DOWN));
+
         String numberStr = number.toPlainString();
-        String fractionPart = "";
+        String fractionPart = EMPTY_VALUE;
+
         if (numberStr.contains(POINT)) {
             fractionPart = numberStr.substring(numberStr.indexOf(POINT));
         }
-        if (numberStr.startsWith(MINUS + "0")) {
+        if (numberStr.startsWith(MINUS + ZERO_VALUE)) {
             formattedIntPart = MINUS + formattedIntPart;
         }
         return formattedIntPart + fractionPart;
-
     }
 
+
     /**
-     * Formats the given number to an exponential view and returns this formatted number represented by string.
+     * Formats the given number to an exponential view with group delimiters and returns this formatted number
+     * represented by string.
      *
-     * @param number a number to format to an exponential view
+     * @param number a number to format to an exponential view with group delimiters
      * @return formatted given number represented by string
      */
     private static String formatToExponentialView(BigDecimal number) {
-        DecimalFormat format = new DecimalFormat(NUMBER_FORMAT_PATTERN);
-        format.setRoundingMode(HALF_UP);
-        format.setDecimalFormatSymbols(getDelimiters());
-        format.setDecimalSeparatorAlwaysShown(true);
-        String formattedNumber = format.format(number).toLowerCase();
+        String formattedNumber = exponentialFormatWithGroups.format(number).toLowerCase();
         return adjustExponentialView(formattedNumber);
     }
 
@@ -177,29 +225,17 @@ public class OutputFormatter {
      * @return formatted given number represented by string
      */
     private static String formatWithRounding(BigDecimal number) {
-        DecimalFormat format = new DecimalFormat();
         int fractionDigitsCount = getCountFractionDigits(number.toPlainString());
-        BigDecimal tail = number.remainder(ONE);
-        if (tail.abs().compareTo(new BigDecimal(0.99)) > 0 &&
+
+        // Check for tail with nine in period and round it
+        BigDecimal tail = number.remainder(ONE).abs();
+        if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
                 tail.toPlainString().length() > MAX_LENGTH_WITH_POINT_AND_MINUS) {
+
             fractionDigitsCount--;
         }
-        format.setMaximumFractionDigits(fractionDigitsCount);
-        format.setRoundingMode(HALF_UP);
-        format.setDecimalFormatSymbols(getDelimiters());
-        return format.format(number).toLowerCase();
-    }
-
-    /**
-     * Returns a {@link DecimalFormatSymbols} instance with configured decimal and group separators.
-     *
-     * @return a {@link DecimalFormatSymbols} instance with configured decimal and group separators
-     */
-    private static DecimalFormatSymbols getDelimiters() {
-        DecimalFormatSymbols delimiters = new DecimalFormatSymbols();
-        delimiters.setDecimalSeparator(DECIMAL_SEPARATOR);
-        delimiters.setGroupingSeparator(GROUP_SEPARATOR);
-        return delimiters;
+        roundingFormatWithGroups.setMaximumFractionDigits(fractionDigitsCount);
+        return roundingFormatWithGroups.format(number).toLowerCase();
     }
 
     /**
@@ -213,7 +249,8 @@ public class OutputFormatter {
         String formattedNumber = number.toLowerCase();
         Pattern pattern = Pattern.compile(EXPONENT_PATTERN);
         Matcher matcher = pattern.matcher(number);
-        if (matcher.find()) { // If exponent has no sign after add plus
+
+        if (matcher.find()) { // If exponent has no sign before grade add plus sign
             formattedNumber = formattedNumber.replace(EXPONENT, EXPONENT_REPLACEMENT);
         }
         return formattedNumber;
@@ -231,13 +268,16 @@ public class OutputFormatter {
         if (number.contains(POINT)) {
             fractionDigitsCount = FRACTION_LENGTH_WITH_POINT - number.indexOf(POINT);
         }
+
         if (number.startsWith(MINUS) && number.contains(POINT)) {
             fractionDigitsCount = FRACTION_LENGTH_WITH_MINUS_AND_POINT - number.indexOf(POINT);
         }
-        if (number.startsWith(MINUS + "0" + POINT)) {
+
+        if (number.startsWith(MINUS + ZERO_VALUE + POINT)) {
             fractionDigitsCount = FRACTION_LENGTH_WITH_MINUS_ZERO - number.indexOf(POINT);
         }
-        if (number.startsWith("0" + POINT)) {
+
+        if (number.startsWith(ZERO_VALUE + POINT)) {
             fractionDigitsCount = FRACTION_LENGTH_WITH_ZERO - number.indexOf(POINT);
         }
 
@@ -253,17 +293,25 @@ public class OutputFormatter {
      * @return a string contains formatted expression for the specified argument and mathematical operation
      */
     public static String formatUnaryOperation(MathOperation operation, String argument) {
+        String formattedExpression = EMPTY_VALUE;
+
         switch (operation) {
             case SQUARE_ROOT:
-                return String.format(SQUARE_ROOT_PATTERN, argument);
+                formattedExpression = format(SQUARE_ROOT_PATTERN, argument);
+                break;
+
             case SQUARE:
-                return String.format(SQUARE_PATTERN, argument);
+                formattedExpression = format(SQUARE_PATTERN, argument);
+                break;
+
             case REVERSE:
-                return String.format(REVERSE_PATTERN, argument);
+                formattedExpression = format(REVERSE_PATTERN, argument);
+                break;
+
             case NEGATE:
-                return String.format(NEGATE_PATTERN, argument);
+                formattedExpression = format(NEGATE_PATTERN, argument);
         }
-        return EMPTY_VALUE;
+        return formattedExpression;
     }
 
     /**
@@ -274,6 +322,72 @@ public class OutputFormatter {
      */
     public static String removeGroupDelimiters(String number) {
         return number.replaceAll(String.valueOf(GROUP_SEPARATOR), EMPTY_VALUE).toLowerCase();
-    } // TODO remove it
+    }
 
+    /**
+     * Returns a new {@link DecimalFormat} instance configured for formatting to exponential view without
+     * group delimiters.
+     *
+     * @return a new {@link DecimalFormat} instance configured for formatting to exponential view without
+     * group delimiters
+     */
+    private static DecimalFormat getMathFormatWithExponent() {
+        DecimalFormat format = getExponentialFormatWithGroups();
+        format.setGroupingUsed(false);
+        return format;
+    }
+
+    /**
+     * Returns a new {@link DecimalFormat} instance configured for formatting to exponential view with
+     * group delimiters.
+     *
+     * @return a new {@link DecimalFormat} instance configured for formatting to exponential view with
+     * group delimiters
+     */
+    private static DecimalFormat getExponentialFormatWithGroups() {
+        DecimalFormat format = new DecimalFormat(NUMBER_FORMAT_PATTERN);
+        format.setRoundingMode(HALF_UP);
+        format.setDecimalFormatSymbols(getDelimiters());
+        format.setDecimalSeparatorAlwaysShown(true);
+        return format;
+    }
+
+    /**
+     * Returns a new {@link DecimalFormat} instance configured for formatting with rounding without
+     * group delimiters.
+     *
+     * @return a new {@link DecimalFormat} instance configured for formatting with rounding without
+     * group delimiters
+     */
+    private static DecimalFormat getMathFormatWithRounding() {
+        DecimalFormat format = getRoundingFormatWithGroups();
+        format.setGroupingUsed(false);
+        return format;
+    }
+
+    /**
+     * Returns a new {@link DecimalFormat} instance configured for formatting with rounding with
+     * group delimiters.
+     *
+     * @return a new {@link DecimalFormat} instance configured for formatting with rounding with
+     * group delimiters
+     */
+    private static DecimalFormat getRoundingFormatWithGroups() {
+        DecimalFormat format = new DecimalFormat();
+        format.setRoundingMode(HALF_UP);
+        format.setDecimalFormatSymbols(getDelimiters());
+        return format;
+    }
+
+    /**
+     * Returns a {@link DecimalFormatSymbols} instance with configured decimal and group separators.
+     *
+     * @return a {@link DecimalFormatSymbols} instance with configured decimal and group separators
+     */
+    private static DecimalFormatSymbols getDelimiters() {
+        DecimalFormatSymbols delimiters = new DecimalFormatSymbols();
+        delimiters.setDecimalSeparator(DECIMAL_SEPARATOR);
+        delimiters.setGroupingSeparator(GROUP_SEPARATOR);
+        return delimiters;
+    }
 }

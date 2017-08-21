@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.ZERO_VALUE;
 import static java.math.BigDecimal.ZERO;
 
 /**
@@ -123,37 +124,31 @@ public class DataValidator {
         if (isEmptyString(number)) {
             return false;
         }
-        // TODO try to change with one return
-        if (number.startsWith("0" + POINT) &&
-                number.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
-            return true;
+
+        boolean isLengthValid = false;
+
+        if (number.startsWith(MINUS)) { // get absolute value of number
+            number = number.substring(1);
         }
-        if (number.contains(POINT) &&
-                !number.startsWith(MINUS) &&
-                number.length() <= MAX_LENGTH_WITH_POINT) {
-            return true;
+
+        if (!number.contains(POINT) && number.length() <= MAX_NUMBER_LENGTH) {
+            isLengthValid = true;
         }
-        if (!number.contains(POINT) &&
-                number.startsWith(MINUS) &&
-                number.length() <= MAX_LENGTH_WITH_MINUS) {
-            return true;
+
+        if (number.contains(POINT) && number.length() <= MAX_LENGTH_WITH_POINT) {
+            isLengthValid = true;
         }
-        if (number.startsWith(MINUS + "0" + POINT) &&
-                number.length() <= MAX_LENGTH_WITH_POINT_AND_MINUS) {
-            return true;
+
+        if (number.startsWith(ZERO_VALUE + POINT) && number.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
+            isLengthValid = true;
         }
-        if (number.startsWith(MINUS) &&
-                number.contains(POINT) &&
-                number.length() < MAX_LENGTH_WITH_POINT_AND_MINUS) {
-            return true;
-        }
-        if (!number.contains(POINT) &&
-                !number.startsWith(MINUS) &&
-                number.length() <= MAX_NUMBER_LENGTH) {
-            return true;
-        }
-        return false;
+
+        return isLengthValid;
     }
+
+    private static final int SCALE_FOR_FRACTION_PART_CHECK = 21;
+    private static final BigDecimal NUMBER_FOR_EXPONENTIAL_CHECK = BigDecimal.valueOf(0.001);
+    private static final BigDecimal MIN_TAIL_VALUE_FOR_EXPONENT = BigDecimal.valueOf(0.000000000000000000001);
 
     /**
      * Returns true if the specified number needs exponential formatting. Validation based on different factors
@@ -163,21 +158,24 @@ public class DataValidator {
      * @return true if the specified number needs exponential formatting
      */
     public static boolean isExponentFormattingNeed(BigDecimal number) {
+
+        number = number.abs();
+        boolean isExponentNeed = false;
+
+        if (number.compareTo(MIN_VALUE) < 0 || number.compareTo(MAX_VALUE) >= 0) {
+            isExponentNeed = true;
+        }
+
+        BigDecimal tailLessMinValue = number.remainder(MIN_VALUE).setScale(SCALE_FOR_FRACTION_PART_CHECK, RoundingMode.HALF_UP);
+
+        if (number.compareTo(NUMBER_FOR_EXPONENTIAL_CHECK) < 0 &&
+                tailLessMinValue.compareTo(MIN_TAIL_VALUE_FOR_EXPONENT) >= 0) {
+            isExponentNeed = true;
+        }
         if (isZero(number)) {
-            return false;
+            isExponentNeed = false;
         }
-
-        if (number.abs().compareTo(MIN_VALUE) < 0 || number.abs().compareTo(MAX_VALUE) >= 0) {
-            return true;
-        }
-
-        BigDecimal tailLessMinValue = number.remainder(MIN_VALUE).abs().setScale(21, RoundingMode.HALF_UP);
-
-        if (number.abs().compareTo(new BigDecimal("0.001")) < 0 &&
-                tailLessMinValue.compareTo(new BigDecimal("0.000000000000000000001")) >= 0) {
-            return true;
-        }
-        return false;
+        return isExponentNeed;
     }
 
     /**

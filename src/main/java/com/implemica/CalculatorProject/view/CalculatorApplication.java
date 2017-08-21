@@ -106,6 +106,7 @@ public class CalculatorApplication extends Application {
                 scaleButtonFontSize(root, primaryStage);
             });
 
+            //todo переписать
             primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
                 scaleButtonFontSize(root, primaryStage);
             });

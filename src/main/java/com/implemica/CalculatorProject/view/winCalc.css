@@ -1,0 +1,332 @@
+.root {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+}
+
+.text-field {
+    -fx-border-radius: 0;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-insets: 0, 5, 0, 0;
+    -fx-border-insets: 0, 5, 0, 0;
+}
+
+#currentNumberText {
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-style: solid;
+}
+
+#prevOperationsText, #prevOperationsText:focused, #prevOperationsText:selected {
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-background-color: white;
+}
+
+.text-field .content {
+    -fx-border-radius: 0;
+    -fx-padding: 5;
+    -fx-text-box-border: transparent;
+    -fx-background-color: white;
+    -fx-background-insets: 0, 5, 0, 0;
+    -fx-border-insets: 0, 5, 0, 0;
+}
+
+#numbers, #1, #2, #3, #4, #5, #6, #7, #8, #9, #0,
+#result, #point, #clean_current, #clean, #left_erase, #divide, #multiply, #subtract, #add, #negate {
+    -fx-border-color: #f2f2f2;
+    -fx-border-radius: 0;
+    -fx-background-color: #f2f2f2;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-fit-to-width: true;
+    -fx-border-insets: 0;
+    -fx-border-image-insets: 0;
+}
+
+#numbers:hover, #point:hover, #clean_current:hover, #clean:hover, #left_erase:hover, #divide:hover, #multiply:hover,
+#subtract:hover, #add:hover, #negate:hover, #1:hover, #2:hover, #3:hover, #4:hover, #5:hover, #6:hover, #7:hover, #8:hover, #9:hover, #0:hover {
+    -fx-border-color: #dadada;
+    -fx-background-color: #dadada;
+}
+
+#numbers:pressed, #numbers:armed, #point:pressed, #point:armed, #clean_current:pressed, #clean:pressed,
+#left_erase:pressed, #divide:pressed, #multiply:pressed, #subtract:pressed, #add:pressed,
+#negate:armed, #clean_current:armed, #clean:armed, #left_erase:armed, #divide:armed, #multiply:armed,
+#subtract:armed, #add:armed, #negate:armed,
+#1:pressed, #2:pressed, #3:pressed, #4:pressed, #5:pressed, #6:pressed, #7:pressed, #8:pressed, #9:pressed, #0:pressed,
+#1:armed, #2:armed, #3:armed, #4:armed, #5:armed, #6:armed, #7:armed, #8:armed, #9:armed, #0:armed {
+    -fx-border-color: #bbbbbb;
+    -fx-background-color: #bbbbbb;
+}
+
+#numbers:disabled, #point:disabled, #clean_current:disabled, #clean:disabled, #left_erase:disabled, #divide:disabled,
+#multiply:disabled, #subtract:disabled, #add:disabled, #negate:disabled,
+#1:disabled, #2:disabled, #3:disabled, #4:disabled, #5:disabled, #6:disabled, #7:disabled, #8:disabled, #9:disabled, #0:disabled {
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-background-color: #e0e0e0;
+}
+
+#memoryButtonsPane {
+    -fx-border-color: #e6e6e6;
+    -fx-border-bottom: 2px;
+    -fx-border-width: 0;
+    -fx-background-color: white;
+    -fx-fit-to-width: true;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+}
+
+#numbersAndOperations, #numbersAndOperations .text {
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: top-center;
+    -fx-content-display: center;
+}
+
+#mr_buttons, #unary_operations, #history, #percent, #square, #square_root, #reverse,
+#memory_clean, #memory_recall, #memory_add, #memory_subtract, #memory_store, #memory_show {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-border-image-insets: 0;
+}
+
+#mode {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-border-image-insets: 0;
+    -fx-padding: 0;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-background-position: center;
+    -fx-fit-to-height: true;
+}
+
+#modeLabel {
+    -fx-start-margin: 2px;
+    -fx-end-margin: 2px;
+    -fx-alignment: top-center;
+}
+
+#history {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+    -fx-background-image: url("/com/implemica/CalculatorProject/view/history.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+#mr_buttons:disabled, #unary_operations:disabled, #history:disabled, #percent:disabled,
+#square:disabled, #square_root:disabled, #reverse:disabled,
+#memory_clean:disabled, #memory_recall:disabled, #memory_add:disabled, #memory_subtract:disabled, #memory_store:disabled,
+#memory_show:disabled {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+}
+
+#mr_buttons:hover, #unary_operations:hover, #mode:hover, #history:hover, #percent:hover,
+#square:hover, #square_root:hover, #reverse:hover,
+#memory_clean:hover, #memory_recall:hover, #memory_add:hover, #memory_subtract:hover, #memory_store:hover, #memory_show:hover {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #e6e6e6;
+}
+
+#mr_buttons:pressed, #unary_operations:pressed, #unary_operations:armed, #mode:pressed, #history:pressed, #percent:pressed,
+#percent:armed, #square:pressed, #square:armed, #square_root:pressed, #square_root:armed, #reverse:pressed, #reverse:armed,
+#memory_clean:pressed, #memory_recall:pressed, #memory_add:pressed, #memory_subtract:pressed, #memory_store:pressed, #memory_show:pressed,
+#memory_clean:armed, #memory_recall:armed, #memory_add:armed, #memory_subtract:armed, #memory_store:armed, #memory_show:armed {
+    -fx-background-color: #cccccc;
+    -fx-border-color: #cccccc;
+}
+
+#memoryStorage {
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+    -fx-content-display: right;
+}
+
+#storageClean {
+    -fx-background-color: #e0e0e0;
+    -fx-border-color: #e0e0e0;
+    -fx-alignment: bottom-right;
+    -fx-content-display: bottom;
+}
+
+#storageClean:hover {
+    -fx-background-color: #cacaca;
+    -fx-border-color: #cacaca;
+}
+
+#storageClean:pressed {
+    -fx-background-color: #b3b3b3;
+    -fx-border-color: #b3b3b3;
+}
+
+#result:hover {
+    -fx-border-color: #0078d7;
+    -fx-background-color: #0078d7;
+}
+
+#result:hover .label, #result:pressed .label, #result:armed .label {
+    -fx-text-fill: white;
+}
+
+#result:pressed, #result:armed {
+    -fx-border-color: #489cdf;
+    -fx-background-color: #489cdf;
+}
+
+.tooltip {
+    -fx-background-color: #e0e0e0;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-text-fill: black;
+    -fx-effect: none;
+}
+
+.list-view {
+    -fx-background-color: #e0e0e0;
+}
+
+.list-view .scroll-bar {
+    -fx-background-color: #f2f2f2;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+    -fx-pref-width: 13px;
+}
+
+.list-view .scroll-bar .thumb{
+    -fx-background-color: #c2c2c2;
+    -fx-border-width: 0;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+}
+
+.list-view .scroll-bar .thumb:hover{
+    -fx-background-color: #919191;
+}
+
+.list-view .scroll-bar .thumb:pressed{
+    -fx-background-color: #616161;
+}
+
+#viewTypesPanel, .list-cell {
+    -fx-font-size: 16;
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 11px;
+}
+
+.list-cell:hover {
+    -fx-background-color: #cacaca;
+}
+
+.list-cell:selected, .list-cell:selected .label {
+    -fx-background-color: #86b6dc;
+    -fx-text-fill: black;
+}
+
+#modeClose {
+    -fx-border-color: #e0e0e0;
+    -fx-background-color: #e0e0e0;
+    -fx-border-radius: 1;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-border-insets: 0;
+    -fx-border-image-insets: 0;
+}
+
+#infoButton {
+    -fx-border-color: #cacaca;
+    -fx-background-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-alignment: center-left;
+}
+
+#modeClose:hover, #infoButton:hover {
+    -fx-border-color: #cacaca;
+    -fx-background-color: #cacaca;
+}
+
+#modeClose:pressed, #infoButton:pressed {
+    -fx-border-color: #b3b3b3;
+    -fx-background-color: #b3b3b3;
+}
+
+#viewTypesPanel {
+    -fx-padding: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-border-color: #e0e0e0;
+}
+
+#applicationBar {
+    -fx-background-color: #ffffff;
+}
+
+#hide, #expand, #close {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+}
+
+#close:hover {
+    -fx-background-color: #e71123;
+    -fx-border-color: #e71123;
+    -fx-text-fill: white;
+}
+
+#close:pressed {
+    -fx-background-color: #f1707a;
+    -fx-border-color: #f1707a;
+    -fx-text-fill: black;
+}
+
+#hide:hover, #expand:hover {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #e6e6e6;
+}
+
+#hide:pressed, #expand:pressed {
+    -fx-background-color: #cccccc;
+    -fx-border-color: #cccccc;
+}

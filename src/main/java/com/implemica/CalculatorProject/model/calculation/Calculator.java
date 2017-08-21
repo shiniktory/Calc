@@ -17,5 +17,5 @@ public interface Calculator {
      * @return the result of Mathematical calculations
      * @throws CalculationException if some error occurs during the calculations
      */
-    BigDecimal calculate() throws CalculationException;
+    BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException;
 }

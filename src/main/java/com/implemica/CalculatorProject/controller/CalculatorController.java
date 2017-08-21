@@ -3,6 +3,7 @@ package com.implemica.CalculatorProject.controller;
 import com.implemica.CalculatorProject.model.calculation.EditOperation;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 import com.implemica.CalculatorProject.model.InputValueProcessor;
 import javafx.animation.KeyFrame;
@@ -40,7 +41,7 @@ import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.MEMORY_CLEAN;
 import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.formatEnteredNumber;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.formatNumberForDisplaying;
+import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.formatNumberWithGroupDelimiters;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 
@@ -57,6 +58,10 @@ public class CalculatorController {
      * input data.
      */
     private final InputValueProcessor valueProcessor = new InputValueProcessor();
+
+    {
+        valueProcessor.setCalculator(new StandardCalculator());
+    }
 
     /**
      * The string value of a prefix for numpad digits.
@@ -232,7 +237,7 @@ public class CalculatorController {
             if (code.contains(NUMPAD_PREFIX)) {
                 keyCode = code.substring(NUMPAD_PREFIX.length());
             }
-            for (Node child : numbersAndOperations.getChildren()) {
+            for (Node child : numbersAndOperations.getChildren()) {//todo no cycle
                 fireButtonImpl(keyCode, child);
             }
         });
@@ -368,7 +373,7 @@ public class CalculatorController {
             resetAfterError();
             result = valueProcessor.calculateResult();
         }
-        return formatNumberForDisplaying(result);
+        return formatNumberWithGroupDelimiters(result);
     }
 
     /**
@@ -388,7 +393,7 @@ public class CalculatorController {
         } else {
             enableMemoryStateButtons(true);
         }
-        return formatNumberForDisplaying(valueProcessor.getLastNumber());
+        return formatNumberWithGroupDelimiters(valueProcessor.getLastNumber());
     }
 
     /**
@@ -401,6 +406,7 @@ public class CalculatorController {
      */
     private String executeEditOperation(EditOperation operation) throws CalculationException {
         resetAfterError();
+
         if (operation == CLEAN) {
             valueProcessor.cleanAll();
             isErrorOccurred = false;
@@ -408,11 +414,18 @@ public class CalculatorController {
         } else if (operation == CLEAN_CURRENT) {
             valueProcessor.cleanCurrent();
             isErrorOccurred = false;
-
-        } else if (operation == LEFT_ERASE) {
-            valueProcessor.deleteLastDigit();
         }
-        return formatEnteredNumber(valueProcessor.getLastNumber());
+
+        String lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber());
+        if (operation == LEFT_ERASE) {
+            boolean isLastSymbolPoint = valueProcessor.deleteLastDigit();
+            lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber());
+            if (isLastSymbolPoint) {
+                lastEnteredNumber += POINT;
+            }
+        }
+
+        return lastEnteredNumber;
     }
 
     /**
@@ -421,7 +434,7 @@ public class CalculatorController {
     private void resetAfterError() throws CalculationException {
         if (isErrorOccurred) {
             enableAllOperations(true);
-            setCurrentNumber(formatNumberForDisplaying(valueProcessor.getLastNumber()));
+            setCurrentNumber(formatNumberWithGroupDelimiters(valueProcessor.getLastNumber()));
             updateHistoryExpression();
             isErrorOccurred = false;
         }

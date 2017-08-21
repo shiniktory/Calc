@@ -6,6 +6,7 @@ import com.implemica.CalculatorProject.model.exception.CalculationException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isZero;
 import static java.lang.String.format;
 import static java.math.BigDecimal.ONE;
@@ -44,12 +45,12 @@ public class StandardCalculator implements Calculator {
     /**
      * The list of one or two numbers for calculations.
      */
-    private final BigDecimal[] numbers;
+    private BigDecimal[] numbers;
 
     /**
      * The value of a Mathematical operation type.
      */
-    private final MathOperation operation;
+    private MathOperation operation;
 
     /**
      * Scale of the {@code BigDecimal} quotient to be returned for result of the division.
@@ -68,15 +69,15 @@ public class StandardCalculator implements Calculator {
     private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
 
     /**
-     * Constructs a new {@code StandardCalculator} instance with the given numbers and Mathematical operation
-     * to perform with these numbers.
+     * Returns the result of calculations of an Mathematical operations with the specified numbers.
      *
      * @param operation a Mathematical operation to perform with the given numbers
      * @param numbers   a numbers to perform a Mathematical operation with
-     * @throws CalculationException if some of arguments is null or if count of numbers for the
-     *                              given operation is wrong
+     * @return the result of calculations of an Mathematical operations with the specified numbers
+     * @throws CalculationException in cases when of operation does not exist, division by zero or
+     *                              result is overflow
      */
-    public StandardCalculator(MathOperation operation, BigDecimal... numbers) throws CalculationException {
+    public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException {
         this.operation = operation;
         this.numbers = numbers;
 
@@ -92,50 +93,31 @@ public class StandardCalculator implements Calculator {
             throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length));
         }
 
-    }
-
-    /**
-     * Returns the result of calculations of an Mathematical operations with the specified numbers.
-     *
-     * @return the result of calculations of an Mathematical operations with the specified numbers
-     * @throws CalculationException in cases when of operation does not exist, division by zero or
-     *                              result is overflow
-     */
-    public BigDecimal calculate() throws CalculationException {
         BigDecimal result;
-        switch (operation) {
-            // Binary operations
-            case ADD:
-                result = add(numbers[0], numbers[1]);
-                break;
-            case SUBTRACT:
-                result= subtract(numbers[0], numbers[1]);
-                break;
-            case MULTIPLY:
-                result =  multiply(numbers[0], numbers[1]);
-                break;
-            case DIVIDE:
-                result =  divide(numbers[0], numbers[1]);
-                break;
-            case PERCENT:
-                result = percent(numbers[0], numbers[1]);
-                break;
+
+        if (operation == ADD) {
+            result = add(numbers[0], numbers[1]);
+        } else if (operation == SUBTRACT) {
+            result = subtract(numbers[0], numbers[1]);
+        } else if (operation == MULTIPLY) {
+
+            result = multiply(numbers[0], numbers[1]);
+        } else if (operation == DIVIDE) {
+            result = divide(numbers[0], numbers[1]);
+        } else if (operation == PERCENT) {
+            result = percent(numbers[0], numbers[1]);
 
             // Unary operations
-            case NEGATE:
-                result = negate(numbers[0]);
-                break;
-            case SQUARE_ROOT:
-                result = sqrt(numbers[0]);
-                break;
-            case SQUARE:
-                result = square(numbers[0]);
-                break;
-            case REVERSE:
-                result = reverse(numbers[0]);
-                break;
-            default:
-                throw new CalculationException(NO_SUCH_OPERATION_ERROR);
+        } else if (operation == NEGATE) {
+            result = negate(numbers[0]);
+        } else if (operation == SQUARE_ROOT) {
+            result = sqrt(numbers[0]);
+        } else if (operation == SQUARE) {
+            result = square(numbers[0]);
+        } else if (operation == REVERSE) {
+            result = reverse(numbers[0]);
+        } else {
+            throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
         return result;
     }
@@ -223,11 +205,11 @@ public class StandardCalculator implements Calculator {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
         if (isZero(number)) {
-            return ZERO.setScale(0);
+            return ZERO;
         }
 
+        // TODO write code like in source https://www.java-forums.org/advanced-java/44345-square-rooting-bigdecimal.html and add link
         BigInteger numberBigInt = number.movePointRight(SCALE << 1).toBigInteger();
-
         // The first approximation is the upper half of n.
         int bits = (numberBigInt.bitLength() + 1) >> 1;
         BigInteger tempValue = numberBigInt.shiftRight(bits);
@@ -253,11 +235,11 @@ public class StandardCalculator implements Calculator {
      */
     private BigDecimal percent(BigDecimal base, BigDecimal percent) {
         if (isZero(base) || isZero(percent)) {
-            return ZERO.setScale(0);
+            return ZERO;
         }
         // Convert percentage to an absolute value
-        BigDecimal absolutePercentageValue = percent.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP).stripTrailingZeros();
-        return base.multiply(absolutePercentageValue).stripTrailingZeros();
+        BigDecimal absolutePercentageValue = percent.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP);
+        return base.multiply(absolutePercentageValue);
     }
 
     /**
@@ -271,6 +253,6 @@ public class StandardCalculator implements Calculator {
         if (isZero(base)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }
-        return ONE.divide(base, SCALE, ROUND_HALF_UP).stripTrailingZeros();
+        return ONE.divide(base, SCALE, ROUND_HALF_UP);
     }
 }

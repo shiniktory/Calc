@@ -1129,7 +1129,7 @@ public class StandardCalculatorTest {
 
     private void testInitForException(MathOperation operation, int argumentsCount) {
         try {
-            new StandardCalculator(operation, new BigDecimal[argumentsCount]);
+            new StandardCalculator().calculate(operation, new BigDecimal[argumentsCount]);
             fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count of arguments is %d",
                     operation, argumentsCount));
         } catch (CalculationException e) {

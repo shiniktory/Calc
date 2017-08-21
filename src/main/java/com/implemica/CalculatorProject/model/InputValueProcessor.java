@@ -102,9 +102,10 @@ public class InputValueProcessor {
     }
 
     /**
-     * Adds digit to the last entered number.
+     * Adds digit to the last entered number. Returns true is digit appended successfully.
      *
      * @param digit to add to the last entered number
+     * @return true is digit appended successfully
      */
     public boolean enterDigit(int digit) {
         boolean isDigitAdded;
@@ -121,9 +122,10 @@ public class InputValueProcessor {
     }
 
     /**
-     * Appends the given digit to the current number.
+     * Appends the given digit to the current number. Returns true is digit appended successfully.
      *
      * @param digit a digit to append to the current number
+     * @return true is digit appended successfully
      */
     private boolean appendDigit(int digit) {
         if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
@@ -138,6 +140,12 @@ public class InputValueProcessor {
         return true;
     }
 
+    /**
+     * Returns a new value of the last entered number represented by string with appended given digit.
+     *
+     * @param digit a digit to append
+     * @return a new value of the last entered number represented by string with appended given digit
+     */
     private String getNewNumberValue(int digit) {
         String newLastNumberValue = lastNumber.toPlainString();
         if (needAddPoint && !newLastNumberValue.contains(POINT)) {
@@ -293,19 +301,22 @@ public class InputValueProcessor {
         }
     }
 
+    private Calculator calculator;
+
+    public void setCalculator(Calculator calculator) {
+        this.calculator = calculator;
+    }
+
     /**
-     * Returns the result of calculations for the given mathematical operation and number(s) represented
-     * by string(s).
+     * Returns the result of calculations for the given mathematical operation and number(s).
      *
      * @param operation a current mathematical operation to execute
-     * @param arguments the list of numbers represented by strings
-     * @return the result of calculations for the given mathematical operation and number(s) represented
-     * by string(s)
+     * @param arguments the list of numbers
+     * @return the result of calculations for the given mathematical operation and number(s)
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
-        Calculator calculator = new StandardCalculator(operation, arguments);
-        BigDecimal result = calculator.calculate();
+        BigDecimal result = calculator.calculate(operation, arguments);
 
         if (isZero(result)) {
             result = ZERO.setScale(0, RoundingMode.HALF_UP);
@@ -341,6 +352,12 @@ public class InputValueProcessor {
         return lastNumber;
     }
 
+    /**
+     * Calculates the result for the current mathematical expression consists of entered numbers and mathematical
+     * operations. The result of calculations assigns to last entered number value.
+     *
+     * @throws CalculationException if some error while calculations occurred or result is out of valid bounds
+     */
     private void calculateResultImpl() throws CalculationException {
         if (expression.isEmpty() && !wasUnaryBefore) { // If "=" pressed without entering new number perform last operation
             lastNumber = getResult(operation, lastNumber, tempNumber);
@@ -356,6 +373,7 @@ public class InputValueProcessor {
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
+        needAddPoint = false;
     }
 
     /**
@@ -396,26 +414,47 @@ public class InputValueProcessor {
         removeLastUnaryFromHistory();
         isNewNumber = true;
         needAddPoint = false;
+
     }
 
     /**
-     * Deletes last digit in the current entered number.
+     * Deletes last digit in the current entered number. Returns true if the last symbol in current number is
+     * decimal point.
+     *
+     * @return true if the last symbol in current number is decimal point
      */
-    public void deleteLastDigit() {
+    public boolean deleteLastDigit() {
         String lastNumberStr = lastNumber.toPlainString();
+        boolean isLastSymbolPoint = false;
         if (lastNumberStr.length() == 1 ||
                 lastNumberStr.length() == 2 && lastNumberStr.startsWith(MINUS)) {
 
             lastNumber = ZERO.setScale(0, RoundingMode.HALF_UP);
             needAddPoint = false;
-
         } else {
-            String newLastNumberValue = lastNumberStr.substring(0, lastNumberStr.length() - 1);
-            if (newLastNumberValue.endsWith(POINT)) {
-                needAddPoint = true;
-            }
-            lastNumber = new BigDecimal(newLastNumberValue);
+            isLastSymbolPoint = deleteLastDigitImpl(lastNumberStr);
         }
+
+        return isLastSymbolPoint;
+    }
+
+    /**
+     * Deletes last digit in the current entered number. Returns true if the last symbol in current number is
+     * decimal point.
+     *
+     * @return true if the last symbol in current number is decimal point
+     */
+    private boolean deleteLastDigitImpl(String lastNumberStr) {
+        boolean isLastSymbolPoint = false;
+        String newLastNumberValue = lastNumberStr.substring(0, lastNumberStr.length() - 1);
+
+        if (newLastNumberValue.endsWith(POINT)) {
+            needAddPoint = true;
+            isLastSymbolPoint = true;
+        }
+
+        lastNumber = new BigDecimal(newLastNumberValue);
+        return isLastSymbolPoint;
     }
 
     /**
