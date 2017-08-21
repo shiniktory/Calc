@@ -5,9 +5,9 @@ import java.math.RoundingMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.ZERO_VALUE;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.ZERO_VALUE;
 import static java.math.BigDecimal.ZERO;
 
 /**

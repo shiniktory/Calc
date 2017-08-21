@@ -21,9 +21,9 @@ import java.util.Map;
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.removeGroupDelimiters;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.removeGroupDelimiters;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -1054,22 +1054,22 @@ public class StandardCalculatorTest {
     }
 
 
-//    @Test
-//    public void testForOverflow() {
-//        // the lower bound for overflow
-//        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
-//        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
-//        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
-//        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
-//        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
-//
-//        // the upper bound for overflow
-//        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
-//        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
-//        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
-//        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
-//        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
-//    }
+    @Test
+    public void testForOverflow() {
+        // the lower bound for overflow
+        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
+        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
+        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
+        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
+        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
+
+        // the upper bound for overflow
+        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
+        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
+        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
+        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
+        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
+    }
 
     private void testForOverflow(String expression, String expectedHistory) {
         pushKey(KeyCode.ESCAPE);

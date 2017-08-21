@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.model.formatting;
+package com.implemica.CalculatorProject.view.formatting;
 
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 
 import static com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest.extractOperation;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.*;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

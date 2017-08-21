@@ -1,4 +1,4 @@
-package com.implemica.CalculatorProject.model.formatting;
+package com.implemica.CalculatorProject.view.formatting;
 
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 

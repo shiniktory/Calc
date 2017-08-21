@@ -3,7 +3,6 @@ package com.implemica.CalculatorProject.model;
 import com.implemica.CalculatorProject.model.calculation.Calculator;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.*;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static java.math.BigDecimal.ZERO;
 
@@ -66,6 +65,10 @@ public class InputValueProcessor {
      */
     private boolean wasUnaryBefore = false;
 
+    /**
+     * The flag variable shows the last symbol in current number decimal point. Will be added to the number
+     * when the first fraction number will be added.
+     */
     private boolean needAddPoint = false;
 
     /**
@@ -74,17 +77,11 @@ public class InputValueProcessor {
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
     /**
-     * An error message about number's value is too large or too small.
-     */
-    private static final String OVERFLOW_ERROR = "Overflow";
-
-    /**
      * Returns the last entered number formatted with group delimiters represented by string.
      *
      * @return the last entered number formatted with group delimiters represented by string
-     * @throws CalculationException if last entered value is not a number
      */
-    public BigDecimal getLastNumber() throws CalculationException {
+    public BigDecimal getLastNumber() {
         return lastNumber;
     }
 
@@ -176,7 +173,6 @@ public class InputValueProcessor {
         } else {
             operationResult = executeUnaryOperation(currentOperation);
         }
-        checkResultForOverflow(operationResult);
         return operationResult;
     }
 
@@ -325,18 +321,6 @@ public class InputValueProcessor {
     }
 
     /**
-     * Checks the given number as result of an operations for overflow.
-     *
-     * @param result the number to check for overflow
-     * @throws CalculationException if result is out of valid bounds
-     */
-    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
-        if (isResultOverflow(result)) {
-            throw new CalculationException(OVERFLOW_ERROR);
-        }
-    }
-
-    /**
      * Calculates and returns the result of calculations for the current mathematical expression
      * consists of entered numbers and mathematical operations.
      *
@@ -369,7 +353,6 @@ public class InputValueProcessor {
         }
 
         // If all operations were unary return result (last number) and reset all
-        checkResultForOverflow(lastNumber);
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;

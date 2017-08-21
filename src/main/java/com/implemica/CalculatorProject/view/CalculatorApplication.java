@@ -2,6 +2,8 @@ package com.implemica.CalculatorProject.view;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -27,7 +29,7 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.CL
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.model.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static javafx.scene.text.FontWeight.*;
 
@@ -77,6 +79,12 @@ public class CalculatorApplication extends Application {
      * The value of id for the textfield with current number.
      */
     private static final String CURRENT_NUMBER_TEXTFIELD_ID = "#currentNumberText";
+
+    /**
+     * The value of id for the {@link GridPane} with buttons with numbers and operations.
+     */
+    private static final String PANE_WITH_BUTTONS_ID = "#numbers_operations";
+
     /**
      * A reference to the text field with the current number.
      */
@@ -102,23 +110,35 @@ public class CalculatorApplication extends Application {
             primaryStage.setResizable(true);
 
             // add listeners for window resizing
-            primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
-                scaleButtonFontSize(root, primaryStage);
+            primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    CalculatorApplication.this.scaleButtonFontSize(root, primaryStage);
+                }
             });
 
             //todo переписать
-            primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
-                scaleButtonFontSize(root, primaryStage);
+            primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    scaleButtonFontSize(root, primaryStage);
+                }
             });
 
             // add listeners for textfield and its content resizing
             currentNumberTextField = (TextField) root.lookup(CURRENT_NUMBER_TEXTFIELD_ID);
-            currentNumberTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-                scaleTextFieldFont(primaryStage, currentNumberTextField.getBoundsInLocal().getWidth());
+            currentNumberTextField.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    scaleTextFieldFont(primaryStage, currentNumberTextField.getBoundsInLocal().getWidth());
+                }
             });
 
-            currentNumberTextField.widthProperty().addListener((observable, oldValue, newValue) -> {
-                scaleTextFieldFont(primaryStage, newValue.doubleValue());
+            currentNumberTextField.widthProperty().addListener(new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    scaleTextFieldFont(primaryStage, newValue.doubleValue());
+                }
             });
 
             primaryStage.show();
@@ -189,7 +209,7 @@ public class CalculatorApplication extends Application {
      * @param primaryStage an instance of the {@link Stage} contains information about current application's window
      */
     private void scaleButtonFontSize(Parent root, Stage primaryStage) {
-        GridPane pane = (GridPane) root.lookup("#numbers_operations");
+        GridPane pane = (GridPane) root.lookup(PANE_WITH_BUTTONS_ID);
 
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
