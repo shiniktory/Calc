@@ -16,14 +16,12 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
+import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -33,18 +31,18 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.MEMORY_CLEAN;
+import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isResultOverflow;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.formatEnteredNumber;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.formatNumberWithGroupDelimiters;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
-import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
+import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
 /**
  * The {@code CalculatorController} class is a chain between calculator's view and calculations. It accepts and handles
@@ -63,16 +61,6 @@ public class CalculatorController {
     {
         valueProcessor.setCalculator(new StandardCalculator());
     }
-
-    /**
-     * The string value of a prefix contains in {@link KeyCode#name} for digits from numpad keyboard.
-     */
-    private static final String NUMPAD_PREFIX = "Numpad ";
-
-    /**
-     * The string value of id for button with decimal point.
-     */
-    private static final String POINT_BUTTON_ID = "point";
 
     /**
      * The title for group calculator views used for converting values.
@@ -102,14 +90,14 @@ public class CalculatorController {
     private static final double VIEW_PANEL_MAX_WIDTH = 257.0;
 
     /**
-     * The flag variable shows is panel with calculator types shown right now.
+     * The value of the offset from the current mouse position by x used to set tooltip position.
      */
-    private boolean isViewPanelShown = false;
+    private static final int TOOLTIP_X_OFFSET = 50;
 
     /**
-     * The flag variable shows is panel with stored in memory values shown right now.
+     * The value of the offset from the current mouse position by y used to set tooltip position.
      */
-    private boolean isMemoryStorageShown = false;
+    private static final int TOOLTIP_Y_OFFSET = 55;
 
     /**
      * A reference to the {@link TextField} with a value of current number value.
@@ -136,23 +124,40 @@ public class CalculatorController {
     private ListView<Label> viewTypesList;
 
     /**
-     * A reference to the {@link GridPane} contains {@link Button}s with digits, mathematical operations and
-     * some operations to edit entered values.
+     * A references to the {@link Button}s with digits, mathematical, memory and edit operations.
      */
     @FXML
-    private GridPane numbersAndOperations;
-
-    /**
-     * A references to the buttons allows to work with memorized numbers.
-     */
-    @FXML
-    private Button memoryClean, memoryRecall, memoryShow, memoryAdd, memorySubtract, memoryStore;
+    private Button percent, squareRoot, square, reverse, divide, multiply, subtract, add, result, negate,
+            digit1, digit2, digit3, digit4, digit5, digit6, digit7, digit8, digit9, digit0, point,
+            memoryClean, memoryRecall, memoryShow, memoryAdd, memorySubtract, memoryStore,
+            clean, cleanCurrent, leftErase;
 
     /**
      * A reference to the {@link Pane} shows a memorized number.
      */
     @FXML
     private Pane memoryStorage;
+
+    /**
+     * The storage of all {@link Button}s associated with its functions in application.
+     * For example, digit button, math operation button, etc.
+     */
+    private Map<Button, Object> buttonsWithFunctions = new LinkedHashMap<>();
+
+    /**
+     * The storage of all {@link Button}s associated with the {@link KeyCodeCombination}s that activates these buttons.
+     */
+    private Map<KeyCodeCombination, Button> buttonsWithKeys = new LinkedHashMap<>();
+
+    /**
+     * The flag variable shows is panel with calculator types shown right now.
+     */
+    private boolean isViewPanelShown = false;
+
+    /**
+     * The flag variable shows is panel with stored in memory values shown right now.
+     */
+    private boolean isMemoryStorageShown = false;
 
     /**
      * The flag variable shows is error occurred while calculations.
@@ -171,100 +176,37 @@ public class CalculatorController {
      */
     @FXML
     private void handleKeyEvent(KeyEvent event) {
+        initializeButtons();
         if (isViewPanelShown) {
             showOrHideViewPanel();
         }
         KeyCode key = event.getCode();
-
-        // Unary operations
-        if (event.isShiftDown() && key == KeyCode.DIGIT2) {
-            fireButton(SQUARE_ROOT.id());
-
-        } else if (key == KeyCode.Q) {
-            fireButton(SQUARE.id());
-
-        } else if (key == KeyCode.R) {
-            fireButton(REVERSE.id());
-
-            //Binary operations
-        } else if (event.isShiftDown() && key == KeyCode.DIGIT5) {
-            fireButton(PERCENT.id());
-
-        } else if (key == KeyCode.MINUS || key == KeyCode.SUBTRACT) {
-            fireButton(SUBTRACT.id());
-
-        } else if (key == KeyCode.ADD ||
-                event.isShiftDown() && key == KeyCode.EQUALS) {
-            fireButton(ADD.id());
-
-        } else if (key == KeyCode.MULTIPLY ||
-                event.isShiftDown() && key == KeyCode.DIGIT8) {
-            fireButton(MULTIPLY.id());
-
-        } else if (key == KeyCode.SLASH || key == KeyCode.DIVIDE) {
-            fireButton(DIVIDE.id());
-
-        } else if (key == KeyCode.BACK_SPACE) {
-            fireButton(LEFT_ERASE.id());
-
-        } else if (key == KeyCode.EQUALS) {
-            fireButton(RESULT.id());
-
-        } else if (key == KeyCode.ENTER) {
-            fireButton(RESULT.id());
-            if (isMemoryStorageShown) {
-                showOrHideMemoryPane();
-            }
-
-            // Digits and point
-        } else if (key.isDigitKey()) {
-            fireButton(key.getName());
-
-        } else if (key == KeyCode.PERIOD || key == KeyCode.DECIMAL) {
-            fireButton(POINT_BUTTON_ID);
-
-        } else if (key == KeyCode.SPACE || key == KeyCode.ESCAPE) {
-            fireButton(CLEAN.id());
-            if (isMemoryStorageShown) {
-                showOrHideMemoryPane();
-            }
+        if (key.isModifierKey()) {
+            return;
         }
+        KeyCodeCombination combination;
+        if (event.isShiftDown()) {
+            combination = new KeyCodeCombination(key, SHIFT_DOWN);
+        } else {
+            combination = new KeyCodeCombination(key);
+        }
+        fireButton(combination);
     }
 
     /**
-     * Searches a {@link Button} by the given code. If find fires an {@link ActionEvent}
-     * and adds a button clicked visual effect for it.
+     * Searches a {@link Button} by the given combination of pressed keys. If find fires an {@link ActionEvent} on this
+     * button and adds a button clicked visual effect for it.
      *
-     * @param code a string value of a code to find button
+     * @param combination a combination of pressed keys to find appropriate button
      */
-    private void fireButton(String code) {
+    private void fireButton(KeyCodeCombination combination) {
         Platform.runLater(() -> {
-            String keyCode = code;
-            if (code.startsWith(NUMPAD_PREFIX)) {
-                keyCode = code.substring(NUMPAD_PREFIX.length());
-            }
-            for (Node child : numbersAndOperations.getChildren()) {//todo no cycle
-                fireButtonImpl(keyCode, (Button) child);
+            Button button = buttonsWithKeys.get(combination);
+            if (button != null) {
+                addButtonClickedEffect(button);
+                button.fire();
             }
         });
-    }
-
-    /**
-     * Checks the given button for an equivalence it's text and specified code. If they are
-     * equal and this button is active and visible fires an {@link ActionEvent}.
-     *
-     * @param buttonId the required button's code
-     * @param button   the button to check and fire
-     */
-    private void fireButtonImpl(String buttonId, Button button) {
-        String currentButtonId = button.getId();
-        if (currentButtonId.equalsIgnoreCase(buttonId) &&
-                !button.isDisable() &&
-                button.isVisible()) {
-
-            addButtonClickedEffect(button);
-            button.fire();
-        }
     }
 
     /**
@@ -288,6 +230,7 @@ public class CalculatorController {
      */
     @FXML
     private void handleButtonEvent(Event event) {
+        initializeButtons();
         if (isViewPanelShown) {
             showOrHideViewPanel();
         }
@@ -316,41 +259,40 @@ public class CalculatorController {
      * @throws CalculationException if some error occurred while data processing
      */
     private String handleButtonEventImpl(Button button) throws CalculationException {
-        String buttonId = button.getId();
         String textToSet = currentNumberText.getText();
 
+        Object buttonFunction = buttonsWithFunctions.get(button);
+
         // if it is digit button
-        if (isNumber(buttonId)) {
+        if (buttonFunction instanceof Number) {
             resetAfterError();
             String buttonText = button.getText();
             boolean isDigitAppended = false;
             if (isDigit(buttonText)) {
-                isDigitAppended = valueProcessor.enterDigit(Integer.parseInt(buttonText));
+                isDigitAppended = valueProcessor.enterDigit((BigDecimal) buttonFunction);
             }
             if (isDigitAppended) {
                 textToSet = formatEnteredNumber(valueProcessor.getLastNumber());
             }
-        }
 
-        // if it is a button with decimal point
-        if (POINT_BUTTON_ID.equals(buttonId)) {
+        } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
             valueProcessor.addPoint();
             String currentNumber = formatEnteredNumber(valueProcessor.getLastNumber());
             if (!currentNumber.contains(POINT)) {
                 currentNumber += POINT;
             }
             textToSet = currentNumber;
+
+        } else if (buttonFunction instanceof MathOperation) {
+            textToSet = executeMathOperation((MathOperation) buttonFunction);
+
+        } else if (buttonFunction instanceof MemoryOperation) {
+            textToSet = executeMemoryOperation((MemoryOperation) buttonFunction);
+
+        } else if (buttonFunction instanceof EditOperation) {
+            textToSet = executeEditOperation((EditOperation) buttonFunction);
         }
 
-        // if it is a button with operation
-        if (MathOperation.getOperation(buttonId) != null) { // TODO refactor this!
-            textToSet = executeMathOperation(MathOperation.getOperation(buttonId));
-        } else if (MemoryOperation.getOperation(buttonId) != null) {
-            textToSet = executeMemoryOperation(MemoryOperation.getOperation(buttonId));
-        }
-        if (EditOperation.getOperation(buttonId) != null) {
-            textToSet = executeEditOperation(EditOperation.getOperation(buttonId));
-        }
         return textToSet;
     }
 
@@ -365,6 +307,9 @@ public class CalculatorController {
     private String executeMathOperation(MathOperation operation) throws CalculationException {
         BigDecimal result;
         if (operation != RESULT) {
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
+            }
             result = valueProcessor.executeMathOperation(operation);
         } else {
             resetAfterError();
@@ -416,6 +361,9 @@ public class CalculatorController {
         if (operation == CLEAN) {
             valueProcessor.cleanAll();
             isErrorOccurred = false;
+            if (isMemoryStorageShown) {
+                showOrHideMemoryPane();
+            }
 
         } else if (operation == CLEAN_CURRENT) {
             valueProcessor.cleanCurrent();
@@ -483,7 +431,6 @@ public class CalculatorController {
             prevOperationsText.setText(history);
             prevOperationsText.end();
         });
-
     }
 
     /**
@@ -495,8 +442,8 @@ public class CalculatorController {
     private void setTooltipPosition(Event event) {
         Tooltip tooltip = (Tooltip) event.getSource();
         Point mouse = MouseInfo.getPointerInfo().getLocation();
-        tooltip.setX(mouse.getX() - 50);
-        tooltip.setY(mouse.getY() - 55);
+        tooltip.setX(mouse.getX() - TOOLTIP_X_OFFSET);
+        tooltip.setY(mouse.getY() - TOOLTIP_Y_OFFSET);
     }
 
     /**
@@ -598,7 +545,8 @@ public class CalculatorController {
             enableMemoryStateButtons(false);
             enableAllButtons(false);
         }
-        memoryShow.setDisable(false);
+        Platform.runLater(() -> memoryShow.setDisable(false));
+
     }
 
     /**
@@ -610,8 +558,7 @@ public class CalculatorController {
     private void enableAllOperations(boolean enable) {
         enableMemoryEditButtons(enable);
         Platform.runLater(() -> {
-            for (Node children : numbersAndOperations.getChildren()) {
-                Button button = (Button) children;
+            for (Button button : buttonsWithFunctions.keySet()) {
                 enableOperationButton(button, enable);
             }
         });
@@ -646,11 +593,11 @@ public class CalculatorController {
      * @param enable a boolean value shows to enable or disable buttons
      */
     private void enableOperationButton(Button button, boolean enable) {
-        String buttonId = button.getId();
-        MathOperation operation = MathOperation.getOperation(buttonId);
-        String buttonText = button.getText();
-        if (operation != null && operation != RESULT ||
-                POINT.equals(buttonText)) {
+        Object buttonFunction = buttonsWithFunctions.get(button);
+
+        if (buttonFunction instanceof MathOperation && buttonFunction != RESULT ||
+                POINT.equals(buttonFunction)) {
+
             button.setDisable(!enable);
         }
     }
@@ -663,9 +610,93 @@ public class CalculatorController {
     private void enableAllButtons(boolean enable) {
         enableMemoryEditButtons(enable);
         Platform.runLater(() -> {
-            for (Node node : numbersAndOperations.getChildren()) {
-                node.setDisable(!enable);
+            for (Button button : buttonsWithFunctions.keySet()) {
+                button.setDisable(!enable);
             }
         });
+    }
+
+    /**
+     * Adds all buttons with its functions and key combinations that activate these buttons to the buttons storage.
+     * The initialization executes only is storage is empty.
+     */
+    private void initializeButtons() {
+        if (buttonsWithFunctions.size() != 0 || buttonsWithKeys.size() != 0) {
+            return;
+        }
+        // buttons with digits
+        addButton(digit0, BigDecimal.ZERO, KeyCode.DIGIT0);
+        addButton(digit0, BigDecimal.ZERO, KeyCode.NUMPAD0);
+        addButton(digit1, BigDecimal.ONE, KeyCode.DIGIT1);
+        addButton(digit1, BigDecimal.ONE, KeyCode.NUMPAD1);
+        addButton(digit2, BigDecimal.valueOf(2), KeyCode.DIGIT2);
+        addButton(digit2, BigDecimal.valueOf(2), KeyCode.NUMPAD2);
+        addButton(digit3, BigDecimal.valueOf(3), KeyCode.DIGIT3);
+        addButton(digit3, BigDecimal.valueOf(3), KeyCode.NUMPAD3);
+        addButton(digit4, BigDecimal.valueOf(4), KeyCode.DIGIT4);
+        addButton(digit4, BigDecimal.valueOf(4), KeyCode.NUMPAD4);
+        addButton(digit5, BigDecimal.valueOf(5), KeyCode.DIGIT5);
+        addButton(digit5, BigDecimal.valueOf(5), KeyCode.NUMPAD5);
+        addButton(digit6, BigDecimal.valueOf(6), KeyCode.DIGIT6);
+        addButton(digit6, BigDecimal.valueOf(6), KeyCode.NUMPAD6);
+        addButton(digit7, BigDecimal.valueOf(7), KeyCode.DIGIT7);
+        addButton(digit7, BigDecimal.valueOf(7), KeyCode.NUMPAD7);
+        addButton(digit8, BigDecimal.valueOf(8), KeyCode.DIGIT8);
+        addButton(digit8, BigDecimal.valueOf(8), KeyCode.NUMPAD8);
+        addButton(digit9, BigDecimal.valueOf(9), KeyCode.DIGIT9);
+        addButton(digit9, BigDecimal.valueOf(9), KeyCode.NUMPAD9);
+
+        // button with point
+        addButton(point, POINT, KeyCode.PERIOD);
+        addButton(point, POINT, KeyCode.DECIMAL);
+
+        // buttons with math operations
+        addButton(percent, PERCENT, KeyCode.DIGIT5, SHIFT_DOWN);
+        addButton(squareRoot, SQUARE_ROOT, KeyCode.DIGIT2, SHIFT_DOWN);
+        addButton(square, SQUARE, KeyCode.Q);
+        addButton(reverse, REVERSE, KeyCode.R);
+        addButton(divide, DIVIDE, KeyCode.DIVIDE);
+        addButton(divide, DIVIDE, KeyCode.SLASH);
+        addButton(multiply, MULTIPLY, KeyCode.DIGIT8, SHIFT_DOWN);
+        addButton(multiply, MULTIPLY, KeyCode.MULTIPLY);
+        addButton(subtract, SUBTRACT, KeyCode.SUBTRACT);
+        addButton(subtract, SUBTRACT, KeyCode.MINUS);
+        addButton(add, ADD, KeyCode.ADD);
+        addButton(add, ADD, KeyCode.EQUALS, SHIFT_DOWN);
+        addButton(result, RESULT, KeyCode.ENTER);
+        addButton(result, RESULT, KeyCode.EQUALS);
+        addButton(negate, NEGATE, null);
+
+        // buttons with memory operations
+        addButton(memoryClean, MEMORY_CLEAN, null);
+        addButton(memoryRecall, MEMORY_RECALL, null);
+        addButton(memoryAdd, MEMORY_ADD, null);
+        addButton(memorySubtract, MEMORY_SUBTRACT, null);
+        addButton(memoryStore, MEMORY_STORE, null);
+        addButton(memoryShow, MEMORY_SHOW, null);
+
+        // buttons with edit operations
+        addButton(clean, CLEAN, KeyCode.ESCAPE);
+        addButton(clean, CLEAN, KeyCode.SPACE);
+        addButton(cleanCurrent, CLEAN_CURRENT, null);
+        addButton(leftErase, LEFT_ERASE, KeyCode.BACK_SPACE);
+
+    }
+
+    /**
+     * Adds the given {@link Button} with its function and {@link KeyCode} with {@link Modifier}s that actives this
+     * button to the buttons storage. Button's function means what role this button acts. For example, button is digit
+     * or some operation.
+     *
+     * @param button         a button to add to storage
+     * @param buttonFunction an object encapsulating button's role in application
+     * @param keyCode        a key code that actives current button
+     * @param modifiers      a modifiers to key code that actives current button
+     */
+    private void addButton(Button button, Object buttonFunction, KeyCode keyCode, Modifier... modifiers) {
+        buttonsWithFunctions.put(button, buttonFunction);
+        if (keyCode != null) {
+            buttonsWithKeys.put(new KeyCodeCombination(keyCode, modifiers), button);
+        }
     }
 }

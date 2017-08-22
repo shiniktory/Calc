@@ -28,11 +28,6 @@ public class DataValidator {
     private static final int MAX_LENGTH_WITH_POINT = 17;
 
     /**
-     * The maximum length for number with minus sign and without point.
-     */
-    private static final int MAX_LENGTH_WITH_MINUS = 17;
-
-    /**
      * The maximum length for number less than one with point and without minus sign.
      */
     private static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
@@ -58,7 +53,7 @@ public class DataValidator {
     private static final BigDecimal MIN_VALUE = new BigDecimal("0.0000000000000001");
 
     /**
-     * The maximum number user can enter.
+     * The maximum number without converting to exponential view.
      */
     private static final BigDecimal MAX_VALUE = new BigDecimal("9999999999999999.5");
 
@@ -72,6 +67,22 @@ public class DataValidator {
      */
     private static final BigDecimal MIN_NUMBER = new BigDecimal("1.e-10000");
 
+    /**
+     * The value of scale for numbers with fraction part longer than valid to check is exponential converting need/
+     */
+    private static final int SCALE_FOR_FRACTION_PART_CHECK = 21;
+
+    /**
+     * The value greater than {@link #MIN_VALUE} but number less of it must be converted to exponential view
+     * on condition when this number's length is bigger than valid.
+     */
+    private static final BigDecimal NUMBER_FOR_EXPONENTIAL_CHECK = BigDecimal.valueOf(0.001);
+
+    /**
+     * The minimum value of number's fraction part after 16-th digit after point greater what number must be converted
+     * to an exponential view.
+     */
+    private static final BigDecimal MIN_TAIL_VALUE_FOR_EXPONENT = BigDecimal.valueOf(0.000000000000000000001);
 
     /**
      * Returns true if the specified string is null or empty.
@@ -146,10 +157,6 @@ public class DataValidator {
         return isLengthValid;
     }
 
-    private static final int SCALE_FOR_FRACTION_PART_CHECK = 21;
-    private static final BigDecimal NUMBER_FOR_EXPONENTIAL_CHECK = BigDecimal.valueOf(0.001);
-    private static final BigDecimal MIN_TAIL_VALUE_FOR_EXPONENT = BigDecimal.valueOf(0.000000000000000000001);
-
     /**
      * Returns true if the specified number needs exponential formatting. Validation based on different factors
      * such as number length and others.
@@ -188,6 +195,12 @@ public class DataValidator {
         return ZERO.compareTo(number) == 0;
     }
 
+    /**
+     * Returns true if the given number as result of an operations is out of valid bounds.
+     *
+     * @param result the number to check for overflow
+     * @return true if the given number as result of an operations is out of valid bounds
+     */
     public static boolean isResultOverflow(BigDecimal result) {
         boolean isResultOverflow = false;
         BigDecimal absResult = result.abs();

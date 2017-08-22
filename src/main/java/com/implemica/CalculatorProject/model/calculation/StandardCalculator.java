@@ -75,16 +75,58 @@ public class StandardCalculator implements Calculator {
      * @param numbers   a numbers to perform a Mathematical operation with
      * @return the result of calculations of an Mathematical operations with the specified numbers
      * @throws CalculationException in cases when of operation does not exist, division by zero or
-     *                              result is overflow
+     *                              specified invalid arguments
      */
     public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException {
         this.operation = operation;
         this.numbers = numbers;
+        checkArgumentsValid();
 
+        BigDecimal result;
+
+        if (operation == ADD) {
+            result = add(numbers[0], numbers[1]);
+
+        } else if (operation == SUBTRACT) {
+            result = subtract(numbers[0], numbers[1]);
+
+        } else if (operation == MULTIPLY) {
+            result = multiply(numbers[0], numbers[1]);
+
+        } else if (operation == DIVIDE) {
+            result = divide(numbers[0], numbers[1]);
+
+        } else if (operation == PERCENT) {
+            result = percent(numbers[0], numbers[1]);
+
+            // Unary operations
+        } else if (operation == NEGATE) {
+            result = negate(numbers[0]);
+
+        } else if (operation == SQUARE_ROOT) {
+            result = sqrt(numbers[0]);
+
+        } else if (operation == SQUARE) {
+            result = square(numbers[0]);
+
+        } else if (operation == REVERSE) {
+            result = reverse(numbers[0]);
+
+        } else {
+            throw new CalculationException(NO_SUCH_OPERATION_ERROR);
+        }
+        return result;
+    }
+
+    /**
+     * Checks are the given arguments valid.
+     *
+     * @throws CalculationException if the given arguments are null or invalid count of number for the given operation
+     */
+    private void checkArgumentsValid() throws CalculationException {
         if (operation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
-
         if (numbers == null || numbers.length == 0) {
             throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, 0));
         }
@@ -92,34 +134,6 @@ public class StandardCalculator implements Calculator {
                 !operation.isBinary() && numbers.length != 1) {
             throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length));
         }
-
-        BigDecimal result;
-
-        if (operation == ADD) {
-            result = add(numbers[0], numbers[1]);
-        } else if (operation == SUBTRACT) {
-            result = subtract(numbers[0], numbers[1]);
-        } else if (operation == MULTIPLY) {
-
-            result = multiply(numbers[0], numbers[1]);
-        } else if (operation == DIVIDE) {
-            result = divide(numbers[0], numbers[1]);
-        } else if (operation == PERCENT) {
-            result = percent(numbers[0], numbers[1]);
-
-            // Unary operations
-        } else if (operation == NEGATE) {
-            result = negate(numbers[0]);
-        } else if (operation == SQUARE_ROOT) {
-            result = sqrt(numbers[0]);
-        } else if (operation == SQUARE) {
-            result = square(numbers[0]);
-        } else if (operation == REVERSE) {
-            result = reverse(numbers[0]);
-        } else {
-            throw new CalculationException(NO_SUCH_OPERATION_ERROR);
-        }
-        return result;
     }
 
     /**
@@ -194,36 +208,41 @@ public class StandardCalculator implements Calculator {
     }
 
     /**
-     * Returns the square root calculated for the given number.
+     * Returns the square root calculated for the given number. Source of square root for {@link BigDecimal} is
+     * <a href="https://www.java-forums.org/advanced-java/44345-square-rooting-bigdecimal.html">square rooting a BigDecimal</a>
      *
-     * @param number a number to calculate square root for
+     * @param x a number to calculate square root for
      * @return the square root calculated for the given number
      * @throws CalculationException if the given number is negative
      */
-    private BigDecimal sqrt(BigDecimal number) throws CalculationException {
-        if (number.compareTo(ZERO) < 0) {
+    private BigDecimal sqrt(BigDecimal x) throws CalculationException {
+        if (x.compareTo(ZERO) < 0) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
-        if (isZero(number)) {
+        if (isZero(x)) {
             return ZERO;
         }
 
-        // TODO write code like in source https://www.java-forums.org/advanced-java/44345-square-rooting-bigdecimal.html and add link
-        BigInteger numberBigInt = number.movePointRight(SCALE << 1).toBigInteger();
+        // n = x*(10^(2*scale))
+        BigInteger n = x.movePointRight(SCALE << 1).toBigInteger();
+
         // The first approximation is the upper half of n.
-        int bits = (numberBigInt.bitLength() + 1) >> 1;
-        BigInteger tempValue = numberBigInt.shiftRight(bits);
-        BigInteger prevTempValue;
+        int bits = (n.bitLength() + 1) >> 1;
+        BigInteger ix = n.shiftRight(bits);
+        BigInteger ixPrev;
 
         // Loop until the approximations converge
         // (two successive approximations are equal after rounding).
         do {
-            prevTempValue = tempValue;
-            // x = (x + n/x)/2
-            tempValue = tempValue.add(numberBigInt.divide(tempValue)).shiftRight(1);
-        } while (tempValue.compareTo(prevTempValue) != 0);
+            ixPrev = ix;
 
-        return new BigDecimal(tempValue, SCALE);
+            // x = (x + n/x)/2
+            ix = ix.add(n.divide(ix)).shiftRight(1);
+
+            Thread.yield();
+        } while (ix.compareTo(ixPrev) != 0);
+
+        return new BigDecimal(ix, SCALE);
     }
 
     /**

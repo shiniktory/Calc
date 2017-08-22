@@ -81,6 +81,16 @@ public class CalculatorApplication extends Application {
     private static final String CURRENT_NUMBER_TEXTFIELD_ID = "#currentNumberText";
 
     /**
+     * The string value of the font id for buttons with digits and decimal separator.
+     */
+    private static final String FONT_ID_FOR_NUMBERS = "numbers";
+
+    /**
+     * The string value of the id for button with decimal separator.
+     */
+    private static final String POINT_BUTTON_ID = "point";
+
+    /**
      * The value of id for the {@link GridPane} with buttons with numbers and operations.
      */
     private static final String PANE_WITH_BUTTONS_ID = "#numbers_operations";
@@ -117,7 +127,6 @@ public class CalculatorApplication extends Application {
                 }
             });
 
-            //todo переписать
             primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -171,35 +180,34 @@ public class CalculatorApplication extends Application {
 
     {
         // add button's ids and its fonts
-        fontSizes.put(PERCENT.id(), new Double[]{16.0, 19.0, 22.0});
-        fontSizes.put(SQUARE_ROOT.id(), new Double[]{16.0, 17.0, 22.0});
-        fontSizes.put(SQUARE.id(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(REVERSE.id(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(NEGATE.id(), new Double[]{25.0, 29.0, 36.0});
-        fontSizes.put(DIVIDE.id(), new Double[]{24.0, 32.0, 42.0});
-        fontSizes.put(MULTIPLY.id(), new Double[]{15.0, 19.0, 25.0});
-        fontSizes.put(ADD.id(), new Double[]{24.0, 33.0, 42.0});
-        fontSizes.put(SUBTRACT.id(), new Double[]{24.0, 35.0, 42.0});
-        fontSizes.put(RESULT.id(), new Double[]{24.0, 34.0, 42.0});
+        fontSizes.put(PERCENT.name(), new Double[]{16.0, 19.0, 22.0});
+        fontSizes.put(SQUARE_ROOT.name(), new Double[]{16.0, 17.0, 22.0});
+        fontSizes.put(SQUARE.name(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(REVERSE.name(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(NEGATE.name(), new Double[]{25.0, 29.0, 36.0});
+        fontSizes.put(DIVIDE.name(), new Double[]{24.0, 32.0, 42.0});
+        fontSizes.put(MULTIPLY.name(), new Double[]{15.0, 19.0, 25.0});
+        fontSizes.put(ADD.name(), new Double[]{24.0, 33.0, 42.0});
+        fontSizes.put(SUBTRACT.name(), new Double[]{24.0, 35.0, 42.0});
+        fontSizes.put(RESULT.name(), new Double[]{24.0, 34.0, 42.0});
 
         fontSizes.put("numbers", new Double[]{15.0, 20.0, 25.0});
-        fontSizes.put("point", new Double[]{15.0, 23.0, 25.0});
 
-        fontSizes.put(LEFT_ERASE.id(), new Double[]{15.0, 20.0, 25.0});
-        fontSizes.put(CLEAN_CURRENT.id(), new Double[]{14.0, 15.0, 23.0});
-        fontSizes.put(CLEAN.id(), new Double[]{14.0, 15.0, 23.0});
+        fontSizes.put(LEFT_ERASE.name(), new Double[]{15.0, 20.0, 25.0});
+        fontSizes.put(CLEAN_CURRENT.name(), new Double[]{14.0, 15.0, 23.0});
+        fontSizes.put(CLEAN.name(), new Double[]{14.0, 15.0, 23.0});
 
         // add main textfield and its fonts
         fontSizes.put(CURRENT_NUMBER_TEXTFIELD_ID, new Double[]{23.0, 42.0, 66.0});
 
         // add buttons with label ids
-        labeledButtons.add(NEGATE.id());
-        labeledButtons.add(DIVIDE.id());
-        labeledButtons.add(MULTIPLY.id());
-        labeledButtons.add(SUBTRACT.id());
-        labeledButtons.add(ADD.id());
-        labeledButtons.add(RESULT.id());
-        labeledButtons.add(LEFT_ERASE.id());
+        labeledButtons.add(NEGATE.name());
+        labeledButtons.add(DIVIDE.name());
+        labeledButtons.add(MULTIPLY.name());
+        labeledButtons.add(SUBTRACT.name());
+        labeledButtons.add(ADD.name());
+        labeledButtons.add(RESULT.name());
+        labeledButtons.add(LEFT_ERASE.name());
     }
 
     /**
@@ -310,10 +318,10 @@ public class CalculatorApplication extends Application {
      * @return font size for the element with specified id and index of current window size bound
      */
     private double getFontSize(String elementId, int boundIndex) {
-        if (isDigit(elementId) || POINT.equals(elementId)) {
-            return fontSizes.get("numbers")[boundIndex];
+        if (isDigit(elementId) || POINT_BUTTON_ID.equals(elementId)) {
+            return fontSizes.get(FONT_ID_FOR_NUMBERS)[boundIndex];
         } else {
-            return fontSizes.get(elementId)[boundIndex];
+            return fontSizes.get(elementId.toUpperCase())[boundIndex];
         }
     }
 
@@ -324,9 +332,9 @@ public class CalculatorApplication extends Application {
      * @param newFontSize a value of a new font size
      */
     private void setButtonFontSize(Button button, double newFontSize) {
-        String buttonText = button.getText();
+        String buttonId = button.getId();
 
-        if (labeledButtons.contains(buttonText)) {
+        if (labeledButtons.contains(buttonId.toUpperCase())) {
             Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
             Font newFont = new Font(buttonLabel.getFont().getFamily(), newFontSize);
             buttonLabel.setFont(newFont);

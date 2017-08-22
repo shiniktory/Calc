@@ -24,20 +24,7 @@ public enum EditOperation {
         this.symbol = symbol;
     }
 
-    public static EditOperation getOperation(String operationId) {
-        for (EditOperation operation : values()) {
-            if (operation.id().equalsIgnoreCase(operationId)) {
-                return operation;
-            }
-        }
-        return null;
-    }
-
     public String symbol() {
         return symbol;
-    }
-
-    public String id() {
-        return name().toLowerCase();
     }
 }

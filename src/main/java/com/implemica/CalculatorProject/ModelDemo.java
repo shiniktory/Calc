@@ -4,6 +4,7 @@ package com.implemica.CalculatorProject;
 import com.implemica.CalculatorProject.model.InputValueProcessor;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
@@ -14,14 +15,14 @@ public class ModelDemo {
         InputValueProcessor valueProcessor = new InputValueProcessor();
 
         // 5 + 10.2 = 15.2
-        valueProcessor.enterDigit(5);
+        valueProcessor.enterDigit(BigDecimal.valueOf(5));
 
         valueProcessor.executeMathOperation(MathOperation.ADD);
 
-        valueProcessor.enterDigit(1);
-        valueProcessor.enterDigit(0);
+        valueProcessor.enterDigit(BigDecimal.ONE);
+        valueProcessor.enterDigit(BigDecimal.ZERO);
         valueProcessor.addPoint();
-        valueProcessor.enterDigit(2);
+        valueProcessor.enterDigit(BigDecimal.valueOf(2));
 
         BigDecimal result = valueProcessor.calculateResult();
         System.out.println("5 + 10.2 = " + result);
@@ -29,8 +30,8 @@ public class ModelDemo {
         valueProcessor.cleanAll();
 
         // 25 √ = 5
-        valueProcessor.enterDigit(2);
-        valueProcessor.enterDigit(5);
+        valueProcessor.enterDigit(BigDecimal.valueOf(2));
+        valueProcessor.enterDigit(BigDecimal.valueOf(5));
 
         valueProcessor.executeMathOperation(MathOperation.SQUARE_ROOT);
 
@@ -40,8 +41,8 @@ public class ModelDemo {
         valueProcessor.cleanCurrent();
 
         // get last entered number
-        valueProcessor.enterDigit(9);
-        valueProcessor.enterDigit(5);
+        valueProcessor.enterDigit(BigDecimal.valueOf(9));
+        valueProcessor.enterDigit(BigDecimal.valueOf(5));
         BigDecimal lastEnteredNumber = valueProcessor.getLastNumber();
         System.out.println("Last entered number: " + lastEnteredNumber);
 

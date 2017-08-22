@@ -3,6 +3,7 @@ package com.implemica.CalculatorProject.model;
 import com.implemica.CalculatorProject.model.calculation.Calculator;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.List;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
+import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 
 /**
@@ -23,6 +25,11 @@ import static java.math.BigDecimal.ZERO;
  * @author V. Kozina-Kravchenko
  */
 public class InputValueProcessor {
+
+    /**
+     * An instance of {@link Calculator} implementation used for calculations.
+     */
+    private Calculator calculator;
 
     /**
      * The value of previous entered number represented by string. By default it is zero.
@@ -77,6 +84,31 @@ public class InputValueProcessor {
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
     /**
+     * Constructs a new {@code InputValueProcessor} instance that uses the {@link StandardCalculator} for
+     * calculations.
+     */
+    public InputValueProcessor() {
+        this.calculator = new StandardCalculator();
+    }
+
+    /**
+     * Constructs a new {@code InputValueProcessor} instance that uses the specified {@link Calculator} implementation
+     * for calculations.
+     */
+    public InputValueProcessor(Calculator calculator) {
+        this.calculator = calculator;
+    }
+
+    /**
+     * Sets the specified {@link Calculator} implementation.
+     *
+     * @param calculator a {@link Calculator} implementation to set
+     */
+    public void setCalculator(Calculator calculator) {
+        this.calculator = calculator;
+    }
+
+    /**
      * Returns the last entered number formatted with group delimiters represented by string.
      *
      * @return the last entered number formatted with group delimiters represented by string
@@ -104,10 +136,10 @@ public class InputValueProcessor {
      * @param digit to add to the last entered number
      * @return true is digit appended successfully
      */
-    public boolean enterDigit(int digit) {
+    public boolean enterDigit(BigDecimal digit) {
         boolean isDigitAdded;
         if (isNewNumber) {
-            lastNumber = BigDecimal.valueOf(digit);
+            lastNumber = digit;
             removeLastUnaryFromHistory();
             needAddPoint = false;
             isDigitAdded = true;
@@ -124,33 +156,39 @@ public class InputValueProcessor {
      * @param digit a digit to append to the current number
      * @return true is digit appended successfully
      */
-    private boolean appendDigit(int digit) {
+    private boolean appendDigit(BigDecimal digit) {
         if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
             return false;
         }
-        if (isZero(lastNumber) && lastNumber.scale() == 0 && digit != 0 && !needAddPoint) {
-            lastNumber = BigDecimal.valueOf(digit);
+        if (isZero(lastNumber) && lastNumber.scale() == 0 && !isZero(digit) && !needAddPoint) { // TODO write comments
+            lastNumber = digit;
         } else {
-            lastNumber = new BigDecimal(getNewNumberValue(digit));
+            appendDigitImpl(digit);
             needAddPoint = false;
         }
         return true;
     }
 
     /**
-     * Returns a new value of the last entered number represented by string with appended given digit.
+     * Appends the given digit to the last entered number.
      *
      * @param digit a digit to append
-     * @return a new value of the last entered number represented by string with appended given digit
      */
-    private String getNewNumberValue(int digit) {
-        String newLastNumberValue = lastNumber.toPlainString();
-        if (needAddPoint && !newLastNumberValue.contains(POINT)) {
-            newLastNumberValue += POINT + digit;
-        } else {
-            newLastNumberValue += digit;
+    private void appendDigitImpl(BigDecimal digit) {
+        int sign = lastNumber.signum();
+        if (sign == -1) {
+            digit = digit.multiply(BigDecimal.valueOf(sign));
         }
-        return newLastNumberValue;
+        if (needAddPoint || lastNumber.scale() != 0) {
+
+        int newScale = lastNumber.scale() + 1;
+        BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
+
+        lastNumber = lastNumber.add(tailToAdd);
+
+        } else {
+            lastNumber = lastNumber.multiply(TEN).add(digit);
+        }
     }
 
     /**
@@ -297,12 +335,6 @@ public class InputValueProcessor {
         }
     }
 
-    private Calculator calculator;
-
-    public void setCalculator(Calculator calculator) {
-        this.calculator = calculator;
-    }
-
     /**
      * Returns the result of calculations for the given mathematical operation and number(s).
      *
@@ -366,13 +398,13 @@ public class InputValueProcessor {
     public void addPoint() {
 
         if (isNewNumber) { // If point pressed when expected entering new number need to replace last number by zero
-            enterDigit(0);
+            lastNumber = ZERO;
             isNewNumber = false;
             removeLastUnaryFromHistory();
         }
 
         BigDecimal reminder = lastNumber.remainder(BigDecimal.ONE);
-        if (isZero(reminder)) {
+        if (isZero(reminder) && lastNumber.scale() == 0) {
             lastNumber = new BigDecimal(lastNumber.toPlainString() + POINT);
             needAddPoint = true;
         }
@@ -415,7 +447,7 @@ public class InputValueProcessor {
             lastNumber = ZERO.setScale(0, RoundingMode.HALF_UP);
             needAddPoint = false;
         } else {
-            isLastSymbolPoint = deleteLastDigitImpl(lastNumberStr);
+            isLastSymbolPoint = deleteLastDigitImpl();
         }
 
         return isLastSymbolPoint;
@@ -427,17 +459,20 @@ public class InputValueProcessor {
      *
      * @return true if the last symbol in current number is decimal point
      */
-    private boolean deleteLastDigitImpl(String lastNumberStr) {
+    private boolean deleteLastDigitImpl() {
         boolean isLastSymbolPoint = false;
-        String newLastNumberValue = lastNumberStr.substring(0, lastNumberStr.length() - 1);
-
-        if (newLastNumberValue.endsWith(POINT)) {
-            needAddPoint = true;
-            isLastSymbolPoint = true;
+        int currentNumberScale = lastNumber.scale();
+        if (currentNumberScale > 0) {
+            lastNumber = lastNumber.setScale(currentNumberScale - 1, RoundingMode.HALF_DOWN);
+            if (lastNumber.scale() == 0) {
+                isLastSymbolPoint = true;
+                needAddPoint = true;
+            }
+        } else {
+            lastNumber = lastNumber.divide(TEN, 0, RoundingMode.HALF_DOWN);
         }
-
-        lastNumber = new BigDecimal(newLastNumberValue);
         return isLastSymbolPoint;
+
     }
 
     /**

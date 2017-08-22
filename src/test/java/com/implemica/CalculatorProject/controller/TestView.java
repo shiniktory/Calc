@@ -56,15 +56,15 @@ public class TestView {
 
         // init math operations
         for (MathOperation operation : MathOperation.values()) {
-            String operationCode = operation.id();
-            addButton(operationCode, operationCode);
+            String operationCode = operation.name();
+            addButton(operationCode, operationCode.toLowerCase());
         }
         addButton(".", "point");
 
         // init memory operations
         for (MemoryOperation operation : MemoryOperation.values()) {
-            String operationCode = operation.id();
-            addButton(operationCode, operationCode);
+            String operationCode = operation.name();
+            addButton(operationCode, operationCode.toLowerCase());
         }
 
         // other buttons
@@ -134,8 +134,8 @@ public class TestView {
         testIsPaneVisible(false, memoryStorage);
 
         // show memory panel
-        clickButton(MEMORY_STORE.id());
-        clickButton(MEMORY_SHOW.id());
+        clickButton(MEMORY_STORE.name());
+        clickButton(MEMORY_SHOW.name());
         WaitForAsyncUtils.waitForFxEvents();
         testIsPaneVisible(true, memoryStorage);
 
@@ -151,7 +151,7 @@ public class TestView {
         testIsPaneVisible(true, memoryStorage);
 
         for (MathOperation operation : MathOperation.values()) {
-            testIsButtonEnable(false, operation.id());
+            testIsButtonEnable(false, operation.name());
         }
         testIsPaneVisible(true, memoryStorage);
 
@@ -160,7 +160,7 @@ public class TestView {
         testIsPaneVisible(true, memoryStorage);
         WaitForAsyncUtils.waitForFxEvents();
         // hide panel
-        clickButton(MEMORY_SHOW.id());
+        clickButton(MEMORY_SHOW.name());
         WaitForAsyncUtils.waitForFxEvents();
         testIsPaneVisible(false, memoryStorage);
     }

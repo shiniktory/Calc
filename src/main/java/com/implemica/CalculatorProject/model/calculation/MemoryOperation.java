@@ -29,23 +29,4 @@ public enum MemoryOperation {
     public String symbol() {
         return symbol;
     }
-
-    public String id() {
-        return name().toLowerCase();
-    }
-
-    /**
-     * Returns the {@code MemoryOperation} instance with the specified operation symbol. If not found returns null.
-     *
-     * @param operationId a symbol to search an operation
-     * @return the {@code MemoryOperation} instance with the specified operation symbol. If not found returns null
-     */
-    public static MemoryOperation getOperation(String operationId) {
-        for (MemoryOperation operation : values()) {
-            if (operation.name().equalsIgnoreCase(operationId)) {
-                return operation;
-            }
-        }
-        return null;
-    }
 }
