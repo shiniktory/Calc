@@ -78,6 +78,9 @@ public class InputValueProcessor {
      */
     private boolean needAddPoint = false;
 
+    private List hist2 = new ArrayList();
+
+    private int lastNumberInHistoryIndex = 0;
     /**
      * An error message about requested operation not found.
      */
@@ -122,11 +125,17 @@ public class InputValueProcessor {
      *
      * @return a string contains a mathematical expression
      */
-    public String getExpression() {
+    public String getHistoryExpression() {
         StringBuilder builder = new StringBuilder();
         for (String expressionPart : expression) {
             builder.append(expressionPart).append(" ");
         }
+
+        StringBuilder builder2 = new StringBuilder();
+        for (Object expressionPart : hist2) {
+            builder2.append(expressionPart).append(" ");
+        }
+        System.out.println(builder2.toString().trim());
         return builder.toString().trim().toLowerCase();
     }
 
@@ -181,10 +190,10 @@ public class InputValueProcessor {
         }
         if (needAddPoint || lastNumber.scale() != 0) {
 
-        int newScale = lastNumber.scale() + 1;
-        BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
+            int newScale = lastNumber.scale() + 1;
+            BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
 
-        lastNumber = lastNumber.add(tailToAdd);
+            lastNumber = lastNumber.add(tailToAdd);
 
         } else {
             lastNumber = lastNumber.multiply(TEN).add(digit);
@@ -232,17 +241,29 @@ public class InputValueProcessor {
             operation = currentOperation;
         }
 
-        if (!wasUnaryBefore) {
-            // if after last binary operation pressed new binary instead entering number. need to replace this operation
-            if (isNewNumber && expression.size() > 1) {
-                operation = currentOperation;
-                replaceLastArgumentInHistory(currentOperation.symbol());
+        if (isNewNumber && expression.size() > 1 && !wasUnaryBefore) {
+            // if after last binary operation pressed new binary instead entering number.
+            // need to replace this operation
 
+            operation = currentOperation;
+            replaceLastArgumentInHistory(currentOperation.symbol());
+            hist2.remove(hist2.size() - 1);
+            addToHistory(operation);
+            if (expression.size() == 2) {
                 return lastNumber;
+            } else {
+                lastNumber = previousNumber;
+                return previousNumber;
             }
+        }
+
+        if (!wasUnaryBefore) {
             addToHistory(formatToMathView(lastNumber));
+            addToHistory(lastNumber);
+            lastNumberInHistoryIndex = hist2.size() -1;
         }
         addToHistory(currentOperation.symbol());
+        addToHistory(operation);
         updatePreviousNumber();
         operation = currentOperation;
         wasUnaryBefore = false;
@@ -273,8 +294,13 @@ public class InputValueProcessor {
         String formattedLastNumber = formatToMathView(lastNumber);
         if (wasUnaryBefore && !expression.isEmpty()) { // replace last unary operation in history expression
             replaceLastArgumentInHistory(formattedLastNumber);
+            removeLastUnaryFromHistory();
+            addToHistory(lastNumber);
+            lastNumberInHistoryIndex = hist2.size() -1;
         } else {
             addToHistory(formattedLastNumber);
+            addToHistory(lastNumber);
+            lastNumberInHistoryIndex = hist2.size() -1;
         }
     }
 
@@ -303,13 +329,29 @@ public class InputValueProcessor {
      */
     private BigDecimal executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == NEGATE) {
-            lastNumber = getResult(NEGATE, lastNumber);
+            if (wasUnaryBefore || operation == null || !isNewNumber) {
+                lastNumber = getResult(currentOperation, lastNumber);
+            } else {
+                lastNumber = getResult(currentOperation, previousNumber);
+            }
             if (wasUnaryBefore) {
                 updateHistoryForUnary(NEGATE);
+                addToHistory(NEGATE);
+                wasUnaryBefore = true;
             }
+
         } else {
             updateHistoryForUnary(currentOperation);
-            lastNumber = getResult(currentOperation, lastNumber);
+            if (!wasUnaryBefore) {
+                addToHistory(lastNumber);
+                lastNumberInHistoryIndex = hist2.size() -1;
+            }
+            addToHistory(currentOperation);
+            if (wasUnaryBefore || operation == null || !isNewNumber) {
+                lastNumber = getResult(currentOperation, lastNumber);
+            } else {
+                lastNumber = getResult(currentOperation, previousNumber);
+            }
             wasUnaryBefore = true;
             isNewNumber = true;
         }
@@ -328,8 +370,13 @@ public class InputValueProcessor {
             String formattedCurrentUnary = formatUnaryOperation(currentOperation, lastUnary);
             replaceLastArgumentInHistory(formattedCurrentUnary);
 
-        } else {
+        } else if (operation == null || !isNewNumber) {
             String formattedLastNumber = formatToMathView(lastNumber);
+            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formattedLastNumber);
+            addToHistory(formattedCurrentUnary);
+
+        } else {
+            String formattedLastNumber = formatToMathView(previousNumber);
             String formattedCurrentUnary = formatUnaryOperation(currentOperation, formattedLastNumber);
             addToHistory(formattedCurrentUnary);
         }
@@ -387,6 +434,7 @@ public class InputValueProcessor {
         // If all operations were unary return result (last number) and reset all
         isNewNumber = true;
         expression.clear();
+        hist2.clear();
         wasUnaryBefore = false;
         needAddPoint = false;
     }
@@ -404,8 +452,7 @@ public class InputValueProcessor {
         }
 
         BigDecimal reminder = lastNumber.remainder(BigDecimal.ONE);
-        if (isZero(reminder) && lastNumber.scale() == 0) {
-            lastNumber = new BigDecimal(lastNumber.toPlainString() + POINT);
+        if (isZero(reminder) && lastNumber.scale() == 0) { // if number has no fraction part
             needAddPoint = true;
         }
     }
@@ -441,11 +488,18 @@ public class InputValueProcessor {
     public boolean deleteLastDigit() {
         String lastNumberStr = lastNumber.toPlainString();
         boolean isLastSymbolPoint = false;
-        if (lastNumberStr.length() == 1 ||
-                lastNumberStr.length() == 2 && lastNumberStr.startsWith(MINUS)) {
+
+        if (needAddPoint) { // if the last symbol in number is decimal separator
+            isLastSymbolPoint = false;
+            needAddPoint = false;
+
+        } else if (lastNumberStr.length() == 1 ||
+                lastNumberStr.length() == 2 && lastNumber.signum() == -1) {
+            // if number consists of only one digit with or without minus sign
 
             lastNumber = ZERO.setScale(0, RoundingMode.HALF_UP);
             needAddPoint = false;
+
         } else {
             isLastSymbolPoint = deleteLastDigitImpl();
         }
@@ -462,17 +516,30 @@ public class InputValueProcessor {
     private boolean deleteLastDigitImpl() {
         boolean isLastSymbolPoint = false;
         int currentNumberScale = lastNumber.scale();
-        if (currentNumberScale > 0) {
+        if (currentNumberScale > 0) { // if number has fraction part
+
             lastNumber = lastNumber.setScale(currentNumberScale - 1, RoundingMode.HALF_DOWN);
-            if (lastNumber.scale() == 0) {
-                isLastSymbolPoint = true;
-                needAddPoint = true;
-            }
+            isLastSymbolPoint = checkIsLastSymbolPoint();
         } else {
             lastNumber = lastNumber.divide(TEN, 0, RoundingMode.HALF_DOWN);
         }
         return isLastSymbolPoint;
 
+    }
+
+    /**
+     * Checks the current number is the last symbol after deleting last digit becomes decimal separator.
+     *
+     * @return true if the last symbol after deleting last digit becomes decimal separator
+     */
+    private boolean checkIsLastSymbolPoint() {
+        boolean isLastSymbolPoint = false;
+        if (lastNumber.scale() == 0) {
+
+            isLastSymbolPoint = true;
+            needAddPoint = true;
+        }
+        return isLastSymbolPoint;
     }
 
     /**
@@ -491,6 +558,7 @@ public class InputValueProcessor {
                 break;
             case MEMORY_RECALL:
                 lastNumber = memorizedNumber;
+                removeLastUnaryFromHistory();
                 break;
             case MEMORY_ADD:
                 memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
@@ -523,11 +591,28 @@ public class InputValueProcessor {
     }
 
     /**
+     * Adds the given string with argument to history expression.
+     *
+     * @param argument a string with argument to add into history
+     */
+    private void addToHistory(Number argument) {
+        hist2.add(argument);
+    }
+    private void addToHistory(MathOperation argument) {
+        hist2.add(argument);
+    }
+
+    /**
      * Removes last element from history expression.
      */
     private void removeLastUnaryFromHistory() {
         if (wasUnaryBefore) {
             expression.remove(expression.size() - 1);
+
+            for (int i = lastNumberInHistoryIndex; i < hist2.size(); i++) {
+                hist2.remove(i);
+            }
+
             wasUnaryBefore = false;
         }
     }

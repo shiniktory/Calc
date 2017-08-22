@@ -190,7 +190,7 @@ public class OutputFormatter {
      * @param number a {@link BigDecimal} number to format
      * @return the string contains this formatted number
      */
-    public static String formatEnteredNumber(BigDecimal number) {
+    public static String formatEnteredNumber(BigDecimal number, boolean isLastSymbolPoint) {
         String formattedIntPart = formatWithRounding(number.setScale(0, ROUND_DOWN));
 
         String numberStr = number.toPlainString();
@@ -201,6 +201,9 @@ public class OutputFormatter {
         }
         if (numberStr.startsWith(MINUS + ZERO_VALUE)) {
             formattedIntPart = MINUS + formattedIntPart;
+        }
+        if (isLastSymbolPoint) {
+            formattedIntPart += POINT;
         }
         return formattedIntPart + fractionPart;
     }

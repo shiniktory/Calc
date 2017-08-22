@@ -22,7 +22,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.input.*;
 import javafx.scene.input.KeyCombination.Modifier;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -38,10 +37,8 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isResultOverflow;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.formatEnteredNumber;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.formatNumberWithGroupDelimiters;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
+import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
 /**
@@ -266,22 +263,21 @@ public class CalculatorController {
         // if it is digit button
         if (buttonFunction instanceof Number) {
             resetAfterError();
-            String buttonText = button.getText();
-            boolean isDigitAppended = false;
-            if (isDigit(buttonText)) {
-                isDigitAppended = valueProcessor.enterDigit((BigDecimal) buttonFunction);
-            }
+
+            boolean isDigitAppended = valueProcessor.enterDigit((BigDecimal) buttonFunction);
+
             if (isDigitAppended) {
-                textToSet = formatEnteredNumber(valueProcessor.getLastNumber());
+                textToSet = formatEnteredNumber(valueProcessor.getLastNumber(), false);
+
             }
 
         } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
+
             valueProcessor.addPoint();
-            String currentNumber = formatEnteredNumber(valueProcessor.getLastNumber());
-            if (!currentNumber.contains(POINT)) {
-                currentNumber += POINT;
-            }
-            textToSet = currentNumber;
+            BigDecimal currentNumber = valueProcessor.getLastNumber();
+            boolean needAppendPoint = currentNumber.scale() == 0;
+
+            textToSet = formatEnteredNumber(currentNumber, needAppendPoint);
 
         } else if (buttonFunction instanceof MathOperation) {
             textToSet = executeMathOperation((MathOperation) buttonFunction);
@@ -310,7 +306,7 @@ public class CalculatorController {
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
-            result = valueProcessor.executeMathOperation(operation);
+                result = valueProcessor.executeMathOperation(operation);
         } else {
             resetAfterError();
             result = valueProcessor.calculateResult();
@@ -342,9 +338,9 @@ public class CalculatorController {
      */
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         valueProcessor.executeMemoryOperation(operation);
+
         boolean needEnable = !(operation == MEMORY_CLEAN);
         enableMemoryStateButtons(needEnable);
-
         return formatNumberWithGroupDelimiters(valueProcessor.getLastNumber());
     }
 
@@ -370,13 +366,11 @@ public class CalculatorController {
             isErrorOccurred = false;
         }
 
-        String lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber());
+        String lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), false);
         if (operation == LEFT_ERASE) {
+
             boolean isLastSymbolPoint = valueProcessor.deleteLastDigit();
-            lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber());
-            if (isLastSymbolPoint) {
-                lastEnteredNumber += POINT;
-            }
+            lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), isLastSymbolPoint);
         }
 
         return lastEnteredNumber;
@@ -426,7 +420,8 @@ public class CalculatorController {
      * Sets the given string containing mathematical expression to the appropriate textfield.
      */
     private void updateHistoryExpression() {
-        String history = valueProcessor.getExpression();
+        String history = valueProcessor.getHistoryExpression();
+//        String history = getHistoryExpression();
         Platform.runLater(() -> {
             prevOperationsText.setText(history);
             prevOperationsText.end();
