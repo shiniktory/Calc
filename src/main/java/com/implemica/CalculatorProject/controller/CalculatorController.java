@@ -3,9 +3,9 @@ package com.implemica.CalculatorProject.controller;
 import com.implemica.CalculatorProject.model.calculation.EditOperation;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculationExecutor;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
-import com.implemica.CalculatorProject.model.InputValueProcessor;
+import com.implemica.CalculatorProject.model.Calculator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
@@ -37,7 +37,6 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isResultOverflow;
-import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
@@ -50,13 +49,13 @@ import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 public class CalculatorController {
 
     /**
-     * An instance of {@link InputValueProcessor} that accepts and calculates the results for an
+     * An instance of {@link Calculator} that accepts and calculates the results for an
      * input data.
      */
-    private final InputValueProcessor valueProcessor = new InputValueProcessor();
+    private final Calculator valueProcessor = new Calculator();
 
     {
-        valueProcessor.setCalculator(new StandardCalculator());
+        valueProcessor.setCalculationExecutor(new StandardCalculationExecutor());
     }
 
     /**
@@ -240,7 +239,7 @@ public class CalculatorController {
         }
 
         setCurrentNumber(textToSet);
-        updateHistoryExpression();
+        updateExpression();
         if (isErrorOccurred) {
             valueProcessor.cleanAll();
         }
@@ -261,23 +260,16 @@ public class CalculatorController {
         Object buttonFunction = buttonsWithFunctions.get(button);
 
         // if it is digit button
-        if (buttonFunction instanceof Number) {
+        if (buttonFunction instanceof BigDecimal) {
             resetAfterError();
 
             boolean isDigitAppended = valueProcessor.enterDigit((BigDecimal) buttonFunction);
 
             if (isDigitAppended) {
                 textToSet = formatEnteredNumber(valueProcessor.getLastNumber(), false);
-
             }
-
         } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
-
-            valueProcessor.addPoint();
-            BigDecimal currentNumber = valueProcessor.getLastNumber();
-            boolean needAppendPoint = currentNumber.scale() == 0;
-
-            textToSet = formatEnteredNumber(currentNumber, needAppendPoint);
+            textToSet = addDecimalSeparator();
 
         } else if (buttonFunction instanceof MathOperation) {
             textToSet = executeMathOperation((MathOperation) buttonFunction);
@@ -290,6 +282,19 @@ public class CalculatorController {
         }
 
         return textToSet;
+    }
+
+    /**
+     * Returns formatted current number with added decimal separator.
+     *
+     * @return formatted current number with added decimal separator
+     */
+    private String addDecimalSeparator() {
+        valueProcessor.addPoint();
+        BigDecimal currentNumber = valueProcessor.getLastNumber();
+        boolean needAppendPoint = currentNumber.scale() == 0;
+
+        return formatEnteredNumber(currentNumber, needAppendPoint);
     }
 
     /**
@@ -306,7 +311,7 @@ public class CalculatorController {
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
-                result = valueProcessor.executeMathOperation(operation);
+            result = valueProcessor.executeMathOperation(operation);
         } else {
             resetAfterError();
             result = valueProcessor.calculateResult();
@@ -366,13 +371,13 @@ public class CalculatorController {
             isErrorOccurred = false;
         }
 
+
         String lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), false);
         if (operation == LEFT_ERASE) {
 
             boolean isLastSymbolPoint = valueProcessor.deleteLastDigit();
             lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), isLastSymbolPoint);
         }
-
         return lastEnteredNumber;
     }
 
@@ -384,7 +389,7 @@ public class CalculatorController {
             enableAllOperations(true);
             String numberToReset = formatNumberWithGroupDelimiters(valueProcessor.getLastNumber());
             setCurrentNumber(numberToReset);
-            updateHistoryExpression();
+            updateExpression();
             isErrorOccurred = false;
         }
     }
@@ -419,13 +424,99 @@ public class CalculatorController {
     /**
      * Sets the given string containing mathematical expression to the appropriate textfield.
      */
-    private void updateHistoryExpression() {
-        String history = valueProcessor.getHistoryExpression();
-//        String history = getHistoryExpression();
+    private void updateExpression() {
+        String expressionText = getExpression();
         Platform.runLater(() -> {
-            prevOperationsText.setText(history);
+            prevOperationsText.setText(expressionText);
             prevOperationsText.end();
         });
+    }
+
+    private StringBuilder expression;
+    private static final String EXPRESSION_PARTS_SEPARATOR = " ";
+    private boolean wasUnaryBefore = false;
+    private String lastUnaryArgument = "";
+
+    /**
+     * Returns string value contains the formatted current math expression.
+     *
+     * @return string value contains the formatted current math expression
+     */
+    private String getExpression() {
+        List arguments = valueProcessor.getExpressionArguments();
+        expression = new StringBuilder();
+        lastUnaryArgument = "";
+
+        for (int i = 0; i < arguments.size(); i++) {
+            Object argument = arguments.get(i);
+            boolean isTheLastArgument = i == arguments.size() - 1;
+
+            formatAndAppendCurrentArgument(argument, isTheLastArgument);
+        }
+        return expression.toString().trim();
+    }
+
+    /**
+     * Formats the given argument and appends it to the current formatted expression.
+     *
+     * @param argument          an argument to format
+     * @param isTheLastArgument a flag shows is this argument the last in expression
+     */
+    private void formatAndAppendCurrentArgument(Object argument, boolean isTheLastArgument) {
+        if (argument instanceof BigDecimal) {
+            appendNumber((BigDecimal) argument, isTheLastArgument);
+
+        } else if (argument instanceof MathOperation) {
+            MathOperation operation = (MathOperation) argument;
+
+            appendOperation(operation, isTheLastArgument);
+            wasUnaryBefore = !operation.isBinary();
+        }
+    }
+
+    /**
+     * Formats and appends the given number to the current formatted expression.
+     *
+     * @param number            a number to append
+     * @param isTheLastArgument a flag shows is this argument the last in expression
+     */
+    private void appendNumber(BigDecimal number, boolean isTheLastArgument) {
+        lastUnaryArgument = formatToMathView(number);
+
+        if (isTheLastArgument) {
+            appendToExpression(lastUnaryArgument);
+        }
+        wasUnaryBefore = !isTheLastArgument; // number in expression acts like an unary operation
+    }
+
+    /**
+     * Formats and appends the given math operation to the current formatted expression.
+     *
+     * @param operation         an operation to append
+     * @param isTheLastArgument a flag shows is this argument the last in expression
+     */
+    private void appendOperation(MathOperation operation, boolean isTheLastArgument) {
+        if (operation.isBinary()) {
+            if (wasUnaryBefore) {
+                appendToExpression(lastUnaryArgument);
+            }
+            appendToExpression(operation.symbol());
+        } else {
+            lastUnaryArgument = formatUnaryOperation(operation, lastUnaryArgument);
+
+            if (isTheLastArgument) {
+                appendToExpression(lastUnaryArgument);
+            }
+        }
+    }
+
+    /**
+     * Appends separator and the specified formatted value to the current expression.
+     *
+     * @param argument a formatted value to append to the expression
+     */
+    private void appendToExpression(String argument) {
+        expression.append(EXPRESSION_PARTS_SEPARATOR).append(argument);
     }
 
     /**
@@ -529,19 +620,12 @@ public class CalculatorController {
      */
     @FXML
     private void showOrHideMemoryPane() {
-        if (isMemoryStorageShown) { // if pane is already shown - hide it
-            memoryStorage.setVisible(false);
-            isMemoryStorageShown = false;
-            enableMemoryStateButtons(true);
-            enableAllButtons(true);
-        } else { // if pane is invisible - show it
-            memoryStorage.setVisible(true);
-            isMemoryStorageShown = true;
-            enableMemoryStateButtons(false);
-            enableAllButtons(false);
-        }
-        Platform.runLater(() -> memoryShow.setDisable(false));
+        enableMemoryStateButtons(isMemoryStorageShown);
+        enableAllButtons(isMemoryStorageShown);
+        isMemoryStorageShown = !isMemoryStorageShown;  // if pane is already shown - hide it
+        memoryStorage.setVisible(isMemoryStorageShown);
 
+        Platform.runLater(() -> memoryShow.setDisable(false));
     }
 
     /**
@@ -675,7 +759,6 @@ public class CalculatorController {
         addButton(clean, CLEAN, KeyCode.SPACE);
         addButton(cleanCurrent, CLEAN_CURRENT, null);
         addButton(leftErase, LEFT_ERASE, KeyCode.BACK_SPACE);
-
     }
 
     /**
@@ -689,7 +772,9 @@ public class CalculatorController {
      * @param modifiers      a modifiers to key code that actives current button
      */
     private void addButton(Button button, Object buttonFunction, KeyCode keyCode, Modifier... modifiers) {
-        buttonsWithFunctions.put(button, buttonFunction);
+        if (!buttonsWithFunctions.containsKey(button)) {
+            buttonsWithFunctions.put(button, buttonFunction);
+        }
         if (keyCode != null) {
             buttonsWithKeys.put(new KeyCodeCombination(keyCode, modifiers), button);
         }

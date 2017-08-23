@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  *
  * @author V. Kozina-Kravchenko
  */
-public interface Calculator {
+public interface CalculationExecutor {
 
     /**
      * Returns the result of Mathematical calculations.

@@ -14,12 +14,12 @@ import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
 
 /**
- * The {@code StandardCalculator} class is an implementation of {@link Calculator} interface. Performs some
+ * The {@code StandardCalculator} class is an implementation of {@link CalculationExecutor} interface. Performs some
  * Mathematical operations such as multiplying, dividing, changing number's sign to an opposite and etc.
  *
  * @author V. Kozina-Kravchenko
  */
-public class StandardCalculator implements Calculator {
+public class StandardCalculationExecutor implements CalculationExecutor {
 
     /**
      * The error message about invalid count of numbers.
@@ -31,6 +31,12 @@ public class StandardCalculator implements Calculator {
      * The error message about division by zero occurs.
      */
     private static final String DIVISION_BY_ZERO_ERROR = "Cannot divide by zero";
+
+    /**
+     * An error message about situation when result is undefined.
+     * For example, division zero by zero.
+     */
+    private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
 
     /**
      * The error message about such operation not found.
@@ -63,12 +69,6 @@ public class StandardCalculator implements Calculator {
     private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
     /**
-     * An error message about situation when result is undefined.
-     * For example, division zero by zero.
-     */
-    private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
-
-    /**
      * Returns the result of calculations of an Mathematical operations with the specified numbers.
      *
      * @param operation a Mathematical operation to perform with the given numbers
@@ -80,7 +80,7 @@ public class StandardCalculator implements Calculator {
     public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException {
         this.operation = operation;
         this.numbers = numbers;
-        checkArgumentsValid();
+        checkArgumentsAreValid();
 
         BigDecimal result;
 
@@ -123,7 +123,7 @@ public class StandardCalculator implements Calculator {
      *
      * @throws CalculationException if the given arguments are null or invalid count of number for the given operation
      */
-    private void checkArgumentsValid() throws CalculationException {
+    private void checkArgumentsAreValid() throws CalculationException {
         if (operation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }

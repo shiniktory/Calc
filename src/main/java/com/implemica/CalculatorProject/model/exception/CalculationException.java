@@ -1,7 +1,7 @@
 package com.implemica.CalculatorProject.model.exception;
 
 /**
- * The {@code CalculationException} designed to represent an errors occurred while mathematical calculations.
+ * Thrown to indicate TODO  mathematical calculations.
  * This exception throws in cases of division by zero, square root from negative number or if result is overflow.
  *
  * @author V. Kozina-Kravchenko

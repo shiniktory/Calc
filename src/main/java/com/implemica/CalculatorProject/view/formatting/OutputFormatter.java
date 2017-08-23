@@ -152,11 +152,11 @@ public class OutputFormatter {
      */
     public static String formatToMathView(BigDecimal number) {
         String formattedNumber;
-        if (isExponentFormattingNeed(number)) {
+        if (isExponentFormattingNeed(number)) { // format with exponent
             formattedNumber = mathFormatWithExponent.format(number).toLowerCase();
             formattedNumber = adjustExponentialView(formattedNumber);
 
-        } else {
+        } else { // format with rounding
             int maxFractionDigitsCount = getCountFractionDigits(number.toPlainString());
             mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
             formattedNumber = mathFormatWithRounding.format(number).toLowerCase();
@@ -176,9 +176,9 @@ public class OutputFormatter {
     public static String formatNumberWithGroupDelimiters(BigDecimal number) {
         String stringValue;
         if (isExponentFormattingNeed(number)) {
-            stringValue = formatToExponentialView(number);
+            stringValue = formatToExponentialViewWithGroups(number);
         } else {
-            stringValue = formatWithRounding(number);
+            stringValue = formatWithRoundingWithGroups(number);
         }
         return stringValue;
     }
@@ -191,7 +191,7 @@ public class OutputFormatter {
      * @return the string contains this formatted number
      */
     public static String formatEnteredNumber(BigDecimal number, boolean isLastSymbolPoint) {
-        String formattedIntPart = formatWithRounding(number.setScale(0, ROUND_DOWN));
+        String formattedIntPart = formatWithRoundingWithGroups(number.setScale(0, ROUND_DOWN));
 
         String numberStr = number.toPlainString();
         String fractionPart = EMPTY_VALUE;
@@ -216,7 +216,7 @@ public class OutputFormatter {
      * @param number a number to format to an exponential view with group delimiters
      * @return formatted given number represented by string
      */
-    private static String formatToExponentialView(BigDecimal number) {
+    private static String formatToExponentialViewWithGroups(BigDecimal number) {
         String formattedNumber = exponentialFormatWithGroups.format(number).toLowerCase();
         return adjustExponentialView(formattedNumber);
     }
@@ -227,7 +227,7 @@ public class OutputFormatter {
      * @param number a number to round
      * @return formatted given number represented by string
      */
-    private static String formatWithRounding(BigDecimal number) {
+    private static String formatWithRoundingWithGroups(BigDecimal number) {
         int fractionDigitsCount = getCountFractionDigits(number.toPlainString());
 
         // Check for tail with nine in period and round it

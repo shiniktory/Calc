@@ -1,6 +1,6 @@
 package com.implemica.CalculatorProject;
 
-import com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest;
+import com.implemica.CalculatorProject.model.calculation.CalculatorTest;
 import com.implemica.CalculatorProject.controller.TestView;
 import com.implemica.CalculatorProject.view.formatting.OutputFormatterTest;
 import com.implemica.CalculatorProject.model.validation.DataValidatorTest;
@@ -12,8 +12,7 @@ import org.junit.runners.Suite;
 import static org.testfx.framework.junit.ApplicationTest.launch;
 
 @Suite.SuiteClasses({
-//        OperationTest.class,
-        StandardCalculatorTest.class,
+        CalculatorTest.class,
         DataValidatorTest.class,
         OutputFormatterTest.class,
         TestView.class

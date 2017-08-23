@@ -1,10 +1,9 @@
 package com.implemica.CalculatorProject;
 
 
-import com.implemica.CalculatorProject.model.InputValueProcessor;
+import com.implemica.CalculatorProject.model.Calculator;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
@@ -12,7 +11,7 @@ import java.math.BigDecimal;
 public class ModelDemo {
 
     public static void main(String[] args) throws CalculationException {
-        InputValueProcessor valueProcessor = new InputValueProcessor();
+        Calculator valueProcessor = new Calculator();
 
         // 5 + 10.2 = 15.2
         valueProcessor.enterDigit(BigDecimal.valueOf(5));

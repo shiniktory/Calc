@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-public class StandardCalculatorTest {
+public class CalculatorTest {
 
     private static final FxRobot robot = new FxRobot();
 
@@ -1128,7 +1128,7 @@ public class StandardCalculatorTest {
 
     private void testInitForException(MathOperation operation, int argumentsCount) {
         try {
-            new StandardCalculator().calculate(operation, new BigDecimal[argumentsCount]);
+            new StandardCalculationExecutor().calculate(operation, new BigDecimal[argumentsCount]);
             fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count of arguments is %d",
                     operation, argumentsCount));
         } catch (CalculationException e) {

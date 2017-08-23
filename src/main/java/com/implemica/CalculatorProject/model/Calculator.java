@@ -1,18 +1,18 @@
 package com.implemica.CalculatorProject.model;
 
-import com.implemica.CalculatorProject.model.calculation.Calculator;
+import com.implemica.CalculatorProject.model.calculation.CalculationExecutor;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculator;
+import com.implemica.CalculatorProject.model.calculation.StandardCalculationExecutor;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
@@ -24,15 +24,15 @@ import static java.math.BigDecimal.ZERO;
  *
  * @author V. Kozina-Kravchenko
  */
-public class InputValueProcessor {
+public class Calculator {
 
     /**
-     * An instance of {@link Calculator} implementation used for calculations.
+     * An instance of {@link CalculationExecutor} implementation used for calculations.
      */
-    private Calculator calculator;
+    private CalculationExecutor calculationExecutor;
 
     /**
-     * The value of previous entered number represented by string. By default it is zero.
+     * The value of previous entered number or result of the last binary operation. By default it is zero.
      */
     private BigDecimal previousNumber = ZERO;
 
@@ -42,28 +42,28 @@ public class InputValueProcessor {
     private MathOperation operation;
 
     /**
-     * The value of last entered number represented by string. By default it is zero.
+     * The value of last entered number or result of the last unary operation. By default it is zero.
      */
     private BigDecimal lastNumber = ZERO;
 
     /**
-     * The value of last memorized value represented by string. By default it is zero.
+     * The value of last memorized number. By default it is zero.
      */
     private BigDecimal memorizedNumber = ZERO;
 
     /**
-     * The list of expression parts (numbers and operations) used for history showing.
+     * The list of current expression parts (numbers and math operations).
      */
-    private final List<String> expression = new ArrayList<>();
+    private final List expression = new ArrayList<>();
 
     /**
      * The value of temporary number stores last entered number before calculation result. Used as argument
-     * for calculations with multiple pressings result button. Default value is zero.
+     * for calculations with multiple callings of calculating result without entering new numbers. Default value is zero.
      */
     private BigDecimal tempNumber = ZERO;
 
     /**
-     * The flag variable shows is entering a new number or continuing type previous number.
+     * The flag variable shows is entering a new number or continuing type the last number.
      */
     private boolean isNewNumber = true;
 
@@ -73,70 +73,62 @@ public class InputValueProcessor {
     private boolean wasUnaryBefore = false;
 
     /**
-     * The flag variable shows the last symbol in current number decimal point. Will be added to the number
-     * when the first fraction number will be added.
+     * The flag variable shows the last symbol in current number is decimal point. Will be added to the number
+     * with the first fraction number.
      */
     private boolean needAddPoint = false;
 
-    private List hist2 = new ArrayList();
+    /**
+     * The index of the last number added to the current expression.
+     */
+    private int indexOfLastNumberInExpression = 0;
 
-    private int lastNumberInHistoryIndex = 0;
     /**
      * An error message about requested operation not found.
      */
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
     /**
-     * Constructs a new {@code InputValueProcessor} instance that uses the {@link StandardCalculator} for
+     * Constructs a new {@code InputValueProcessor} instance that uses the {@link StandardCalculationExecutor} for
      * calculations.
      */
-    public InputValueProcessor() {
-        this.calculator = new StandardCalculator();
+    public Calculator() {
+        this.calculationExecutor = new StandardCalculationExecutor();
     }
 
     /**
-     * Constructs a new {@code InputValueProcessor} instance that uses the specified {@link Calculator} implementation
+     * Constructs a new {@code InputValueProcessor} instance that uses the specified {@link CalculationExecutor} implementation
      * for calculations.
      */
-    public InputValueProcessor(Calculator calculator) {
-        this.calculator = calculator;
+    public Calculator(CalculationExecutor calculationExecutor) {
+        this.calculationExecutor = calculationExecutor;
     }
 
     /**
-     * Sets the specified {@link Calculator} implementation.
+     * Sets the specified {@link CalculationExecutor} implementation.
      *
-     * @param calculator a {@link Calculator} implementation to set
+     * @param calculationExecutor a {@link CalculationExecutor} implementation to set
      */
-    public void setCalculator(Calculator calculator) {
-        this.calculator = calculator;
+    public void setCalculationExecutor(CalculationExecutor calculationExecutor) {
+        this.calculationExecutor = calculationExecutor;
     }
 
     /**
-     * Returns the last entered number formatted with group delimiters represented by string.
+     * Returns the last entered or modified after unary math operation number.
      *
-     * @return the last entered number formatted with group delimiters represented by string
+     * @return the last entered or modified after unary math operation number
      */
     public BigDecimal getLastNumber() {
         return lastNumber;
     }
 
     /**
-     * Returns a string contains a mathematical expression used as history.
+     * Returns the list of expression arguments represented by {@link BigDecimal} numbers and {@link MathOperation}s.
      *
-     * @return a string contains a mathematical expression
+     * @return the list of expression arguments represented by {@link BigDecimal} numbers and {@link MathOperation}s
      */
-    public String getHistoryExpression() {
-        StringBuilder builder = new StringBuilder();
-        for (String expressionPart : expression) {
-            builder.append(expressionPart).append(" ");
-        }
-
-        StringBuilder builder2 = new StringBuilder();
-        for (Object expressionPart : hist2) {
-            builder2.append(expressionPart).append(" ");
-        }
-        System.out.println(builder2.toString().trim());
-        return builder.toString().trim().toLowerCase();
+    public List getExpressionArguments() {
+        return Collections.unmodifiableList(expression);
     }
 
     /**
@@ -149,7 +141,7 @@ public class InputValueProcessor {
         boolean isDigitAdded;
         if (isNewNumber) {
             lastNumber = digit;
-            removeLastUnaryFromHistory();
+            removeLastUnaryFromExpression();
             needAddPoint = false;
             isDigitAdded = true;
         } else {
@@ -169,8 +161,12 @@ public class InputValueProcessor {
         if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
             return false;
         }
-        if (isZero(lastNumber) && lastNumber.scale() == 0 && !isZero(digit) && !needAddPoint) { // TODO write comments
+        if (isZero(lastNumber) && !isZero(digit) &&
+                lastNumber.scale() == 0 && !needAddPoint) {
+            // if current number is zero, it has no fraction part and adding decimal separator didn't called
+            // than replace current number by specified non-zero digit
             lastNumber = digit;
+
         } else {
             appendDigitImpl(digit);
             needAddPoint = false;
@@ -184,25 +180,23 @@ public class InputValueProcessor {
      * @param digit a digit to append
      */
     private void appendDigitImpl(BigDecimal digit) {
-        int sign = lastNumber.signum();
-        if (sign == -1) {
-            digit = digit.multiply(BigDecimal.valueOf(sign));
+        if (lastNumber.signum() == -1) {
+            digit = digit.negate();
         }
         if (needAddPoint || lastNumber.scale() != 0) {
+            // if called adding the decimal separator or current number already has fraction part
 
             int newScale = lastNumber.scale() + 1;
             BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
-
             lastNumber = lastNumber.add(tailToAdd);
-
         } else {
             lastNumber = lastNumber.multiply(TEN).add(digit);
         }
     }
 
     /**
-     * Executes the specified mathematical operation, writes it to history expression. Returns last entered number
-     * or operation result if needed for some operations. Returning value is formatted appropriate way for displaying.
+     * Executes the specified mathematical operation, writes it to the current expression. Returns last entered number
+     * or operation result if needed for some operations.
      *
      * @param currentOperation an operation to execute
      * @return last entered number or operation result if needed for some operations
@@ -225,8 +219,7 @@ public class InputValueProcessor {
 
     /**
      * Executes current called binary operation and returns last entered number if it is the first
-     * binary operation in expression or result of previous binary operations. Also writes to history
-     * expression.
+     * binary operation in expression or result of previous binary operations. Also writes to the current expression.
      *
      * @param currentOperation a current binary mathematical operation to execute
      * @return last entered number if it is the first binary operation in expression or result of
@@ -237,38 +230,43 @@ public class InputValueProcessor {
         if (currentOperation == PERCENT) {
             return executePercentOperation();
         }
+
+        if (operation != null && !wasUnaryBefore && isNewNumber && !expression.isEmpty()) {
+            // if after last binary operation called new binary instead of entering number.
+            // need to replace last operation and return previous result
+            operation = currentOperation;
+            replaceLastOperationInExpression();
+
+            return getPreviousResult();
+        }
         if (operation == null) {
             operation = currentOperation;
         }
-
-        if (isNewNumber && expression.size() > 1 && !wasUnaryBefore) {
-            // if after last binary operation pressed new binary instead entering number.
-            // need to replace this operation
-
-            operation = currentOperation;
-            replaceLastArgumentInHistory(currentOperation.symbol());
-            hist2.remove(hist2.size() - 1);
-            addToHistory(operation);
-            if (expression.size() == 2) {
-                return lastNumber;
-            } else {
-                lastNumber = previousNumber;
-                return previousNumber;
-            }
-        }
-
         if (!wasUnaryBefore) {
-            addToHistory(formatToMathView(lastNumber));
-            addToHistory(lastNumber);
-            lastNumberInHistoryIndex = hist2.size() -1;
+            addToExpression(lastNumber);
         }
-        addToHistory(currentOperation.symbol());
-        addToHistory(operation);
+        addToExpression(currentOperation);
         updatePreviousNumber();
         operation = currentOperation;
         wasUnaryBefore = false;
 
         return previousNumber;
+    }
+
+    /**
+     * Returns the last result of binary operation or the last entered number if there is only one binary operation
+     * in expression.
+     *
+     * @return the last result of binary operation or the last entered number if there is only one binary operation
+     * in expression
+     */
+    private BigDecimal getPreviousResult() {
+        if (expression.isEmpty() || expression.size() == 2) {
+            return lastNumber;
+        } else {
+            lastNumber = previousNumber;
+            return previousNumber;
+        }
     }
 
     /**
@@ -279,29 +277,20 @@ public class InputValueProcessor {
      */
     private BigDecimal executePercentOperation() throws CalculationException {
         lastNumber = getResult(PERCENT, previousNumber, lastNumber);
-        updateHistoryForPercentage();
-        wasUnaryBefore = true; // for history expression percentage formats like unary operation
+        updateExpressionAfterPercentage();
+        wasUnaryBefore = true; // for expression percentage acts like unary operation
 
         return lastNumber;
     }
 
     /**
-     * Updates a history expression for percentage operation by adding or replacing the last argument.
-     *
-     * @throws CalculationException if last entered value is not a number
+     * Updates an expression for percentage operation by adding or replacing the last unary argument.
      */
-    private void updateHistoryForPercentage() throws CalculationException {
-        String formattedLastNumber = formatToMathView(lastNumber);
-        if (wasUnaryBefore && !expression.isEmpty()) { // replace last unary operation in history expression
-            replaceLastArgumentInHistory(formattedLastNumber);
-            removeLastUnaryFromHistory();
-            addToHistory(lastNumber);
-            lastNumberInHistoryIndex = hist2.size() -1;
-        } else {
-            addToHistory(formattedLastNumber);
-            addToHistory(lastNumber);
-            lastNumberInHistoryIndex = hist2.size() -1;
+    private void updateExpressionAfterPercentage() {
+        if (wasUnaryBefore) { // replace last unary operation in expression
+            removeLastUnaryFromExpression();
         }
+        addToExpression(lastNumber);
     }
 
     /**
@@ -321,7 +310,7 @@ public class InputValueProcessor {
 
     /**
      * Returns the result of current called unary mathematical operation with the last entered number.
-     * Also writes to history expression.
+     * Also writes to expression.
      *
      * @param currentOperation a current unary mathematical operation to execute
      * @return the result of current called unary mathematical operation with the last entered number
@@ -329,56 +318,51 @@ public class InputValueProcessor {
      */
     private BigDecimal executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == NEGATE) {
-            if (wasUnaryBefore || operation == null || !isNewNumber) {
-                lastNumber = getResult(currentOperation, lastNumber);
-            } else {
-                lastNumber = getResult(currentOperation, previousNumber);
-            }
+
+            updateLastNumberAfterUnary(currentOperation);
             if (wasUnaryBefore) {
-                updateHistoryForUnary(NEGATE);
-                addToHistory(NEGATE);
+                updateExpressionForUnary(NEGATE);
                 wasUnaryBefore = true;
             }
-
         } else {
-            updateHistoryForUnary(currentOperation);
-            if (!wasUnaryBefore) {
-                addToHistory(lastNumber);
-                lastNumberInHistoryIndex = hist2.size() -1;
-            }
-            addToHistory(currentOperation);
-            if (wasUnaryBefore || operation == null || !isNewNumber) {
-                lastNumber = getResult(currentOperation, lastNumber);
-            } else {
-                lastNumber = getResult(currentOperation, previousNumber);
-            }
+            updateExpressionForUnary(currentOperation);
+            updateLastNumberAfterUnary(currentOperation);
+
             wasUnaryBefore = true;
             isNewNumber = true;
         }
         return lastNumber;
     }
 
-    /**
-     * Updates a history expression after last unary operation by replacing the last unary argument or adding a
-     * new argument.
-     *
-     * @param currentOperation a current unary operation to add to history
-     */
-    private void updateHistoryForUnary(MathOperation currentOperation) {
-        if (wasUnaryBefore) {
-            String lastUnary = expression.get(expression.size() - 1);
-            String formattedCurrentUnary = formatUnaryOperation(currentOperation, lastUnary);
-            replaceLastArgumentInHistory(formattedCurrentUnary);
-
-        } else if (operation == null || !isNewNumber) {
-            String formattedLastNumber = formatToMathView(lastNumber);
-            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formattedLastNumber);
-            addToHistory(formattedCurrentUnary);
-
+    private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
+        if (wasUnaryBefore || operation == null || !isNewNumber) {
+            lastNumber = getResult(currentOperation, lastNumber);
         } else {
-            String formattedLastNumber = formatToMathView(previousNumber);
-            String formattedCurrentUnary = formatUnaryOperation(currentOperation, formattedLastNumber);
-            addToHistory(formattedCurrentUnary);
+            lastNumber = getResult(currentOperation, previousNumber);
+        }
+    }
+
+    /**
+     * Updates an expression after last unary operation by adding the given unary operation. If this unary operation is
+     * the first after binary adds last number before.
+     *
+     * @param currentOperation a current unary operation to add to expression
+     */
+    private void updateExpressionForUnary(MathOperation currentOperation) {
+        if (!wasUnaryBefore) { // if was binary operation before add last number that is the base for current unary operation
+            addNumberToExpression();
+        }
+        addToExpression(currentOperation);
+    }
+
+    /**
+     * Adds last entered number or last result of operations to the expression.
+     */
+    private void addNumberToExpression() {
+        if (operation != null && expression.size() > 4) {
+            addToExpression(previousNumber);
+        } else {
+            addToExpression(lastNumber);
         }
     }
 
@@ -391,10 +375,10 @@ public class InputValueProcessor {
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
-        BigDecimal result = calculator.calculate(operation, arguments);
 
+        BigDecimal result = calculationExecutor.calculate(operation, arguments);
         if (isZero(result)) {
-            result = ZERO.setScale(0, RoundingMode.HALF_UP);
+            result = ZERO;
         }
         return result;
     }
@@ -409,9 +393,9 @@ public class InputValueProcessor {
      */
     public BigDecimal calculateResult() throws CalculationException {
 
-        if (wasUnaryBefore || operation != null) {
+        if (wasUnaryBefore || operation != null) { // calculate result if any math operation executes
             calculateResultImpl();
-        } // If nothing entered nothing to calculate
+        }
         return lastNumber;
     }
 
@@ -422,7 +406,7 @@ public class InputValueProcessor {
      * @throws CalculationException if some error while calculations occurred or result is out of valid bounds
      */
     private void calculateResultImpl() throws CalculationException {
-        if (expression.isEmpty() && !wasUnaryBefore) { // If "=" pressed without entering new number perform last operation
+        if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last operation
             lastNumber = getResult(operation, lastNumber, tempNumber);
 
         } else if (operation != null) {
@@ -434,21 +418,20 @@ public class InputValueProcessor {
         // If all operations were unary return result (last number) and reset all
         isNewNumber = true;
         expression.clear();
-        hist2.clear();
         wasUnaryBefore = false;
         needAddPoint = false;
     }
 
     /**
-     * Adds a decimal point to the last entered number. Updates history and resets last number to zero if point
-     * pressed after unary operation.
+     * Adds a decimal point to the last entered number. Updates expression and resets last number to zero if point
+     * added after unary operation without entering any digit.
      */
     public void addPoint() {
 
-        if (isNewNumber) { // If point pressed when expected entering new number need to replace last number by zero
+        if (isNewNumber) { // If point adds when expected entering new number need to replace last number by zero
             lastNumber = ZERO;
             isNewNumber = false;
-            removeLastUnaryFromHistory();
+            removeLastUnaryFromExpression();
         }
 
         BigDecimal reminder = lastNumber.remainder(BigDecimal.ONE);
@@ -473,10 +456,9 @@ public class InputValueProcessor {
      */
     public void cleanCurrent() {
         lastNumber = ZERO;
-        removeLastUnaryFromHistory();
+        removeLastUnaryFromExpression();
         isNewNumber = true;
         needAddPoint = false;
-
     }
 
     /**
@@ -497,13 +479,11 @@ public class InputValueProcessor {
                 lastNumberStr.length() == 2 && lastNumber.signum() == -1) {
             // if number consists of only one digit with or without minus sign
 
-            lastNumber = ZERO.setScale(0, RoundingMode.HALF_UP);
+            lastNumber = ZERO;
             needAddPoint = false;
-
         } else {
             isLastSymbolPoint = deleteLastDigitImpl();
         }
-
         return isLastSymbolPoint;
     }
 
@@ -524,7 +504,6 @@ public class InputValueProcessor {
             lastNumber = lastNumber.divide(TEN, 0, RoundingMode.HALF_DOWN);
         }
         return isLastSymbolPoint;
-
     }
 
     /**
@@ -558,7 +537,7 @@ public class InputValueProcessor {
                 break;
             case MEMORY_RECALL:
                 lastNumber = memorizedNumber;
-                removeLastUnaryFromHistory();
+                removeLastUnaryFromExpression();
                 break;
             case MEMORY_ADD:
                 memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
@@ -573,46 +552,43 @@ public class InputValueProcessor {
     }
 
     /**
-     * Replaces last element in history expression by the given one.
-     *
-     * @param replacement a string value to replace last element in history by
+     * Replaces last binary operation in expression by the last specified one.
      */
-    private void replaceLastArgumentInHistory(String replacement) {
-        expression.set(expression.size() - 1, replacement);
+    private void replaceLastOperationInExpression() {
+        if (expression.size() != 0) {
+            expression.set(expression.size() - 1, operation);
+        }
     }
 
     /**
-     * Adds the given string with argument to history expression.
+     * Adds the given number to the current math expression. Also updates index of the last added number to the expression.
      *
-     * @param argument a string with argument to add into history
+     * @param number a number to add into expression
      */
-    private void addToHistory(String argument) {
-        expression.add(argument);
+    private void addToExpression(BigDecimal number) {
+        expression.add(number);
+        indexOfLastNumberInExpression = expression.size() - 1;
     }
 
     /**
-     * Adds the given string with argument to history expression.
+     * Adds the given {@link MathOperation} operation to the current expression.
      *
-     * @param argument a string with argument to add into history
+     * @param operation a given operation to add into expression
      */
-    private void addToHistory(Number argument) {
-        hist2.add(argument);
-    }
-    private void addToHistory(MathOperation argument) {
-        hist2.add(argument);
+    private void addToExpression(MathOperation operation) {
+        expression.add(operation);
     }
 
     /**
-     * Removes last element from history expression.
+     * Removes last unary operation from expression. This operation starts with the last added number and up to the last
+     * argument.
      */
-    private void removeLastUnaryFromHistory() {
-        if (wasUnaryBefore) {
-            expression.remove(expression.size() - 1);
+    private void removeLastUnaryFromExpression() {
+        if (wasUnaryBefore && indexOfLastNumberInExpression < expression.size()) {
+            for (int i = expression.size() - 1; i >= indexOfLastNumberInExpression; i--) {
 
-            for (int i = lastNumberInHistoryIndex; i < hist2.size(); i++) {
-                hist2.remove(i);
+                expression.remove(i);
             }
-
             wasUnaryBefore = false;
         }
     }

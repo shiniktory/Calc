@@ -29,7 +29,6 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.CL
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.CLEAN_CURRENT;
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.LEFT_ERASE;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isDigit;
 import static javafx.scene.text.FontWeight.*;
 
@@ -43,7 +42,7 @@ public class CalculatorApplication extends Application {
     /**
      * A path to the view fxml file.
      */
-    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calc.fxml";
+    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calculatorView.fxml";
 
     /**
      * A path to the file with stylesheets.
@@ -99,6 +98,49 @@ public class CalculatorApplication extends Application {
      * A reference to the text field with the current number.
      */
     private TextField currentNumberTextField;
+
+    /**
+     * The list of button ids associated with an arrays contains minimum, medium and maximum values
+     * of an appropriate button font size.
+     */
+    private static final Map<String, Double[]> fontSizes = new LinkedHashMap<>();
+
+    /**
+     * The list of buttons contains labels.
+     */
+    private List<String> labeledButtons = new ArrayList<>();
+
+    {
+        // add button's ids and its fonts
+        fontSizes.put(PERCENT.name(), new Double[]{16.0, 19.0, 22.0});
+        fontSizes.put(SQUARE_ROOT.name(), new Double[]{16.0, 17.0, 22.0});
+        fontSizes.put(SQUARE.name(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(REVERSE.name(), new Double[]{16.0, 18.0, 22.0});
+        fontSizes.put(NEGATE.name(), new Double[]{25.0, 29.0, 36.0});
+        fontSizes.put(DIVIDE.name(), new Double[]{24.0, 32.0, 42.0});
+        fontSizes.put(MULTIPLY.name(), new Double[]{15.0, 19.0, 25.0});
+        fontSizes.put(ADD.name(), new Double[]{24.0, 33.0, 42.0});
+        fontSizes.put(SUBTRACT.name(), new Double[]{24.0, 35.0, 42.0});
+        fontSizes.put(RESULT.name(), new Double[]{24.0, 34.0, 42.0});
+
+        fontSizes.put("numbers", new Double[]{15.0, 20.0, 25.0});
+
+        fontSizes.put(LEFT_ERASE.name(), new Double[]{15.0, 20.0, 25.0});
+        fontSizes.put(CLEAN_CURRENT.name(), new Double[]{14.0, 15.0, 23.0});
+        fontSizes.put(CLEAN.name(), new Double[]{14.0, 15.0, 23.0});
+
+        // add main textfield and its fonts
+        fontSizes.put(CURRENT_NUMBER_TEXTFIELD_ID, new Double[]{23.0, 42.0, 66.0});
+
+        // add buttons with label ids
+        labeledButtons.add(NEGATE.name());
+        labeledButtons.add(DIVIDE.name());
+        labeledButtons.add(MULTIPLY.name());
+        labeledButtons.add(SUBTRACT.name());
+        labeledButtons.add(ADD.name());
+        labeledButtons.add(RESULT.name());
+        labeledButtons.add(LEFT_ERASE.name());
+    }
 
     /**
      * Configures the {@link Stage} instance and shows the configured application window.
@@ -165,49 +207,6 @@ public class CalculatorApplication extends Application {
     private Parent loadParent() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
-    }
-
-    /**
-     * The list of button ids associated with an arrays contains minimum, medium and maximum values
-     * of an appropriate button font size.
-     */
-    private static final Map<String, Double[]> fontSizes = new LinkedHashMap<>();
-
-    /**
-     * The list of buttons contains labels.
-     */
-    private List<String> labeledButtons = new ArrayList<>();
-
-    {
-        // add button's ids and its fonts
-        fontSizes.put(PERCENT.name(), new Double[]{16.0, 19.0, 22.0});
-        fontSizes.put(SQUARE_ROOT.name(), new Double[]{16.0, 17.0, 22.0});
-        fontSizes.put(SQUARE.name(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(REVERSE.name(), new Double[]{16.0, 18.0, 22.0});
-        fontSizes.put(NEGATE.name(), new Double[]{25.0, 29.0, 36.0});
-        fontSizes.put(DIVIDE.name(), new Double[]{24.0, 32.0, 42.0});
-        fontSizes.put(MULTIPLY.name(), new Double[]{15.0, 19.0, 25.0});
-        fontSizes.put(ADD.name(), new Double[]{24.0, 33.0, 42.0});
-        fontSizes.put(SUBTRACT.name(), new Double[]{24.0, 35.0, 42.0});
-        fontSizes.put(RESULT.name(), new Double[]{24.0, 34.0, 42.0});
-
-        fontSizes.put("numbers", new Double[]{15.0, 20.0, 25.0});
-
-        fontSizes.put(LEFT_ERASE.name(), new Double[]{15.0, 20.0, 25.0});
-        fontSizes.put(CLEAN_CURRENT.name(), new Double[]{14.0, 15.0, 23.0});
-        fontSizes.put(CLEAN.name(), new Double[]{14.0, 15.0, 23.0});
-
-        // add main textfield and its fonts
-        fontSizes.put(CURRENT_NUMBER_TEXTFIELD_ID, new Double[]{23.0, 42.0, 66.0});
-
-        // add buttons with label ids
-        labeledButtons.add(NEGATE.name());
-        labeledButtons.add(DIVIDE.name());
-        labeledButtons.add(MULTIPLY.name());
-        labeledButtons.add(SUBTRACT.name());
-        labeledButtons.add(ADD.name());
-        labeledButtons.add(RESULT.name());
-        labeledButtons.add(LEFT_ERASE.name());
     }
 
     /**

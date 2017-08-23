@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static com.implemica.CalculatorProject.model.calculation.StandardCalculatorTest.extractOperation;
+import static com.implemica.CalculatorProject.model.calculation.CalculatorTest.extractOperation;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
