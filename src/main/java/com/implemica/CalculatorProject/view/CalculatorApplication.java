@@ -4,7 +4,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -42,7 +45,8 @@ public class CalculatorApplication extends Application {
     /**
      * A path to the view fxml file.
      */
-    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calculatorView.fxml";
+//    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calculatorView.fxml";
+    private static final String CALCULATOR_VIEW_FILE = "/com/implemica/CalculatorProject/view/calculatorView2.fxml";
 
     /**
      * A path to the file with stylesheets.
@@ -142,6 +146,12 @@ public class CalculatorApplication extends Application {
         labeledButtons.add(LEFT_ERASE.name());
     }
 
+    private double deltaX;
+    private double deltaY;
+
+    private static final int RESIZE_PADDING = 4;
+    private double previousX;
+    private double previousY;
     /**
      * Configures the {@link Stage} instance and shows the configured application window.
      *
@@ -158,7 +168,8 @@ public class CalculatorApplication extends Application {
             primaryStage.getIcons().add(new Image(ICON_FILE));
             primaryStage.setMinHeight(MIN_HEIGHT);
             primaryStage.setMinWidth(MIN_WIDTH);
-            primaryStage.initStyle(StageStyle.DECORATED);
+//            primaryStage.initStyle(StageStyle.DECORATED);
+            primaryStage.initStyle(StageStyle.UNDECORATED);
             primaryStage.setResizable(true);
 
             // add listeners for window resizing
@@ -191,6 +202,41 @@ public class CalculatorApplication extends Application {
                     scaleTextFieldFont(primaryStage, newValue.doubleValue());
                 }
             });
+
+            addWindowMoveListener(root, primaryStage);
+            addFullScreenListener(root, primaryStage);
+
+            // TODO https://stackoverflow.com/questions/19455059/allow-user-to-resize-an-undecorated-stage
+//            root.setOnMousePressed(new EventHandler<MouseEvent>() {
+//                @Override
+//                public void handle(MouseEvent event) {
+//
+////                    if (primaryStage.getX() - event.getX() <= RESIZE_PADDING &&
+////                            primaryStage.getY() - event.getY() <= RESIZE_PADDING) {
+//
+//                        previousX = event.getScreenX();
+//                        previousY = event.getScreenY();
+//                        scene.setCursor(Cursor.H_RESIZE);
+////                    }
+//                }
+//            });
+
+//            root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+//                @Override
+//                public void handle(MouseEvent event) {
+//
+//                    double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
+//                    double newHeight = primaryStage.getHeight() + event.getScreenY() - previousY;
+//                    if (newWidth >= MIN_WIDTH) {
+//                        primaryStage.setWidth(newWidth);
+//                    }
+//                    if (newHeight >= MIN_HEIGHT) {
+//                        primaryStage.setHeight(newHeight);
+//                    }
+//                    previousX = event.getScreenX();
+//                    previousY = event.getScreenY();
+//                }
+//            });
 
             primaryStage.show();
         } catch (IOException e) {
@@ -341,5 +387,37 @@ public class CalculatorApplication extends Application {
             Font newFont = new Font(button.getFont().getFamily(), newFontSize);
             button.setFont(newFont);
         }
+    }
+
+    private void addWindowMoveListener(Parent root, Stage primaryStage) {
+        Label titleLabel = (Label) root.lookup("#appTitle");
+        titleLabel.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                deltaX = primaryStage.getX() - event.getScreenX();
+                deltaY = primaryStage.getY() - event.getScreenY();
+            }
+        });
+
+        titleLabel.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                primaryStage.setX(event.getScreenX() + deltaX);
+                primaryStage.setY(event.getScreenY() + deltaY);
+            }
+        });
+    }
+
+    private void addFullScreenListener(Parent root, Stage primaryStage) {
+        Label titleLabel = (Label) root.lookup("#appTitle"); // TODO remove duplicates
+        titleLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int clickCount = event.getClickCount();
+                if (clickCount == 2) {
+                    primaryStage.setFullScreen(!primaryStage.isFullScreen());
+                }
+            }
+        });
     }
 }

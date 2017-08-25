@@ -779,4 +779,9 @@ public class CalculatorController {
             buttonsWithKeys.put(new KeyCodeCombination(keyCode, modifiers), button);
         }
     }
+
+    @FXML
+    private void close() {
+        System.exit(0);
+    }
 }
