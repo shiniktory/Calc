@@ -11,7 +11,8 @@ import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.ZE
 import static java.math.BigDecimal.ZERO;
 
 /**
- * The {@code DataValidator} class contains methods for validation of input data.
+ * The DataValidator class is responsible for validation of input data. Validates number's length, its value and
+ * formatting.
  *
  * @author V. Kozina-Kravchenko
  */
@@ -105,8 +106,8 @@ public class DataValidator {
             return false;
         }
 
-        Pattern pattern = Pattern.compile(PATTERN_FOR_DIGIT);
-        Matcher matcher = pattern.matcher(value);
+        Pattern patternForDigit = Pattern.compile(PATTERN_FOR_DIGIT);
+        Matcher matcher = patternForDigit.matcher(value);
         return matcher.matches();
     }
 
@@ -120,8 +121,8 @@ public class DataValidator {
         if (isEmptyString(value)) {
             return false;
         }
-        Pattern pattern = Pattern.compile(PATTERN_FOR_NUMBERS);
-        Matcher matcher = pattern.matcher(value);
+        Pattern patternForNumbers = Pattern.compile(PATTERN_FOR_NUMBERS);
+        Matcher matcher = patternForNumbers.matcher(value);
         return matcher.matches();
     }
 
@@ -158,11 +159,10 @@ public class DataValidator {
     }
 
     /**
-     * Returns true if the specified number needs exponential formatting. Validation based on different factors
-     * such as number length and others.
+     * Returns true if the specified {@link BigDecimal} number needs exponential formatting.
      *
-     * @param number the number to validate for an exponential formatting need
-     * @return true if the specified number needs exponential formatting
+     * @param number the {@link BigDecimal} number to validate for an exponential formatting need
+     * @return true if the specified {@link BigDecimal} number needs exponential formatting
      */
     public static boolean isExponentFormattingNeed(BigDecimal number) {
 
@@ -173,10 +173,11 @@ public class DataValidator {
             isExponentNeed = true;
         }
 
-        BigDecimal tailLessMinValue = number.remainder(MIN_VALUE).setScale(SCALE_FOR_FRACTION_PART_CHECK, RoundingMode.HALF_UP);
+        // The value of number's fraction part after 16-th digit
+        BigDecimal tailAfter16thDigit = number.remainder(MIN_VALUE).setScale(SCALE_FOR_FRACTION_PART_CHECK, RoundingMode.HALF_UP);
 
         if (number.compareTo(NUMBER_FOR_EXPONENTIAL_CHECK) < 0 &&
-                tailLessMinValue.compareTo(MIN_TAIL_VALUE_FOR_EXPONENT) >= 0) {
+                tailAfter16thDigit.compareTo(MIN_TAIL_VALUE_FOR_EXPONENT) >= 0) {
             isExponentNeed = true;
         }
         if (isZero(number)) {
@@ -186,28 +187,25 @@ public class DataValidator {
     }
 
     /**
-     * Returns true if the specified number is zero.
+     * Returns true if the specified {@link BigDecimal} number is {@link BigDecimal#ZERO}.
      *
-     * @param number the number to validate for zero value
-     * @return true if the specified number is zero
+     * @param number the {@link BigDecimal} number to validate for {@link BigDecimal#ZERO} value
+     * @return true if the specified {@link BigDecimal} number is {@link BigDecimal#ZERO}
      */
     public static boolean isZero(BigDecimal number) {
         return ZERO.compareTo(number) == 0;
     }
 
     /**
-     * Returns true if the given number as result of an operations is out of valid bounds.
+     * Returns true if the given {@link BigDecimal} number is out of valid bounds.
      *
      * @param result the number to check for overflow
-     * @return true if the given number as result of an operations is out of valid bounds
+     * @return true if the given {@link BigDecimal} number is out of valid bounds
      */
     public static boolean isResultOverflow(BigDecimal result) {
-        boolean isResultOverflow = false;
         BigDecimal absResult = result.abs();
-        if (MAX_NUMBER.compareTo(absResult) <= 0 ||
-                absResult.compareTo(ZERO) > 0 && MIN_NUMBER.compareTo(absResult) >= 0) {
-            isResultOverflow = true;
-        }
-        return isResultOverflow;
+
+        return MAX_NUMBER.compareTo(absResult) <= 0 ||
+                !isZero(absResult) && MIN_NUMBER.compareTo(absResult) >= 0;
     }
 }

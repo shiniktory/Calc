@@ -510,19 +510,22 @@
                   </children>
               </VBox>
           </children>
+         <cursor>
+            <Cursor fx:constant="DEFAULT" />
+         </cursor>
       </StackPane>
    </center>
    <top>
-      <GridPane alignment="TOP_CENTER" maxHeight="30.0" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="330.0" BorderPane.alignment="TOP_CENTER">
+      <GridPane id="topResize" alignment="TOP_CENTER" maxHeight="30.0" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="330.0" BorderPane.alignment="TOP_CENTER">
         <columnConstraints>
-          <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="192.0" />
+          <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="192.0" />
           <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="-Infinity" minWidth="10.0" prefWidth="140.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="20.0" prefHeight="40.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label id="appTitle" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="236.0" text="Calculator" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.vgrow="NEVER">
+            <Label id="appTitle" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="236.0" text="Calculator" textOverrun="WORD_ELLIPSIS" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.vgrow="NEVER">
                <padding>
                   <Insets left="10.0" />
                </padding>
@@ -537,12 +540,15 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button id="hide" fx:id="hide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="_" />
+                  <Button id="hide" fx:id="hide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="_">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Button>
                   <Button id="expand" fx:id="expand" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="⎕" GridPane.columnIndex="1">
                      <font>
-                        <Font size="13.0" />
+                        <Font size="15.0" />
                      </font></Button>
-                  <Button id="close" fx:id="close" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#close" text="✕" GridPane.columnIndex="2">
+                  <Button id="close" fx:id="close" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="✕" GridPane.columnIndex="2">
                      <font>
                         <Font size="13.0" />
                      </font></Button>
@@ -552,12 +558,12 @@
       </GridPane>
    </top>
    <right>
-      <Label id="rightResize" alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" prefWidth="4.0" textAlignment="RIGHT" BorderPane.alignment="CENTER" />
+      <Label id="rightResize" alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" prefWidth="1.0" textAlignment="RIGHT" BorderPane.alignment="CENTER" />
    </right>
    <left>
-      <Label id="leftResize" maxHeight="1.7976931348623157E308" prefWidth="4.0" BorderPane.alignment="CENTER" />
+      <Label id="leftResize" maxHeight="1.7976931348623157E308" prefWidth="1.0" BorderPane.alignment="CENTER" />
    </left>
    <bottom>
-      <Label id="bottomResize" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="4.0" prefHeight="4.0" BorderPane.alignment="BOTTOM_CENTER" />
+      <Label id="bottomResize" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="1.0" prefHeight="1.0" BorderPane.alignment="BOTTOM_CENTER" />
    </bottom>
 </BorderPane>

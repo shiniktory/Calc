@@ -1,8 +1,8 @@
 package com.implemica.CalculatorProject.model.exception;
 
 /**
- * Thrown to indicate TODO  mathematical calculations.
- * This exception throws in cases of division by zero, square root from negative number or if result is overflow.
+ * Thrown to indicate an errors occurred while mathematical calculations: division by zero, square root from
+ * negative number or if result is overflow.
  *
  * @author V. Kozina-Kravchenko
  */

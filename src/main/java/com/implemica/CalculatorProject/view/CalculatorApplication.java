@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -72,6 +74,61 @@ public class CalculatorApplication extends Application {
      * The minimum width of an application's window.
      */
     private static final double MIN_WIDTH = 220.0;
+
+    /**
+     * The primary {@link Stage} for current application, onto which the application {@link Scene} is set.
+     */
+    private Stage currentStage;
+
+    /**
+     * The {@link Parent} from FXML-file that contains all application's UI elements.
+     */
+    private Parent root;
+
+    /**
+     * The value of pixel count from left screen border to application's left border.
+     */
+    private double deltaX;
+
+    /**
+     * The value of pixel count from top screen border to application's top border.
+     */
+    private double deltaY;
+
+    /**
+     * The X coordinate of mouse position where was generated the current {@link MouseEvent}.
+     */
+    private double currentMouseX;
+
+    /**
+     * The Y coordinate of mouse position where was generated the current {@link MouseEvent}.
+     */
+    private double currentMouseY;
+
+    /**
+     * The X coordinate of mouse position where was generated the previous {@link MouseEvent}.
+     */
+    private double previousMouseX;
+
+    /**
+     * The Y coordinate of mouse position where was generated the previous {@link MouseEvent}.
+     */
+    private double previousMouseY;
+
+    /**
+     * The X coordinate of mouse position which is the coordinate of left border of {@link Stage} with minimal width.
+     */
+    private double maxResizeX;
+
+    /**
+     * The Y coordinate of mouse position which is the coordinate of top border of {@link Stage} with minimal height.
+     */
+    private  double maxResizeY;
+
+    /**
+     *
+     */
+    private static final int RESIZE_PADDING = 2;
 
     /**
      * The default font family name for textfield.
@@ -146,14 +203,6 @@ public class CalculatorApplication extends Application {
         labeledButtons.add(LEFT_ERASE.name());
     }
 
-    private double deltaX;
-    private double deltaY;
-
-    private static final int RESIZE_PADDING = 10;
-    private double previousX;
-    private double previousY;
-
-    private double previousRightX;
     /**
      * Configures the {@link Stage} instance and shows the configured application window.
      *
@@ -162,56 +211,24 @@ public class CalculatorApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            Parent root = loadParent();
+            currentStage = primaryStage;
+            root = loadParent();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(CSS_FILE);
-            primaryStage.setScene(scene);
-            primaryStage.setTitle(APPLICATION_NAME);
-            primaryStage.getIcons().add(new Image(ICON_FILE));
-            primaryStage.setMinHeight(MIN_HEIGHT);
-            primaryStage.setMinWidth(MIN_WIDTH);
-//            primaryStage.initStyle(StageStyle.DECORATED);
-            primaryStage.initStyle(StageStyle.UNDECORATED);
-            primaryStage.setResizable(true);
+            currentStage.setScene(scene);
+            currentStage.setTitle(APPLICATION_NAME);
+            currentStage.getIcons().add(new Image(ICON_FILE));
+            currentStage.setMinHeight(MIN_HEIGHT);
+            currentStage.setMinWidth(MIN_WIDTH);
+            currentStage.initStyle(StageStyle.UNDECORATED);
+            currentStage.setResizable(true);
 
-            // add listeners for window resizing
-            primaryStage.widthProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    CalculatorApplication.this.scaleButtonFontSize(root, primaryStage);
-                }
-            });
+            // add listeners
+            addWindowMoveListener();
+            addFullScreenListener();
+            addResizeListeners();
 
-            primaryStage.heightProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    scaleButtonFontSize(root, primaryStage);
-                }
-            });
-
-            // add listeners for textfield and its content resizing
-            currentNumberTextField = (TextField) root.lookup(CURRENT_NUMBER_TEXTFIELD_ID);
-            currentNumberTextField.textProperty().addListener(new ChangeListener<String>() {
-                @Override
-                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                    scaleTextFieldFont(primaryStage, currentNumberTextField.getBoundsInLocal().getWidth());
-                }
-            });
-
-            currentNumberTextField.widthProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    scaleTextFieldFont(primaryStage, newValue.doubleValue());
-                }
-            });
-
-            addWindowMoveListener(root, primaryStage);
-            addFullScreenListener(root, primaryStage);
-
-            // TODO https://stackoverflow.com/questions/19455059/allow-user-to-resize-an-undecorated-stage
-            addResizeListeners(root, primaryStage);
-
-            primaryStage.show();
+            currentStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -228,20 +245,301 @@ public class CalculatorApplication extends Application {
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
     }
 
+    private void addWindowMoveListener() {
+        Label titleLabel = (Label) root.lookup("#appTitle");
+        titleLabel.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                deltaX = currentStage.getX() - event.getScreenX();
+                deltaY = currentStage.getY() + 3 - event.getScreenY();
+            }
+        });
+
+        titleLabel.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getScreenY() > currentStage.getY() + 3) {
+                    currentStage.setX(event.getScreenX() + deltaX);
+                    currentStage.setY(event.getScreenY() + deltaY);
+                }
+            }
+        });
+    }
+
+    private void addFullScreenListener() {
+        Label titleLabel = (Label) root.lookup("#appTitle"); // TODO remove duplicates
+        titleLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                int clickCount = event.getClickCount();
+                if (clickCount == 2) {
+                    currentStage.setMaximized(!currentStage.isMaximized());
+                }
+            }
+        });
+
+        Button expandButton = (Button) root.lookup("#expand");
+        expandButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                currentStage.setMaximized(!currentStage.isMaximized()); // TODO task bar overlays
+            }
+        });
+
+        Button hideButton = (Button) root.lookup("#hide");
+        hideButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                currentStage.setIconified(!currentStage.isIconified());
+            }
+        });
+
+        Button closeButton = (Button) root.lookup("#close");
+        closeButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                currentStage.close();
+            }
+        });
+    }
+
+    private void addResizeListeners() {
+        // set cursor style for resize
+        root.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                currentMouseX = event.getScreenX();
+                currentMouseY = event.getScreenY();
+
+                if (isTopLeftCorner() || isRightBottomCorner()) {
+                    setCursor(Cursor.NW_RESIZE);
+
+                } else if (isLeftEdge() || isRightEdge()) {
+                    setCursor(Cursor.H_RESIZE);
+
+                } else if (isBottomLeftCorner() || isTopRightCorner()) {
+                    setCursor(Cursor.NE_RESIZE);
+
+                } else if (isBottomEdge() || isTopEdge()) {
+                    setCursor(Cursor.V_RESIZE);
+
+                } else {
+                    setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+
+        root.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                rememberCoordinates(event);
+                maxResizeX = currentStage.getX() + currentStage.getWidth() - currentStage.getMinWidth() - 2;
+                maxResizeY = currentStage.getY() + currentStage.getHeight() - currentStage.getMinHeight() - 2;
+            }
+        });
+
+        root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                handleResizeEvent(event);
+            }
+        });
+
+        // add listeners for window resizing
+        currentStage.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                scaleButtonFontSize();
+            }
+        });
+
+        currentStage.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                scaleButtonFontSize();
+            }
+        });
+
+        // add listeners for textfield and its content resizing
+        currentNumberTextField = (TextField) root.lookup(CURRENT_NUMBER_TEXTFIELD_ID);
+        currentNumberTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                scaleTextFieldFont(currentNumberTextField.getBoundsInLocal().getWidth());
+            }
+        });
+
+        currentNumberTextField.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                scaleTextFieldFont(newValue.doubleValue());
+            }
+        });
+    }
+
+    private void handleResizeEvent(MouseEvent event) {
+        if (isTopLeftCorner()) {
+            double newHeight = currentStage.getHeight() - event.getScreenY() + previousMouseY;
+            double newWidth = currentStage.getWidth() - event.getScreenX() + previousMouseX;
+
+            if (event.getScreenX() <= maxResizeX &&
+                    event.getScreenY() <= maxResizeY) {
+                setNewWidth(newWidth);
+                setNewHeight(newHeight);
+                currentStage.setX(event.getScreenX());
+                currentStage.setY(event.getScreenY());
+            }
+
+        } else if (isLeftEdge()) {
+            double newWidth = currentStage.getWidth() - event.getScreenX() + previousMouseX;
+            if (event.getScreenX() <= maxResizeX) {
+                setNewWidth(newWidth);
+                currentStage.setX(event.getScreenX());
+            }
+
+        } else if (isBottomLeftCorner()) {
+            double newHeight = currentStage.getHeight() + event.getScreenY() - previousMouseY;
+            double newWidth = currentStage.getWidth() - event.getScreenX() + previousMouseX;
+            if (event.getScreenX() <= maxResizeX) {
+                setNewWidth(newWidth);
+                currentStage.setX(event.getScreenX());
+            }
+            setNewHeight(newHeight);
+
+        } else if (isBottomEdge()) {
+            double newHeight = currentStage.getHeight() + event.getScreenY() - previousMouseY;
+            setNewHeight(newHeight);
+
+        } else if (isRightBottomCorner()) {
+            double newHeight = currentStage.getHeight() + event.getScreenY() - previousMouseY;
+            double newWidth = currentStage.getWidth() + event.getScreenX() - previousMouseX;
+            setNewWidth(newWidth);
+            setNewHeight(newHeight);
+
+        } else if (isRightEdge()) {
+            double newWidth = currentStage.getWidth() + event.getScreenX() - previousMouseX;
+            setNewWidth(newWidth);
+
+        } else if (isTopRightCorner()) {
+
+            double newHeight = currentStage.getHeight() - event.getScreenY() + previousMouseY;
+            double newWidth = currentStage.getWidth() - event.getScreenX() + previousMouseX;
+
+            if (event.getScreenY() <= maxResizeY) {
+                setNewHeight(newHeight);
+                currentStage.setY(event.getScreenY());
+            }
+            setNewWidth(newWidth);
+
+        } else if (isTopEdge()) {
+            double newHeight = currentStage.getHeight() - event.getScreenY() + previousMouseY;
+
+            if (event.getScreenY() <= maxResizeY) {
+                setNewHeight(newHeight);
+                currentStage.setY(event.getScreenY());
+            }
+        }
+        rememberCoordinates(event);
+    }
+
+    private boolean isTopLeftCorner() {
+        double distanceToLeftEdge = currentMouseX - currentStage.getX();
+        double distanceToTopEdge = currentMouseY - currentStage.getY();
+
+        return distanceToLeftEdge <= RESIZE_PADDING &&
+                distanceToTopEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isLeftEdge() {
+        double distanceToLeftEdge = currentMouseX - currentStage.getX();
+        double distanceToTopEdge = currentMouseY - currentStage.getY();
+
+        return distanceToTopEdge <= currentStage.getHeight() - RESIZE_PADDING &&
+                distanceToLeftEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isBottomLeftCorner() {
+        double distanceToLeftEdge = currentMouseX - currentStage.getX();
+        double distanceToBottomEdge = currentStage.getY() + currentStage.getHeight() - currentMouseY;
+
+        return distanceToLeftEdge <= RESIZE_PADDING &&
+                distanceToBottomEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isBottomEdge() {
+        double distanceToBottomEdge = currentStage.getY() + currentStage.getHeight() - currentMouseY;
+        double distanceToLeftEdge = currentMouseX - currentStage.getX();
+
+        return distanceToLeftEdge <=  currentStage.getWidth() - RESIZE_PADDING &&
+                distanceToBottomEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isRightBottomCorner() {
+        double distanceToBottomEdge = currentStage.getY() + currentStage.getHeight() - currentMouseY;
+        double distanceToRightEdge = currentStage.getX() + currentStage.getWidth() - currentMouseX;
+
+        return distanceToRightEdge <= RESIZE_PADDING &&
+                distanceToBottomEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isRightEdge() {
+        double distanceToTopEdge = currentMouseY - currentStage.getY();
+        double distanceToRightEdge = currentStage.getX() + currentStage.getWidth() - currentMouseX;
+
+        return distanceToTopEdge <= currentStage.getHeight() - RESIZE_PADDING &&
+                distanceToRightEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isTopRightCorner() {
+        double distanceToTopEdge = currentMouseY - currentStage.getY();
+        double distanceToRightEdge = currentStage.getX() + currentStage.getWidth() - currentMouseX;
+
+        return distanceToTopEdge <= RESIZE_PADDING &&
+                distanceToRightEdge <= RESIZE_PADDING;
+    }
+
+    private boolean isTopEdge() {
+        double distanceToTopEdge = currentMouseY - currentStage.getY();
+        double distanceToLeftEdge = currentMouseX - currentStage.getX();
+
+        return distanceToTopEdge <= RESIZE_PADDING &&
+                distanceToLeftEdge <= currentStage.getWidth() - RESIZE_PADDING;
+    }
+
+    private void setCursor(Cursor cursor) {
+        currentStage.getScene().setCursor(cursor);
+    }
+
+    private void rememberCoordinates(MouseEvent event) {
+        previousMouseX = event.getScreenX();
+        previousMouseY = event.getScreenY();
+        currentMouseX = event.getScreenX();
+        currentMouseY = event.getScreenY();
+    }
+
+    private void setNewWidth(double newWidth) {
+        if (newWidth >= MIN_WIDTH && newWidth <= currentStage.getMaxWidth()) {
+            currentStage.setWidth(newWidth);
+        }
+    }
+
+    private void setNewHeight(double newHeight) {
+        if (newHeight >= MIN_HEIGHT && newHeight <= currentStage.getMaxHeight()) {
+            currentStage.setHeight(newHeight);
+        }
+    }
+
     /**
      * Changes font size on buttons depends on window size to avoid button text overflow.
-     *
-     * @param root         an instance of the {@link Parent} contains all elements of application's UI
-     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
      */
-    private void scaleButtonFontSize(Parent root, Stage primaryStage) {
+    private void scaleButtonFontSize() {
         GridPane pane = (GridPane) root.lookup(PANE_WITH_BUTTONS_ID);
 
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
             String buttonId = button.getId();
 
-            double newFontSize = getFontSize(buttonId, getFontBoundIndex(primaryStage));
+            double newFontSize = getFontSize(buttonId, getFontBoundIndex());
             setButtonFontSize(button, newFontSize);
         }
     }
@@ -250,11 +548,10 @@ public class CalculatorApplication extends Application {
      * Changes font size in the text field with current entered number depends on window and content sizes
      * to avoid text truncating.
      *
-     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
      * @param currentWidth current window width value
      */
-    private void scaleTextFieldFont(Stage primaryStage, double currentWidth) {
-        Font font = getFontForTextField(primaryStage, currentWidth);
+    private void scaleTextFieldFont(double currentWidth) {
+        Font font = getFontForTextField(currentWidth);
         currentNumberTextField.setFont(font);
         Platform.runLater(() -> currentNumberTextField.end());
     }
@@ -263,13 +560,12 @@ public class CalculatorApplication extends Application {
      * Returns a {@link Font} for the textfield with current number with calculated font size to fit text to
      * the textfield.
      *
-     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
      * @param currentWidth current window width value
      * @return a {@link Font} for the textfield with current number with calculated font size to fit text to
      * the textfield
      */
-    private Font getFontForTextField(Stage primaryStage, double currentWidth) {
-        int defaultFontSizeIndex = getFontBoundIndex(primaryStage);
+    private Font getFontForTextField(double currentWidth) {
+        int defaultFontSizeIndex = getFontBoundIndex();
         double defaultFontSize = fontSizes.get(CURRENT_NUMBER_TEXTFIELD_ID)[defaultFontSizeIndex];
         Font defaultFont = findFontForTextField(defaultFontSize);
 
@@ -303,10 +599,9 @@ public class CalculatorApplication extends Application {
      * Returns an index of bound calculated based on window width and height.
      * Example: 0 - smallest window size bound, 1 - medium, 2 - largest.
      *
-     * @param primaryStage an instance of the {@link Stage} contains information about current application's window
      * @return an index of bound calculated based on window width and height
      */
-    private int getFontBoundIndex(Stage primaryStage) {
+    private int getFontBoundIndex() {
         /*
             if width and height in appropriate scopes -> get for this scope
             if in different scopes -> get for min parameter
@@ -316,8 +611,8 @@ public class CalculatorApplication extends Application {
             height      370         480+        640+
          */
 
-        double currentWidth = primaryStage.getWidth();
-        double currentHeight = primaryStage.getHeight();
+        double currentWidth = currentStage.getWidth();
+        double currentHeight = currentStage.getHeight();
 
         if (currentWidth < 280 || currentHeight < 480) {
             return 0;
@@ -360,174 +655,5 @@ public class CalculatorApplication extends Application {
             Font newFont = new Font(button.getFont().getFamily(), newFontSize);
             button.setFont(newFont);
         }
-    }
-
-    private void addWindowMoveListener(Parent root, Stage primaryStage) {
-        Label titleLabel = (Label) root.lookup("#appTitle");
-        titleLabel.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                deltaX = primaryStage.getX() - event.getScreenX();
-                deltaY = primaryStage.getY() - event.getScreenY();
-            }
-        });
-
-        titleLabel.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                primaryStage.setX(event.getScreenX() + deltaX);
-                primaryStage.setY(event.getScreenY() + deltaY);
-            }
-        });
-    }
-
-    private void addFullScreenListener(Parent root, Stage primaryStage) {
-        Label titleLabel = (Label) root.lookup("#appTitle"); // TODO remove duplicates
-        titleLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                int clickCount = event.getClickCount();
-                if (clickCount == 2) {
-                    primaryStage.setFullScreen(!primaryStage.isFullScreen());
-                }
-            }
-        });
-    }
-
-    private void addResizeListeners(Parent root, Stage primaryStage) {
-        Label rightResizeDetector = (Label) root.lookup("#rightResize");
-
-        rightResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                primaryStage.getScene().setCursor(Cursor.H_RESIZE);
-            }
-        });
-        setDefaultCursorOnExited(rightResizeDetector, primaryStage);
-
-        rightResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                rememberPreviousCoordinates(event);
-            }
-        });
-
-        rightResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-
-                double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
-                if (newWidth >= MIN_WIDTH && newWidth <= primaryStage.getMaxWidth()) {
-                    primaryStage.setWidth(newWidth);
-                }
-                rememberPreviousCoordinates(event);
-            }
-        });
-
-        Label leftResizeDetector = (Label) root.lookup("#leftResize");
-
-        leftResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                primaryStage.getScene().setCursor(Cursor.H_RESIZE);
-            }
-        });
-
-        setDefaultCursorOnExited(leftResizeDetector, primaryStage);
-        leftResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                rememberPreviousCoordinates(event);
-                previousRightX = event.getScreenX() + primaryStage.getWidth();
-            }
-        });
-
-        leftResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-
-                double newWidth = primaryStage.getWidth() - event.getScreenX() + previousX;
-                double currentRightX = event.getScreenX() + newWidth;
-                if (newWidth > MIN_WIDTH && currentRightX <= previousRightX) {
-                    primaryStage.setWidth(newWidth);
-                    primaryStage.setX(event.getScreenX());
-                }
-                rememberPreviousCoordinates(event);            }
-        });
-
-        Label bottomResizeDetector = (Label) root.lookup("#bottomResize");
-
-        bottomResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                double eventX = event.getScreenX();
-                if (eventX - primaryStage.getX() <= RESIZE_PADDING) {
-                    primaryStage.getScene().setCursor(Cursor.NE_RESIZE);
-                } else if (primaryStage.getX() + primaryStage.getWidth() - eventX <= RESIZE_PADDING) {
-                    primaryStage.getScene().setCursor(Cursor.NW_RESIZE);
-                } else {
-                    primaryStage.getScene().setCursor(Cursor.V_RESIZE);
-                }
-            }
-        });
-
-        setDefaultCursorOnExited(bottomResizeDetector, primaryStage);
-        bottomResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                rememberPreviousCoordinates(event);
-                previousRightX = event.getScreenX() + primaryStage.getWidth();
-            }
-        });
-
-        bottomResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-
-                double newHeight = primaryStage.getHeight() + event.getScreenY() - previousY;
-                double eventX = event.getScreenX();
-                if (eventX - primaryStage.getX() <= RESIZE_PADDING) {
-                    double newWidth = primaryStage.getWidth() - event.getScreenX() + previousX;
-                    double currentRightX = event.getScreenX() + newWidth;
-                    if (newWidth > MIN_WIDTH && currentRightX <= previousRightX) {
-                        primaryStage.setWidth(newWidth);
-                        primaryStage.setX(event.getScreenX());
-                    }
-                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
-                        primaryStage.setHeight(newHeight);
-                    }
-
-                } else if (primaryStage.getX() + primaryStage.getWidth() - eventX <= RESIZE_PADDING) {
-                    double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
-                    if (newWidth >= MIN_WIDTH && newWidth <= primaryStage.getMaxWidth()) {
-                        primaryStage.setWidth(newWidth);
-                    }
-                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
-                        primaryStage.setHeight(newHeight);
-                    }
-
-                } else {
-                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
-                        primaryStage.setHeight(newHeight);
-                    }
-                }
-
-                rememberPreviousCoordinates(event);
-            }
-        });
-    }
-
-    private void setDefaultCursorOnExited(Label resizeDetector, Stage primaryStage) {
-        resizeDetector.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                primaryStage.getScene().setCursor(Cursor.DEFAULT);
-            }
-        });
-    }
-
-    private void rememberPreviousCoordinates(MouseEvent event) {
-        previousX = event.getScreenX();
-        previousY = event.getScreenY();
     }
 }

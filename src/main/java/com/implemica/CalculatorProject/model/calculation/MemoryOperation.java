@@ -2,8 +2,8 @@ package com.implemica.CalculatorProject.model.calculation;
 
 
 /**
- * The enum contains an operations with memorized value such as add or subtract to memorized
- * value, store value, recall or clean it.
+ * The enum contains an operations with memorized values: add to or subtract from a memorized
+ * value, store value, recall from memory or clean it.
  *
  * @author V. Kozina-Kravchenko
  */

@@ -48,6 +48,7 @@
     -fx-fit-to-width: true;
     -fx-border-insets: 0;
     -fx-border-image-insets: 0;
+    -fx-background-insets: 0;
 }
 
 .numbers:hover {
@@ -97,6 +98,7 @@
     -fx-alignment: center;
     -fx-fit-to-width: true;
     -fx-border-image-insets: 0;
+    -fx-background-insets: 0;
 }
 
 #mode {
@@ -252,6 +254,7 @@
     -fx-fit-to-width: true;
     -fx-border-insets: 0;
     -fx-border-image-insets: 0;
+    -fx-background-insets: 0;
 }
 
 #infoButton {
@@ -287,9 +290,10 @@
     -fx-border-color: #ffffff;
     -fx-background-color: #ffffff;
     -fx-border-radius: 0;
-    -fx-border-width: 0;
+    -fx-border-width: 1;
     -fx-padding: 0;
     -fx-border-insets: 0;
+    -fx-background-insets: 0;
 }
 
 #close:hover {

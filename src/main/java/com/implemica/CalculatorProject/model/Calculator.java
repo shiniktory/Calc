@@ -18,7 +18,7 @@ import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 
 /**
- * The {@code InputValueProcessor} class holds the components of the mathematical expression
+ * The class holds the components of the mathematical expression
  * such as number and operations. Grants functionality to input numbers, operations and calculate the
  * result for it.
  *

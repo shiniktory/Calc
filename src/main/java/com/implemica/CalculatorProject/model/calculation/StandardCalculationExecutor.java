@@ -14,15 +14,15 @@ import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
 
 /**
- * The {@code StandardCalculator} class is an implementation of {@link CalculationExecutor} interface. Performs some
- * Mathematical operations such as multiplying, dividing, changing number's sign to an opposite and etc.
+ * The StandardCalculator class performs calculations of a {@link MathOperation}s for the specified
+ * {@link BigDecimal} numbers.
  *
  * @author V. Kozina-Kravchenko
  */
 public class StandardCalculationExecutor implements CalculationExecutor {
 
     /**
-     * The error message about invalid count of numbers.
+     * The error message about invalid count of {@link BigDecimal} numbers for the current {@link MathOperation}.
      */
     private static final String INVALID_ARGUMENTS_COUNT = "Invalid count of numbers for your operation. " +
             "Your operation is %s, count of numbers is %s";
@@ -39,41 +39,42 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
 
     /**
-     * The error message about such operation not found.
+     * The error message about such {@link MathOperation} not found.
      */
     private static final String NO_SUCH_OPERATION_ERROR = "No such operation";
 
     /**
-     * The error message about invalid input that means an input string contains not only number.
+     * The error message about invalid input that means an input {@link BigDecimal} number is not allowed for the current
+     * {@link MathOperation}. For example, negative number for {@link MathOperation#SQUARE_ROOT} operation.
      */
     private static final String INVALID_INPUT_ERROR = "Invalid input";
 
     /**
-     * The list of one or two numbers for calculations.
+     * The list of one or two {@link BigDecimal} numbers for calculations.
      */
     private BigDecimal[] numbers;
 
     /**
-     * The value of a Mathematical operation type.
+     * The value of a {@link MathOperation} instance.
      */
     private MathOperation operation;
 
     /**
-     * Scale of the {@code BigDecimal} quotient to be returned for result of the division.
+     * Scale of the {@link BigDecimal} quotient to be returned for result of the division.
      */
     private static final int SCALE = 10100;
 
     /**
      * The value of 100 represented as {@link BigDecimal} number.
      */
-    private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+    private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
 
     /**
-     * Returns the result of calculations of an Mathematical operations with the specified numbers.
+     * Returns the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers.
      *
-     * @param operation a Mathematical operation to perform with the given numbers
-     * @param numbers   a numbers to perform a Mathematical operation with
-     * @return the result of calculations of an Mathematical operations with the specified numbers
+     * @param operation a {@link MathOperation} to perform with the given numbers
+     * @param numbers   a {@link BigDecimal} numbers to perform a {@link MathOperation} with
+     * @return the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers
      * @throws CalculationException in cases when of operation does not exist, division by zero or
      *                              specified invalid arguments
      */

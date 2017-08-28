@@ -168,13 +168,28 @@ public class CalculatorController {
     private boolean isErrorOccurred = false;
 
     /**
-     * TODO javadocs!
+     * A {@link StringBuilder} instance constructs a mathematical expression string.
      */
     private StringBuilder expression;
+
+    /**
+     * The value of separator for mathematical expression parts.
+     */
     private static final String EXPRESSION_PARTS_SEPARATOR = " ";
+
+    /**
+     * The flag variable shows was a previous part of mathematical expression unary {@link MathOperation}.
+     */
     private boolean wasUnaryBefore = false;
+
+    /**
+     * The string contains last formatted number or unary {@link MathOperation}.
+     */
     private String lastUnaryArgument = "";
 
+    /**
+     * The value of duration in millis for the button pressed animation.
+     */
     private static final int CLICK_ANIMATION_DURATION = 50;
 
     /**
@@ -208,26 +223,26 @@ public class CalculatorController {
 
     /**
      * Searches a {@link Button} by the given combination of pressed keys. If find fires an {@link ActionEvent} on this
-     * button and adds a button clicked visual effect for it.
+     * {@link Button} and adds a button pressed visual effect for it.
      *
-     * @param combination a combination of pressed keys to find appropriate button
+     * @param combination a combination of pressed keys to find appropriate {@link Button}
      */
     private static void fireButton(KeyCodeCombination combination) {
         Platform.runLater(() -> {
             Button button = BUTTONS_WITH_KEYS.get(combination);
             if (button != null) {
-                addButtonClickedEffect(button);
+                addButtonPressedEffect(button);
                 button.fire();
             }
         });
     }
 
     /**
-     * Adds a visual effect for button pressing.
+     * Adds a visual effect for {@link Button} pressing.
      *
-     * @param button the button to add a button pressed effect
+     * @param button the {@link Button} to add a button pressed effect
      */
-    private static void addButtonClickedEffect(Button button) {
+    private static void addButtonPressedEffect(Button button) {
         button.arm();
         // add delay to show a button pressed effect
         PauseTransition pause = new PauseTransition(Duration.millis(CLICK_ANIMATION_DURATION));
@@ -236,10 +251,10 @@ public class CalculatorController {
     }
 
     /**
-     * Handles {@link ActionEvent} and {@link MouseEvent} for buttons with numbers, mathematical,
-     * memory and edit operations. Updates text fields with history and current number.
+     * Handles {@link ActionEvent} and {@link MouseEvent} for {@link Button}s with numbers, mathematical,
+     * memory and edit operations. Updates {@link TextField}s with expression and current number.
      *
-     * @param event an {@link ActionEvent} and {@link MouseEvent} occurred on button with number or operation
+     * @param event an {@link ActionEvent} and {@link MouseEvent} occurred on {@link Button} with number or operation
      */
     @FXML
     private void handleButtonEvent(Event event) {
@@ -263,19 +278,18 @@ public class CalculatorController {
     }
 
     /**
-     * Executes an action for the specified button extracted from occurred event. For example, executes a mathematical
-     * operation or adds digit from button to the current number or cleans all text fields. Returns the text to set
-     * in the field with current number.
+     * Executes an action for the specified {@link Button} extracted from occurred {@link Event}. For example, executes
+     * a mathematical operation or adds digit from {@link Button} to the current number or cleans all {@link TextField}s.
+     * Returns the text to set in the {@link TextField} with current number.
      *
-     * @param button a button extracted from event
-     * @return the text to set in the field with current number
+     * @param button a {@link Button} extracted from {@link Event}
+     * @return the text to set in the {@link TextField} with current number
      * @throws CalculationException if some error occurred while data processing
      */
     private String handleButtonEventImpl(Button button) throws CalculationException {
         String textToSet = "";
         Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
 
-        // if it is digit button
         if (buttonFunction instanceof BigDecimal) {
             textToSet = addDigit((BigDecimal) buttonFunction);
 
@@ -310,9 +324,9 @@ public class CalculatorController {
     }
 
     /**
-     * Returns formatted current number with added decimal separator.
+     * Returns string contains formatted current {@link BigDecimal} number with added decimal separator.
      *
-     * @return formatted current number with added decimal separator
+     * @return string contains formatted current {@link BigDecimal} number with added decimal separator
      */
     private String addDecimalSeparator() {
         calculator.addPoint();
@@ -323,11 +337,11 @@ public class CalculatorController {
     }
 
     /**
-     * Executes a mathematical operation appropriate to the button extracted from event and returns the result to set
-     * in the text field with current number.
+     * Executes a {@link MathOperation} appropriate to the {@link Button} extracted from the {@link Event} and
+     * returns the string contains formatted result to set in the {@link TextField} with current number.
      *
-     * @param operation a mathematical operation to execute
-     * @return the result of the specified operation to set in the text field with current number
+     * @param operation a {@link MathOperation} to execute
+     * @return the result of the specified {@link MathOperation} to set in the {@link TextField} with current number
      * @throws CalculationException if some error occurred while calculations
      */
     private String executeMathOperation(MathOperation operation) throws CalculationException {
@@ -346,9 +360,9 @@ public class CalculatorController {
     }
 
     /**
-     * Checks the given number as result of an operations for overflow.
+     * Checks the given {@link BigDecimal} number as result of an operations for overflow.
      *
-     * @param result the number to check for overflow
+     * @param result the {@link BigDecimal} number to check for overflow
      * @throws CalculationException if result is out of valid bounds
      */
     private static void checkResultForOverflow(BigDecimal result) throws CalculationException {
@@ -358,12 +372,12 @@ public class CalculatorController {
     }
 
     /**
-     * Executes an operation with memorized value appropriate to the button extracted from event. Returns the last
-     * entered number or memorized value if operation is memory recall. Also enables or disables some memory buttons
-     * depends on what memory operation it is.
+     * Executes an {@link MemoryOperation} appropriate to the {@link Button} extracted from the {@link Event}. Returns
+     * the string contains formatted last entered number or memorized value if operation is {@link MemoryOperation#MEMORY_RECALL}.
+     * Also enables or disables some memory {@link Button}s depends on what {@link MemoryOperation} it is.
      *
-     * @param operation an operation with memorized value appropriate to the button extracted from event
-     * @return the last entered number or memorized value of operation is memory recall
+     * @param operation an {@link MemoryOperation} appropriate to the {@link Button} extracted from the {@link Event}
+     * @return the last entered number or memorized value if operation is {@link MemoryOperation#MEMORY_RECALL}
      * @throws CalculationException if some error occurred while calculations
      */
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
@@ -796,10 +810,5 @@ public class CalculatorController {
         if (keyCode != null) {
             BUTTONS_WITH_KEYS.put(new KeyCodeCombination(keyCode, modifiers), button);
         }
-    }
-
-    @FXML
-    private void close() {
-        System.exit(0);
     }
 }

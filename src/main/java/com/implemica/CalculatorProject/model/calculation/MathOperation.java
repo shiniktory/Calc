@@ -17,7 +17,7 @@ public enum MathOperation {
     private final String symbol;
 
     /**
-     * The flag variable shows is operation binary (true) or unary (false).
+     * The flag variable shows is {@link MathOperation} binary (true) or unary (false).
      */
     private final boolean isBinary;
 

@@ -1,8 +1,10 @@
 package com.implemica.CalculatorProject.model.calculation;
 
+import java.math.BigDecimal;
+
 /**
- * The enum contains operations for editing fields with numbers such as reset current number,
- * reset all numbers or delete last digit.
+ * The enum contains operations for editing {@link BigDecimal} numbers: reset current number to {@link BigDecimal#ZERO},
+ * reset all numbers to {@link BigDecimal#ZERO} or delete last digit in number.
  *
  * @author V. Kozina-Kravchenko
  */
@@ -11,7 +13,7 @@ public enum EditOperation {
     CLEAN_CURRENT("CE"), CLEAN("C"), LEFT_ERASE("⌫");
 
     /**
-     * A string representation of an operation.
+     * A string representation of an {@link EditOperation}.
      */
     private final String symbol;
 
