@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -126,9 +125,10 @@ public class CalculatorApplication extends Application {
     private  double maxResizeY;
 
     /**
-     *
+     * TODO javadoc
      */
     private static final int RESIZE_PADDING = 2;
+    private boolean isWindowMoving = false;
 
     /**
      * The default font family name for textfield.
@@ -226,6 +226,7 @@ public class CalculatorApplication extends Application {
             // add listeners
             addWindowMoveListener();
             addFullScreenListener();
+            addControlButtonsListeners();
             addResizeListeners();
 
             currentStage.show();
@@ -251,14 +252,16 @@ public class CalculatorApplication extends Application {
             @Override
             public void handle(MouseEvent event) {
                 deltaX = currentStage.getX() - event.getScreenX();
-                deltaY = currentStage.getY() + 3 - event.getScreenY();
+                deltaY = currentStage.getY() + RESIZE_PADDING - event.getScreenY();
+                isWindowMoving = true;
+                event.consume();
             }
         });
 
         titleLabel.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if (event.getScreenY() > currentStage.getY() + 3) {
+                if (event.getScreenY() > currentStage.getY() + RESIZE_PADDING && isWindowMoving) {
                     currentStage.setX(event.getScreenX() + deltaX);
                     currentStage.setY(event.getScreenY() + deltaY);
                 }
@@ -277,7 +280,9 @@ public class CalculatorApplication extends Application {
                 }
             }
         });
+    }
 
+    private void addControlButtonsListeners() {
         Button expandButton = (Button) root.lookup("#expand");
         expandButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -304,7 +309,7 @@ public class CalculatorApplication extends Application {
     }
 
     private void addResizeListeners() {
-        // set cursor style for resize
+        // set cursor style change when mouse hover borders
         root.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -329,15 +334,21 @@ public class CalculatorApplication extends Application {
             }
         });
 
+        // remember start coordinates before resize
         root.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                rememberCoordinates(event);
-                maxResizeX = currentStage.getX() + currentStage.getWidth() - currentStage.getMinWidth() - 2;
-                maxResizeY = currentStage.getY() + currentStage.getHeight() - currentStage.getMinHeight() - 2;
+                rememberEventCoordinates(event);
+                maxResizeX = currentStage.getX() + currentStage.getWidth() - currentStage.getMinWidth() - RESIZE_PADDING;
+                maxResizeY = currentStage.getY() + currentStage.getHeight() - currentStage.getMinHeight() - RESIZE_PADDING;
+                if (isTopLeftCorner() || isTopEdge()) {
+                    isWindowMoving = false;
+                }
+                event.consume();
             }
         });
 
+        // resize window
         root.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -345,7 +356,7 @@ public class CalculatorApplication extends Application {
             }
         });
 
-        // add listeners for window resizing
+        // add listeners for window resizing to change content font sizes
         currentStage.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -378,7 +389,7 @@ public class CalculatorApplication extends Application {
     }
 
     private void handleResizeEvent(MouseEvent event) {
-        if (isTopLeftCorner()) {
+        if (isTopLeftCorner() && !isWindowMoving) {
             double newHeight = currentStage.getHeight() - event.getScreenY() + previousMouseY;
             double newWidth = currentStage.getWidth() - event.getScreenX() + previousMouseX;
 
@@ -431,7 +442,7 @@ public class CalculatorApplication extends Application {
             }
             setNewWidth(newWidth);
 
-        } else if (isTopEdge()) {
+        } else if (isTopEdge() && !isWindowMoving) {
             double newHeight = currentStage.getHeight() - event.getScreenY() + previousMouseY;
 
             if (event.getScreenY() <= maxResizeY) {
@@ -439,7 +450,8 @@ public class CalculatorApplication extends Application {
                 currentStage.setY(event.getScreenY());
             }
         }
-        rememberCoordinates(event);
+        rememberEventCoordinates(event);
+        event.consume();
     }
 
     private boolean isTopLeftCorner() {
@@ -502,7 +514,7 @@ public class CalculatorApplication extends Application {
         double distanceToTopEdge = currentMouseY - currentStage.getY();
         double distanceToLeftEdge = currentMouseX - currentStage.getX();
 
-        return distanceToTopEdge <= RESIZE_PADDING &&
+        return distanceToTopEdge < RESIZE_PADDING &&
                 distanceToLeftEdge <= currentStage.getWidth() - RESIZE_PADDING;
     }
 
@@ -510,7 +522,7 @@ public class CalculatorApplication extends Application {
         currentStage.getScene().setCursor(cursor);
     }
 
-    private void rememberCoordinates(MouseEvent event) {
+    private void rememberEventCoordinates(MouseEvent event) {
         previousMouseX = event.getScreenX();
         previousMouseY = event.getScreenY();
         currentMouseX = event.getScreenX();

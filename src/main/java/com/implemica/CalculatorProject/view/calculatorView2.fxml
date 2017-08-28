@@ -529,6 +529,9 @@
                <padding>
                   <Insets left="10.0" />
                </padding>
+               <GridPane.margin>
+                  <Insets left="3.0" top="3.0" />
+               </GridPane.margin>
             </Label>
             <GridPane alignment="TOP_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.vgrow="NEVER">
               <columnConstraints>
