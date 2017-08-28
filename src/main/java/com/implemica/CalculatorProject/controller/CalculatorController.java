@@ -36,6 +36,7 @@ import java.util.List;
 import static com.implemica.CalculatorProject.model.calculation.EditOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
+import static com.implemica.CalculatorProject.model.validation.DataValidator.isEmptyString;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isResultOverflow;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
@@ -52,10 +53,10 @@ public class CalculatorController {
      * An instance of {@link Calculator} that accepts and calculates the results for an
      * input data.
      */
-    private final Calculator valueProcessor = new Calculator();
+    private final Calculator calculator = new Calculator();
 
     {
-        valueProcessor.setCalculationExecutor(new StandardCalculationExecutor());
+        calculator.setCalculationExecutor(new StandardCalculationExecutor());
     }
 
     /**
@@ -74,6 +75,11 @@ public class CalculatorController {
     private static final String[] CALCULATOR_TYPES = new String[]{"\tStandard", "\tScientific", "\tProgrammer",
             "\tDate calculation", CONVERTER_GROUP, "\tVolume", "\tLength", "\tWeight and Mass", "\tTemperature",
             "\tEnergy", "\tArea", "\tSpeed", "\tTime", "\tPower", "\tData", "\tPressure", "\tAngle"};
+
+    /**
+     * The list of labels with names of calculator types.
+     */
+    private static final ObservableList<Label> LIST_OF_CALCULATOR_TYPES = getListOfCalcTypes();
 
     /**
      * The count of milliseconds for animation duration.
@@ -136,14 +142,15 @@ public class CalculatorController {
 
     /**
      * The storage of all {@link Button}s associated with its functions in application.
-     * For example, digit button, math operation button, etc.
+     * For example, digit button associated with {@link BigDecimal} value,
+     * math operation button with {@link MathOperation}, etc.
      */
-    private Map<Button, Object> buttonsWithFunctions = new LinkedHashMap<>();
+    private static final Map<Button, Object> BUTTONS_WITH_FUNCTIONS = new LinkedHashMap<>();
 
     /**
      * The storage of all {@link Button}s associated with the {@link KeyCodeCombination}s that activates these buttons.
      */
-    private Map<KeyCodeCombination, Button> buttonsWithKeys = new LinkedHashMap<>();
+    private static final Map<KeyCodeCombination, Button> BUTTONS_WITH_KEYS = new LinkedHashMap<>();
 
     /**
      * The flag variable shows is panel with calculator types shown right now.
@@ -159,6 +166,16 @@ public class CalculatorController {
      * The flag variable shows is error occurred while calculations.
      */
     private boolean isErrorOccurred = false;
+
+    /**
+     * TODO javadocs!
+     */
+    private StringBuilder expression;
+    private static final String EXPRESSION_PARTS_SEPARATOR = " ";
+    private boolean wasUnaryBefore = false;
+    private String lastUnaryArgument = "";
+
+    private static final int CLICK_ANIMATION_DURATION = 50;
 
     /**
      * An error message about number's value is too large or too small.
@@ -195,9 +212,9 @@ public class CalculatorController {
      *
      * @param combination a combination of pressed keys to find appropriate button
      */
-    private void fireButton(KeyCodeCombination combination) {
+    private static void fireButton(KeyCodeCombination combination) {
         Platform.runLater(() -> {
-            Button button = buttonsWithKeys.get(combination);
+            Button button = BUTTONS_WITH_KEYS.get(combination);
             if (button != null) {
                 addButtonClickedEffect(button);
                 button.fire();
@@ -210,10 +227,10 @@ public class CalculatorController {
      *
      * @param button the button to add a button pressed effect
      */
-    private void addButtonClickedEffect(Button button) {
+    private static void addButtonClickedEffect(Button button) {
         button.arm();
         // add delay to show a button pressed effect
-        PauseTransition pause = new PauseTransition(Duration.millis(50));
+        PauseTransition pause = new PauseTransition(Duration.millis(CLICK_ANIMATION_DURATION));
         pause.setOnFinished(event1 -> button.disarm());
         pause.play();
     }
@@ -241,7 +258,7 @@ public class CalculatorController {
         setCurrentNumber(textToSet);
         updateExpression();
         if (isErrorOccurred) {
-            valueProcessor.cleanAll();
+            calculator.cleanAll();
         }
     }
 
@@ -255,19 +272,13 @@ public class CalculatorController {
      * @throws CalculationException if some error occurred while data processing
      */
     private String handleButtonEventImpl(Button button) throws CalculationException {
-        String textToSet = currentNumberText.getText();
-
-        Object buttonFunction = buttonsWithFunctions.get(button);
+        String textToSet = "";
+        Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
 
         // if it is digit button
         if (buttonFunction instanceof BigDecimal) {
-            resetAfterError();
+            textToSet = addDigit((BigDecimal) buttonFunction);
 
-            boolean isDigitAppended = valueProcessor.enterDigit((BigDecimal) buttonFunction);
-
-            if (isDigitAppended) {
-                textToSet = formatEnteredNumber(valueProcessor.getLastNumber(), false);
-            }
         } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
             textToSet = addDecimalSeparator();
 
@@ -284,14 +295,28 @@ public class CalculatorController {
         return textToSet;
     }
 
+    private String addDigit(BigDecimal digit) {
+        resetAfterError();
+        String newNumberValue = "";
+        String currentNumber = calculator.getLastNumber().toPlainString();
+
+//        if (isNumberLengthValid(currentNumber + digit)) {
+        boolean isDigitAppended = calculator.enterDigit(digit);
+        if (isDigitAppended) {
+            newNumberValue = formatEnteredNumber(calculator.getLastNumber(), false);
+        }
+//        }
+        return newNumberValue;
+    }
+
     /**
      * Returns formatted current number with added decimal separator.
      *
      * @return formatted current number with added decimal separator
      */
     private String addDecimalSeparator() {
-        valueProcessor.addPoint();
-        BigDecimal currentNumber = valueProcessor.getLastNumber();
+        calculator.addPoint();
+        BigDecimal currentNumber = calculator.getLastNumber();
         boolean needAppendPoint = currentNumber.scale() == 0;
 
         return formatEnteredNumber(currentNumber, needAppendPoint);
@@ -311,13 +336,13 @@ public class CalculatorController {
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
-            result = valueProcessor.executeMathOperation(operation);
+            result = calculator.executeMathOperation(operation);
         } else {
             resetAfterError();
-            result = valueProcessor.calculateResult();
+            result = calculator.calculateResult();
         }
         checkResultForOverflow(result);
-        return formatNumberWithGroupDelimiters(result);
+        return formatWithGroupDelimiters(result);
     }
 
     /**
@@ -326,7 +351,7 @@ public class CalculatorController {
      * @param result the number to check for overflow
      * @throws CalculationException if result is out of valid bounds
      */
-    private void checkResultForOverflow(BigDecimal result) throws CalculationException {
+    private static void checkResultForOverflow(BigDecimal result) throws CalculationException {
         if (isResultOverflow(result)) {
             throw new CalculationException(OVERFLOW_ERROR);
         }
@@ -342,11 +367,11 @@ public class CalculatorController {
      * @throws CalculationException if some error occurred while calculations
      */
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
-        valueProcessor.executeMemoryOperation(operation);
+        calculator.executeMemoryOperation(operation);
 
         boolean needEnable = !(operation == MEMORY_CLEAN);
         enableMemoryStateButtons(needEnable);
-        return formatNumberWithGroupDelimiters(valueProcessor.getLastNumber());
+        return formatWithGroupDelimiters(calculator.getLastNumber());
     }
 
     /**
@@ -358,27 +383,23 @@ public class CalculatorController {
      */
     private String executeEditOperation(EditOperation operation) {
         resetAfterError();
+        boolean isLastSymbolPoint = false;
 
         if (operation == CLEAN) {
-            valueProcessor.cleanAll();
+            calculator.cleanAll();
             isErrorOccurred = false;
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
 
         } else if (operation == CLEAN_CURRENT) {
-            valueProcessor.cleanCurrent();
+            calculator.cleanCurrent();
             isErrorOccurred = false;
+
+        } else if (operation == LEFT_ERASE) {
+            isLastSymbolPoint = calculator.deleteLastDigit();
         }
-
-
-        String lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), false);
-        if (operation == LEFT_ERASE) {
-
-            boolean isLastSymbolPoint = valueProcessor.deleteLastDigit();
-            lastEnteredNumber = formatEnteredNumber(valueProcessor.getLastNumber(), isLastSymbolPoint);
-        }
-        return lastEnteredNumber;
+        return formatEnteredNumber(calculator.getLastNumber(), isLastSymbolPoint);
     }
 
     /**
@@ -387,7 +408,7 @@ public class CalculatorController {
     private void resetAfterError() {
         if (isErrorOccurred) {
             enableAllOperations(true);
-            String numberToReset = formatNumberWithGroupDelimiters(valueProcessor.getLastNumber());
+            String numberToReset = formatWithGroupDelimiters(calculator.getLastNumber());
             setCurrentNumber(numberToReset);
             updateExpression();
             isErrorOccurred = false;
@@ -411,14 +432,16 @@ public class CalculatorController {
     /**
      * Sets the given number represented by string to the textfield contains current number.
      *
-     * @param number the number to set
+     * @param formattedNumber the number to set
      */
-    private void setCurrentNumber(String number) {
-        Platform.runLater(() -> {
-            currentNumberText.setText(number);
-            currentNumberText.end();
-            prevOperationsText.end();
-        });
+    private void setCurrentNumber(String formattedNumber) {
+        if (!isEmptyString(formattedNumber)) {
+            Platform.runLater(() -> {
+                currentNumberText.setText(formattedNumber);
+                currentNumberText.end();
+                prevOperationsText.end();
+            });
+        }
     }
 
     /**
@@ -432,18 +455,13 @@ public class CalculatorController {
         });
     }
 
-    private StringBuilder expression;
-    private static final String EXPRESSION_PARTS_SEPARATOR = " ";
-    private boolean wasUnaryBefore = false;
-    private String lastUnaryArgument = "";
-
     /**
      * Returns string value contains the formatted current math expression.
      *
      * @return string value contains the formatted current math expression
      */
     private String getExpression() {
-        List arguments = valueProcessor.getExpressionArguments();
+        List<Object> arguments = calculator.getExpressionArguments();
         expression = new StringBuilder();
         lastUnaryArgument = "";
 
@@ -544,7 +562,7 @@ public class CalculatorController {
 
         } else { // if panel is invisible - show it
             // add list of calculator's view types
-            viewTypesList.setItems(getListOfCalcTypes());
+            viewTypesList.setItems(LIST_OF_CALCULATOR_TYPES);
             viewTypesList.getSelectionModel().select(0);
             viewTypesPanel.setVisible(true);
 
@@ -602,7 +620,7 @@ public class CalculatorController {
      *
      * @return the list of calculator view types
      */
-    private ObservableList<Label> getListOfCalcTypes() {
+    private static ObservableList<Label> getListOfCalcTypes() {
         List<Label> labelList = new LinkedList<>();
 
         for (String type : CALCULATOR_TYPES) {
@@ -637,7 +655,7 @@ public class CalculatorController {
     private void enableAllOperations(boolean enable) {
         enableMemoryEditButtons(enable);
         Platform.runLater(() -> {
-            for (Button button : buttonsWithFunctions.keySet()) {
+            for (Button button : BUTTONS_WITH_FUNCTIONS.keySet()) {
                 enableOperationButton(button, enable);
             }
         });
@@ -672,7 +690,7 @@ public class CalculatorController {
      * @param enable a boolean value shows to enable or disable buttons
      */
     private void enableOperationButton(Button button, boolean enable) {
-        Object buttonFunction = buttonsWithFunctions.get(button);
+        Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
 
         if (buttonFunction instanceof MathOperation && buttonFunction != RESULT ||
                 POINT.equals(buttonFunction)) {
@@ -689,7 +707,7 @@ public class CalculatorController {
     private void enableAllButtons(boolean enable) {
         enableMemoryEditButtons(enable);
         Platform.runLater(() -> {
-            for (Button button : buttonsWithFunctions.keySet()) {
+            for (Button button : BUTTONS_WITH_FUNCTIONS.keySet()) {
                 button.setDisable(!enable);
             }
         });
@@ -700,7 +718,7 @@ public class CalculatorController {
      * The initialization executes only is storage is empty.
      */
     private void initializeButtons() {
-        if (buttonsWithFunctions.size() != 0 || buttonsWithKeys.size() != 0) {
+        if (BUTTONS_WITH_FUNCTIONS.size() != 0 || BUTTONS_WITH_KEYS.size() != 0) {
             return;
         }
         // buttons with digits
@@ -771,12 +789,12 @@ public class CalculatorController {
      * @param keyCode        a key code that actives current button
      * @param modifiers      a modifiers to key code that actives current button
      */
-    private void addButton(Button button, Object buttonFunction, KeyCode keyCode, Modifier... modifiers) {
-        if (!buttonsWithFunctions.containsKey(button)) {
-            buttonsWithFunctions.put(button, buttonFunction);
+    private static void addButton(Button button, Object buttonFunction, KeyCode keyCode, Modifier... modifiers) {
+        if (!BUTTONS_WITH_FUNCTIONS.containsKey(button)) {
+            BUTTONS_WITH_FUNCTIONS.put(button, buttonFunction);
         }
         if (keyCode != null) {
-            buttonsWithKeys.put(new KeyCodeCombination(keyCode, modifiers), button);
+            BUTTONS_WITH_KEYS.put(new KeyCodeCombination(keyCode, modifiers), button);
         }
     }
 

@@ -173,7 +173,7 @@ public class OutputFormatter {
      * @return the formatted string containing number rounded or converted to an exponential view with
      * group delimiters
      */
-    public static String formatNumberWithGroupDelimiters(BigDecimal number) {
+    public static String formatWithGroupDelimiters(BigDecimal number) {
         String stringValue;
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialViewWithGroups(number);
@@ -315,16 +315,6 @@ public class OutputFormatter {
                 formattedExpression = format(NEGATE_PATTERN, argument);
         }
         return formattedExpression;
-    }
-
-    /**
-     * Removes group delimiters from the specified number represented by string and returns formatted string.
-     *
-     * @param number the string with number to format
-     * @return the formatted string containing number without group delimiters
-     */
-    public static String removeGroupDelimiters(String number) {
-        return number.replaceAll(String.valueOf(GROUP_SEPARATOR), EMPTY_VALUE).toLowerCase();
     }
 
     /**

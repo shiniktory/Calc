@@ -17,519 +17,517 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane id="mainPane" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.CalculatorProject.controller.CalculatorController">
+<BorderPane id="mainPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.CalculatorProject.controller.CalculatorController">
    <center>
       <StackPane focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="350.0" minWidth="200.0" onKeyPressed="#handleKeyEvent" prefHeight="569.0" prefWidth="330.0" stylesheets="@winCalc.css">
-         <children>
-            <GridPane focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="350.0" minWidth="200.0" prefHeight="569.0" prefWidth="330.0" StackPane.alignment="TOP_CENTER">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints maxHeight="108.0" minHeight="35.0" prefHeight="47.0" vgrow="NEVER" />
-                <RowConstraints maxHeight="170.0" minHeight="70.0" prefHeight="109.0" valignment="TOP" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="401.0" minHeight="25.0" prefHeight="33.0" vgrow="NEVER" />
-                  <RowConstraints maxHeight="1.7976931348623157E308" minHeight="215.0" prefHeight="380.0" valignment="BOTTOM" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <StackPane alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" GridPane.vgrow="SOMETIMES">
-                     <children>
-                        <GridPane id="numbers_operations" fx:id="numbersAndOperations" alignment="TOP_CENTER" cache="true" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0">
+          <children>
+              <GridPane focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="350.0" minWidth="200.0" prefHeight="569.0" prefWidth="330.0" StackPane.alignment="TOP_CENTER">
+                  <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
+                  </columnConstraints>
+                  <rowConstraints>
+                      <RowConstraints maxHeight="108.0" minHeight="35.0" prefHeight="47.0" vgrow="NEVER" />
+                      <RowConstraints maxHeight="170.0" minHeight="70.0" prefHeight="109.0" valignment="TOP" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="401.0" minHeight="25.0" prefHeight="33.0" vgrow="NEVER" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="215.0" prefHeight="380.0" valignment="BOTTOM" vgrow="SOMETIMES" />
+                  </rowConstraints>
+                  <children>
+                      <StackPane alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" GridPane.vgrow="SOMETIMES">
+                          <children>
+                              <GridPane id="numbers_operations" fx:id="numbersAndOperations" alignment="TOP_CENTER" cache="true" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="195.0" minWidth="200.0">
+                                  <columnConstraints>
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  </columnConstraints>
+                                  <rowConstraints>
+                                      <RowConstraints minHeight="30.0" prefHeight="57.0" vgrow="SOMETIMES" />
+                                      <RowConstraints minHeight="30.0" prefHeight="56.0" vgrow="SOMETIMES" />
+                                      <RowConstraints minHeight="30.0" prefHeight="63.0" vgrow="SOMETIMES" />
+                                      <RowConstraints minHeight="30.0" prefHeight="61.0" vgrow="SOMETIMES" />
+                                      <RowConstraints minHeight="30.0" prefHeight="64.0" vgrow="SOMETIMES" />
+                                      <RowConstraints minHeight="30.0" prefHeight="62.0" vgrow="SOMETIMES" />
+                                  </rowConstraints>
+                                  <children>
+                                      <Button id="percent" fx:id="percent" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="unary_operations" text="\%" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Comic Sans MS Bold" size="19.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="square_root" fx:id="squareRoot" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="unary_operations" text="√" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Georgia Bold" size="17.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="square" fx:id="square" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="unary_operations" text="𝑥²" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Segoe UI Semilight" size="18.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="reverse" fx:id="reverse" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="unary_operations" text="¹⁄𝑥" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Segoe UI Semilight" size="18.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="clean_current" fx:id="cleanCurrent" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="CE" textAlignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Segoe UI Semilight" size="15.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="clean" fx:id="clean" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="C" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Segoe UI Semilight" size="15.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="left_erase" fx:id="leftErase" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="⌫" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Arial Unicode MS" size="18.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label text="⌫">
+                                                  <font>
+                                                      <Font name="Arial Unicode MS" size="20.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                          <opaqueInsets>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </opaqueInsets>
+                                      </Button>
+                                      <Button id="divide" fx:id="divide" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="28.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" prefWidth="83.0" styleClass="numbers" text="÷" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Times New Roman" size="29.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="÷" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Times New Roman" size="32.0" />
+                                                  </font></Label>
+                                          </graphic>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                      </Button>
+                                      <Button id="7" fx:id="digit7" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="7" textAlignment="CENTER" textOverrun="CENTER_WORD_ELLIPSIS" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="8" fx:id="digit8" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="8" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="9" fx:id="digit9" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="9" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="multiply" fx:id="multiply" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="×" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                                          <font>
+                                              <Font name="Segoe UI Black Italic" size="21.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="☓">
+                                                  <font>
+                                                      <Font name="Segoe UI Semibold" size="19.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                      </Button>
+                                      <Button id="4" fx:id="digit4" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="4" textAlignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="5" fx:id="digit5" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="5" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="6" fx:id="digit6" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="6" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="subtract" fx:id="subtract" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="−" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semilight Italic" size="27.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="−" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Segoe UI Light" size="35.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                      </Button>
+                                      <Button id="1" fx:id="digit1" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="1" textAlignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="2" fx:id="digit2" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="2" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="3" fx:id="digit3" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="3" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="add" fx:id="add" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="+" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Light" size="30.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="+" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Segoe UI Semilight" size="33.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                      </Button>
+                                      <Button id="negate" fx:id="negate" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="±" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semilight" size="27.0" />
+                                          </font>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="±" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Segoe UI Semilight" size="29.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                      </Button>
+                                      <Button id="0" fx:id="digit0" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="point" fx:id="point" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" styleClass="numbers" text="." textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="23.0" />
+                                          </font>
+                                      </Button>
+                                      <Button id="result" fx:id="result" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="=" textAlignment="CENTER" textFill="TRANSPARENT" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Emoji" size="31.0" />
+                                          </font>
+                                          <opaqueInsets>
+                                              <Insets />
+                                          </opaqueInsets>
+                                          <graphic>
+                                              <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="=" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Segoe UI Light" size="34.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+                                          <padding>
+                                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                          </padding>
+                                      </Button>
+                                  </children>
+                                  <rotationAxis>
+                                      <Point3D />
+                                  </rotationAxis>
+                                  <padding>
+                                      <Insets top="5.0" />
+                                  </padding>
+                              </GridPane>
+                              <BorderPane id="memoryStorage" fx:id="memoryStorage" nodeOrientation="LEFT_TO_RIGHT" visible="false" StackPane.alignment="BOTTOM_RIGHT">
+                                  <bottom>
+                                      <Button id="storageClean" fx:id="storageClean" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="🗑" textAlignment="CENTER" BorderPane.alignment="BOTTOM_RIGHT">
+                                          <font>
+                                              <Font name="Segoe UI Semibold" size="21.0" />
+                                          </font>
+                                          <tooltip>
+                                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Clear all memory" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font size="10.0" />
+                                                  </font></Tooltip>
+                                          </tooltip>
+                                      </Button>
+                                  </bottom>
+                              </BorderPane>
+                          </children>
+                      </StackPane>
+                      <GridPane id="memoryButtonsPane" fx:id="memoryButtonsPane" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="47.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="51.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="52.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="66.0" />
                           </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="30.0" prefHeight="57.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="30.0" prefHeight="56.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="63.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="61.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="30.0" prefHeight="64.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="30.0" prefHeight="62.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                           <children>
-                              <Button id="percent" fx:id="percent" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="\%" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Comic Sans MS Bold" size="19.0" />
-                                 </font>
-                              </Button>
-                              <Button id="square_root" fx:id="squareRoot" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="√" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+                          <children>
+                              <Button id="memory_clean" fx:id="memoryClean" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" styleClass="memory_buttons" text="MC" textAlignment="CENTER">
+                                  <opaqueInsets>
+                                      <Insets />
+                                  </opaqueInsets>
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Clear all memory" />
+                                  </tooltip>
                                   <font>
-                                      <Font name="Georgia Bold" size="17.0" />
+                                      <Font size="13.0" />
                                   </font>
                               </Button>
-                              <Button id="square" fx:id="square" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="𝑥²" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Segoe UI Semilight" size="18.0" />
-                                 </font>
-                              </Button>
-                              <Button id="reverse" fx:id="reverse" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="¹⁄𝑥" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Segoe UI Semilight" size="18.0" />
-                                 </font>
-                              </Button>
-                              <Button id="clean_current" fx:id="cleanCurrent" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="CE" textAlignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Segoe UI Semilight" size="15.0" />
-                                 </font>
-                              </Button>
-                              <Button id="clean" fx:id="clean" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="C" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Segoe UI Semilight" size="15.0" />
-                                 </font>
-                              </Button>
-                              <Button id="left_erase" fx:id="leftErase" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="⌫" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Arial Unicode MS" size="18.0" />
-                                 </font>
-                                 <graphic>
-                                    <Label text="⌫">
-                                       <font>
-                                          <Font name="Arial Unicode MS" size="20.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <opaqueInsets>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </opaqueInsets>
-                              </Button>
-                              <Button id="divide" fx:id="divide" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="28.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" prefWidth="83.0" text="÷" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Times New Roman" size="29.0" />
-                                 </font>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="÷" textAlignment="CENTER">
-                                       <font>
-                                          <Font name="Times New Roman" size="32.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                              </Button>
-                              <Button id="7" fx:id="digit7" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="7" textAlignment="CENTER" textOverrun="CENTER_WORD_ELLIPSIS" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                               <font>
-                                   <Font name="Segoe UI Semibold" size="23.0" />
-                               </font>
-                              </Button>
-                               <Button id="8" fx:id="digit8" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="8" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="9" fx:id="digit9" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="9" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="multiply" fx:id="multiply" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="×" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
-                                 <font>
-                                    <Font name="Segoe UI Black Italic" size="21.0" />
-                                 </font>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="☓">
-                                       <font>
-                                          <Font name="Segoe UI Semibold" size="19.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                              </Button>
-                              <Button id="4" fx:id="digit4" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="4" textAlignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="5" fx:id="digit5" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="5" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="6" fx:id="digit6" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="6" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="subtract" fx:id="subtract" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="−" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semilight Italic" size="27.0" />
-                                 </font>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="−" textAlignment="CENTER">
-                                       <font>
-                                          <Font name="Segoe UI Light" size="35.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                              </Button>
-                              <Button id="1" fx:id="digit1" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="1" textAlignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="2" fx:id="digit2" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="2" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="3" fx:id="digit3" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="3" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="add" fx:id="add" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="+" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Light" size="30.0" />
-                                 </font>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="+" textAlignment="CENTER">
-                                       <font>
-                                          <Font name="Segoe UI Semilight" size="33.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                              </Button>
-                              <Button id="negate" fx:id="negate" alignment="CENTER" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="±" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                                             <font>
-                                    <Font name="Segoe UI Semilight" size="27.0" />
-                                 </font>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="±" textAlignment="CENTER">
-                                       <font>
-                                          <Font name="Segoe UI Semilight" size="29.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                              </Button>
-                              <Button id="0" fx:id="digit0" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="point" fx:id="point" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="." textAlignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="23.0" />
-                                 </font>
-                              </Button>
-                              <Button id="result" fx:id="result" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="50.0" mnemonicParsing="false" onAction="#handleButtonEvent" text="=" textAlignment="CENTER" textFill="TRANSPARENT" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Emoji" size="31.0" />
-                                 </font>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
-                                 <graphic>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="=" textAlignment="CENTER">
-                                       <font>
-                                          <Font name="Segoe UI Light" size="34.0" />
-                                       </font>
-                                    </Label>
-                                 </graphic>
-                                 <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-                                 </padding>
-                              </Button>
-                           </children>
-                           <rotationAxis>
-                              <Point3D />
-                           </rotationAxis>
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </GridPane>
-                        <BorderPane id="memoryStorage" fx:id="memoryStorage" nodeOrientation="LEFT_TO_RIGHT" visible="false" StackPane.alignment="BOTTOM_RIGHT">
-                           <bottom>
-                              <Button id="storageClean" fx:id="storageClean" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="🗑" textAlignment="CENTER" BorderPane.alignment="BOTTOM_RIGHT">
-                                 <font>
-                                    <Font name="Segoe UI Semibold" size="21.0" />
-                                 </font>
+                              <Button id="memory_recall" fx:id="memoryRecall" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" styleClass="memory_buttons" text="MR" textAlignment="CENTER" GridPane.columnIndex="1">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
                                   <tooltip>
-                                    <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Clear all memory" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="10.0" />
-                                       </font>
-                                    </Tooltip>
-                                 </tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory recall" />
+                                  </tooltip>
+                                  <font>
+                                      <Font size="13.0" />
+                                  </font>
                               </Button>
-                           </bottom>
-                        </BorderPane>
-                     </children>
-                  </StackPane>
-                  <GridPane id="memoryButtonsPane" fx:id="memoryButtonsPane" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="47.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="51.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="52.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="56.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="66.0" />
-                    </columnConstraints>
-                      <children>
-                          <Button id="memory_clean" fx:id="memoryClean" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" text="MC" textAlignment="CENTER">
-                           <opaqueInsets>
+                              <Button id="memory_add" fx:id="memoryAdd" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" styleClass="memory_buttons" text="M+" textAlignment="CENTER" GridPane.columnIndex="2">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory add" />
+                                  </tooltip>
+                                  <font>
+                                      <Font size="13.0" />
+                                  </font>
+                              </Button>
+                              <Button id="memory_subtract" fx:id="memorySubtract" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" styleClass="memory_buttons" text="M-" textAlignment="CENTER" GridPane.columnIndex="3">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" onShowing="#setTooltipPosition" text="Memory subtract" x="-15.0" y="20.0" />
+                                  </tooltip>
+                                  <font>
+                                      <Font size="13.0" />
+                                  </font>
+                              </Button>
+                              <Button id="memory_store" fx:id="memoryStore" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" prefHeight="29.0" prefWidth="48.0" styleClass="memory_buttons" text="MS" textAlignment="CENTER" GridPane.columnIndex="4">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory store" textAlignment="CENTER" x="-50.0" y="-90.0" />
+                                  </tooltip>
+                                  <font>
+                                      <Font size="13.0" />
+                                  </font>
+                              </Button>
+                              <Button id="memory_show" fx:id="memoryShow" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showOrHideMemoryPane" styleClass="memory_buttons" text="M🢓" textAlignment="CENTER" GridPane.columnIndex="5">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <tooltip>
+                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory" textAlignment="CENTER" />
+                                  </tooltip>
+                                  <font>
+                                      <Font size="13.0" />
+                                  </font>
+                              </Button>
+                          </children>
+                          <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <GridPane.margin>
                               <Insets />
-                           </opaqueInsets>
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Clear all memory" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                          <Button id="memory_recall" fx:id="memoryRecall" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" text="MR" textAlignment="CENTER" GridPane.columnIndex="1">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory recall" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                          <Button id="memory_add" fx:id="memoryAdd" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" text="M+" textAlignment="CENTER" GridPane.columnIndex="2">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" onShowing="#setTooltipPosition" text="Memory add" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                          <Button id="memory_subtract" fx:id="memorySubtract" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" text="M-" textAlignment="CENTER" GridPane.columnIndex="3">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" onShowing="#setTooltipPosition" text="Memory subtract" x="-15.0" y="20.0" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                          <Button id="memory_store" fx:id="memoryStore" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleButtonEvent" onMouseClicked="#handleButtonEvent" prefHeight="29.0" prefWidth="48.0" text="MS" textAlignment="CENTER" GridPane.columnIndex="4">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" anchorX="0.0" anchorY="0.0" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory store" textAlignment="CENTER" x="-50.0" y="-90.0" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                          <Button id="memory_show" fx:id="memoryShow" alignment="CENTER" contentDisplay="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showOrHideMemoryPane" text="M🢓" textAlignment="CENTER" GridPane.columnIndex="5">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <tooltip>
-                              <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" contentDisplay="CENTER" onShowing="#setTooltipPosition" text="Memory" textAlignment="CENTER" />
-                           </tooltip>
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Button>
-                      </children>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <GridPane.margin>
-                        <Insets />
-                     </GridPane.margin>
-                     <padding>
-                        <Insets bottom="2.0" />
-                     </padding>
-                     <rotationAxis>
-                        <Point3D />
-                     </rotationAxis>
-                  </GridPane>
-                  <BorderPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" prefHeight="48.0" prefWidth="200.0" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
-                     <center>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="40.0" minWidth="110.0" prefHeight="40.0" prefWidth="110.0" text="STANDARD" BorderPane.alignment="CENTER_LEFT">
-                           <font>
-                              <Font name="Segoe UI Semibold" size="17.0" />
-                           </font>
-                           <padding>
-                              <Insets left="15.0" />
-                           </padding>
-                           <effect>
-                              <ColorAdjust contrast="0.14" hue="0.07" />
-                           </effect>
-                        </Label>
-                     </center>
-                     <right>
-                        <Button id="history" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" textAlignment="CENTER" BorderPane.alignment="CENTER">
-                           <font>
-                              <Font size="16.0" />
-                           </font>
-                           <effect>
-                              <ColorAdjust contrast="0.79" />
-                           </effect>
-                        </Button>
-                     </right>
-                     <GridPane.margin>
-                        <Insets />
-                     </GridPane.margin>
-                     <rotationAxis>
-                        <Point3D />
-                     </rotationAxis>
-                     <left>
-                        <Button id="mode" fx:id="mode" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
-                           <font>
-                              <Font name="Segoe UI Light Italic" size="36.0" />
-                           </font>
-                           <graphic>
-                              <Label id="modeLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="≡" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Light" size="31.0" />
-                                 </font>
-                              </Label>
-                           </graphic>
-                        </Button>
-                     </left>
-                  </BorderPane>
-                  <GridPane maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" onKeyPressed="#handleKeyEvent" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="65.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="110.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <TextField fx:id="currentNumberText" alignment="CENTER_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#handleKeyEvent" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
-                           <font>
-                              <Font name="Segoe UI Semibold" size="42.0" />
-                           </font>
-                           <padding>
-                              <Insets right="5.0" />
-                           </padding>
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                           <rotationAxis>
+                          </GridPane.margin>
+                          <padding>
+                              <Insets bottom="2.0" />
+                          </padding>
+                          <rotationAxis>
                               <Point3D />
-                           </rotationAxis>
-                           <opaqueInsets>
+                          </rotationAxis>
+                      </GridPane>
+                      <BorderPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" prefHeight="48.0" prefWidth="200.0" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+                          <center>
+                              <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="40.0" minWidth="110.0" prefHeight="40.0" prefWidth="110.0" text="STANDARD" BorderPane.alignment="CENTER_LEFT">
+                                  <font>
+                                      <Font name="Segoe UI Semibold" size="17.0" />
+                                  </font>
+                                  <padding>
+                                      <Insets left="15.0" />
+                                  </padding>
+                                  <effect>
+                                      <ColorAdjust contrast="0.14" hue="0.07" />
+                                  </effect>
+                              </Label>
+                          </center>
+                          <right>
+                              <Button id="history" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" textAlignment="CENTER" BorderPane.alignment="CENTER">
+                                  <font>
+                                      <Font size="16.0" />
+                                  </font>
+                                  <effect>
+                                      <ColorAdjust contrast="0.79" />
+                                  </effect>
+                              </Button>
+                          </right>
+                          <GridPane.margin>
                               <Insets />
-                           </opaqueInsets>
-                           <cursor>
-                              <Cursor fx:constant="DEFAULT" />
-                           </cursor>
-                           <effect>
-                              <ColorAdjust contrast="0.21" hue="0.07" />
-                           </effect>
-                        </TextField>
-                        <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" centerShape="false" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#handleKeyEvent" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
-                           <font>
-                              <Font name="Segoe UI" size="14.0" />
-                           </font>
-                           <cursor>
-                              <Cursor fx:constant="DEFAULT" />
-                           </cursor>
-                        </TextField>
-                     </children>
-                     <rotationAxis>
-                        <Point3D />
-                     </rotationAxis>
-                  </GridPane>
-               </children>
-            </GridPane>
-            <VBox fx:id="viewTypesPanel" maxWidth="-Infinity" prefHeight="569.0" prefWidth="257.0" visible="false" StackPane.alignment="CENTER_LEFT">
-               <children>
-                  <BorderPane VBox.vgrow="ALWAYS">
-                     <bottom>
-                        <Button fx:id="infoButton" graphicTextGap="1.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="46.0" prefWidth="260.0" text="ⓘ    About" BorderPane.alignment="CENTER">
-                           <font>
-                              <Font name="Segoe UI" size="17.0" />
-                           </font>
-                        </Button>
-                     </bottom>
-                     <top>
-                        <GridPane id="listPanel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="48.0" minWidth="257.0" prefHeight="48.0" prefWidth="257.0" scaleShape="false" BorderPane.alignment="CENTER">
+                          </GridPane.margin>
+                          <rotationAxis>
+                              <Point3D />
+                          </rotationAxis>
+                          <left>
+                              <Button id="mode" fx:id="mode" alignment="TOP_CENTER" contentDisplay="TOP" maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
+                                  <font>
+                                      <Font name="Segoe UI Light Italic" size="36.0" />
+                                  </font>
+                                  <graphic>
+                                      <Label id="modeLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="≡" textAlignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Light" size="31.0" />
+                                          </font>
+                                      </Label>
+                                  </graphic>
+                              </Button>
+                          </left>
+                      </BorderPane>
+                      <GridPane maxWidth="1.7976931348623157E308" minHeight="70.0" minWidth="200.0" onKeyPressed="#handleKeyEvent" prefHeight="120.0" prefWidth="328.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="50.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.0" minWidth="10.0" prefWidth="205.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="65.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="110.0" vgrow="SOMETIMES" />
                           </rowConstraints>
-                           <children>
-                              <Button fx:id="modeClose" alignment="TOP_CENTER" contentDisplay="TOP" ellipsisString=" " maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
-                                 <font>
-                                    <Font name="Segoe UI Light Italic" size="36.0" />
-                                 </font>
-                                 <graphic>
-                                     <Label id="modeLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="≡" textAlignment="CENTER">
-                                         <font>
-                                             <Font name="Segoe UI Light" size="31.0" />
-                                         </font>
-                                     </Label>
-                                 </graphic>
-      
+                          <children>
+                              <TextField fx:id="currentNumberText" alignment="CENTER_RIGHT" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#handleKeyEvent" pickOnBounds="false" prefHeight="84.0" prefWidth="326.0" text="0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                                  <font>
+                                      <Font name="Segoe UI Semibold" size="42.0" />
+                                  </font>
+                                  <padding>
+                                      <Insets right="5.0" />
+                                  </padding>
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                                  <rotationAxis>
+                                      <Point3D />
+                                  </rotationAxis>
+                                  <opaqueInsets>
+                                      <Insets />
+                                  </opaqueInsets>
+                                  <cursor>
+                                      <Cursor fx:constant="DEFAULT" />
+                                  </cursor>
+                                  <effect>
+                                      <ColorAdjust contrast="0.21" hue="0.07" />
+                                  </effect>
+                              </TextField>
+                              <TextField fx:id="prevOperationsText" alignment="CENTER_RIGHT" centerShape="false" editable="false" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="25.0" minWidth="200.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#handleKeyEvent" pickOnBounds="false" prefHeight="45.0" prefWidth="330.0" GridPane.hgrow="SOMETIMES" GridPane.valignment="TOP" GridPane.vgrow="SOMETIMES">
+                                  <font>
+                                      <Font name="Segoe UI" size="14.0" />
+                                  </font>
+                                  <cursor>
+                                      <Cursor fx:constant="DEFAULT" />
+                                  </cursor>
+                              </TextField>
+                          </children>
+                          <rotationAxis>
+                              <Point3D />
+                          </rotationAxis>
+                      </GridPane>
+                  </children>
+              </GridPane>
+              <VBox fx:id="viewTypesPanel" maxWidth="-Infinity" prefHeight="569.0" prefWidth="257.0" visible="false" StackPane.alignment="CENTER_LEFT">
+                  <children>
+                      <BorderPane VBox.vgrow="ALWAYS">
+                          <bottom>
+                              <Button fx:id="infoButton" graphicTextGap="1.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="46.0" prefWidth="260.0" text="ⓘ    About" BorderPane.alignment="CENTER">
+                                  <font>
+                                      <Font name="Segoe UI" size="17.0" />
+                                  </font>
                               </Button>
-                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" scaleShape="false" text="CALCULATOR" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
-                                 <font>
-                                    <Font name="System Bold" size="16.0" />
-                                 </font>
-                                 <opaqueInsets>
-                                    <Insets />
-                                 </opaqueInsets>
-                                 <padding>
-                                    <Insets left="7.0" />
-                                 </padding>
-                              </Label>
-                           </children>
-                        </GridPane>
-                     </top>
-                     <center>
-                        <ListView fx:id="viewTypesList" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="259.0" BorderPane.alignment="CENTER">
-                           <padding>
-                              <Insets bottom="3.0" />
-                           </padding>
-                        </ListView>
-                     </center>
-                  </BorderPane>
-               </children>
-            </VBox>
-         </children>
+                          </bottom>
+                          <top>
+                              <GridPane id="listPanel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="48.0" minWidth="257.0" prefHeight="48.0" prefWidth="257.0" scaleShape="false" BorderPane.alignment="CENTER">
+                                  <columnConstraints>
+                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="50.0" />
+                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.0" minWidth="10.0" prefWidth="205.0" />
+                                  </columnConstraints>
+                                  <rowConstraints>
+                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  </rowConstraints>
+                                  <children>
+                                      <Button fx:id="modeClose" alignment="TOP_CENTER" contentDisplay="TOP" ellipsisString=" " maxHeight="45.0" maxWidth="50.0" minHeight="25.0" minWidth="50.0" mnemonicParsing="false" onAction="#showOrHideViewPanel" prefHeight="30.0" prefWidth="50.0" scaleShape="false" textAlignment="CENTER">
+                                          <font>
+                                              <Font name="Segoe UI Light Italic" size="36.0" />
+                                          </font>
+                                          <graphic>
+                                              <Label id="modeLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="≡" textAlignment="CENTER">
+                                                  <font>
+                                                      <Font name="Segoe UI Light" size="31.0" />
+                                                  </font>
+                                              </Label>
+                                          </graphic>
+
+                                      </Button>
+                                      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" scaleShape="false" text="CALCULATOR" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                                          <font>
+                                              <Font name="System Bold" size="16.0" />
+                                          </font>
+                                          <opaqueInsets>
+                                              <Insets />
+                                          </opaqueInsets>
+                                          <padding>
+                                              <Insets left="7.0" />
+                                          </padding>
+                                      </Label>
+                                  </children>
+                              </GridPane>
+                          </top>
+                          <center>
+                              <ListView fx:id="viewTypesList" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="259.0" BorderPane.alignment="CENTER">
+                                  <padding>
+                                      <Insets bottom="3.0" />
+                                  </padding>
+                              </ListView>
+                          </center>
+                      </BorderPane>
+                  </children>
+              </VBox>
+          </children>
       </StackPane>
    </center>
    <top>
-      <GridPane alignment="TOP_CENTER" maxHeight="30.0" maxWidth="1.7976931348623157E308" minHeight="22.0" prefHeight="22.0" prefWidth="330.0" BorderPane.alignment="CENTER">
+      <GridPane alignment="TOP_CENTER" maxHeight="30.0" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="330.0" BorderPane.alignment="TOP_CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="235.0" minWidth="10.0" prefWidth="233.0" />
-          <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="177.0" minWidth="10.0" prefWidth="97.0" />
+          <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="192.0" />
+          <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="-Infinity" minWidth="10.0" prefWidth="140.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="1.7976931348623157E308" minHeight="20.0" prefHeight="40.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label id="appTitle" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Calculator" GridPane.hgrow="SOMETIMES" GridPane.vgrow="NEVER">
+            <Label id="appTitle" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="236.0" text="Calculator" GridPane.halignment="LEFT" GridPane.hgrow="SOMETIMES" GridPane.vgrow="NEVER">
                <padding>
                   <Insets left="10.0" />
                </padding>
             </Label>
-            <GridPane alignment="TOP_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.vgrow="NEVER">
+            <GridPane alignment="TOP_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="30.0" minWidth="140.0" prefHeight="30.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.vgrow="NEVER">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -539,12 +537,12 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button id="hide" fx:id="hide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="control" text="_" />
-                  <Button id="expand" fx:id="expand" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="control" text="⎕" GridPane.columnIndex="1">
+                  <Button id="hide" fx:id="hide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="_" />
+                  <Button id="expand" fx:id="expand" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="⎕" GridPane.columnIndex="1">
                      <font>
                         <Font size="13.0" />
                      </font></Button>
-                  <Button id="close" fx:id="close" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#close" styleClass="control" text="✕" GridPane.columnIndex="2">
+                  <Button id="close" fx:id="close" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#close" text="✕" GridPane.columnIndex="2">
                      <font>
                         <Font size="13.0" />
                      </font></Button>
@@ -553,4 +551,13 @@
          </children>
       </GridPane>
    </top>
+   <right>
+      <Label id="rightResize" alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" prefWidth="4.0" textAlignment="RIGHT" BorderPane.alignment="CENTER" />
+   </right>
+   <left>
+      <Label id="leftResize" maxHeight="1.7976931348623157E308" prefWidth="4.0" BorderPane.alignment="CENTER" />
+   </left>
+   <bottom>
+      <Label id="bottomResize" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="4.0" prefHeight="4.0" BorderPane.alignment="BOTTOM_CENTER" />
+   </bottom>
 </BorderPane>

@@ -23,7 +23,6 @@ import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.removeGroupDelimiters;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -147,6 +146,10 @@ public class CalculatorTest {
         // add point and try to add more digits
         pushKey(PERIOD);
         testAddMoreDigits(pointPressed);
+    }
+
+    private String removeGroupDelimiters(String number) {
+        return number.replaceAll(",", "").toLowerCase();
     }
 
     private void testAddMoreDigits(String expectedNumber) {

@@ -149,9 +149,11 @@ public class CalculatorApplication extends Application {
     private double deltaX;
     private double deltaY;
 
-    private static final int RESIZE_PADDING = 4;
+    private static final int RESIZE_PADDING = 10;
     private double previousX;
     private double previousY;
+
+    private double previousRightX;
     /**
      * Configures the {@link Stage} instance and shows the configured application window.
      *
@@ -207,36 +209,7 @@ public class CalculatorApplication extends Application {
             addFullScreenListener(root, primaryStage);
 
             // TODO https://stackoverflow.com/questions/19455059/allow-user-to-resize-an-undecorated-stage
-//            root.setOnMousePressed(new EventHandler<MouseEvent>() {
-//                @Override
-//                public void handle(MouseEvent event) {
-//
-////                    if (primaryStage.getX() - event.getX() <= RESIZE_PADDING &&
-////                            primaryStage.getY() - event.getY() <= RESIZE_PADDING) {
-//
-//                        previousX = event.getScreenX();
-//                        previousY = event.getScreenY();
-//                        scene.setCursor(Cursor.H_RESIZE);
-////                    }
-//                }
-//            });
-
-//            root.setOnMouseDragged(new EventHandler<MouseEvent>() {
-//                @Override
-//                public void handle(MouseEvent event) {
-//
-//                    double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
-//                    double newHeight = primaryStage.getHeight() + event.getScreenY() - previousY;
-//                    if (newWidth >= MIN_WIDTH) {
-//                        primaryStage.setWidth(newWidth);
-//                    }
-//                    if (newHeight >= MIN_HEIGHT) {
-//                        primaryStage.setHeight(newHeight);
-//                    }
-//                    previousX = event.getScreenX();
-//                    previousY = event.getScreenY();
-//                }
-//            });
+            addResizeListeners(root, primaryStage);
 
             primaryStage.show();
         } catch (IOException e) {
@@ -419,5 +392,142 @@ public class CalculatorApplication extends Application {
                 }
             }
         });
+    }
+
+    private void addResizeListeners(Parent root, Stage primaryStage) {
+        Label rightResizeDetector = (Label) root.lookup("#rightResize");
+
+        rightResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                primaryStage.getScene().setCursor(Cursor.H_RESIZE);
+            }
+        });
+        setDefaultCursorOnExited(rightResizeDetector, primaryStage);
+
+        rightResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                rememberPreviousCoordinates(event);
+            }
+        });
+
+        rightResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+
+                double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
+                if (newWidth >= MIN_WIDTH && newWidth <= primaryStage.getMaxWidth()) {
+                    primaryStage.setWidth(newWidth);
+                }
+                rememberPreviousCoordinates(event);
+            }
+        });
+
+        Label leftResizeDetector = (Label) root.lookup("#leftResize");
+
+        leftResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                primaryStage.getScene().setCursor(Cursor.H_RESIZE);
+            }
+        });
+
+        setDefaultCursorOnExited(leftResizeDetector, primaryStage);
+        leftResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                rememberPreviousCoordinates(event);
+                previousRightX = event.getScreenX() + primaryStage.getWidth();
+            }
+        });
+
+        leftResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+
+                double newWidth = primaryStage.getWidth() - event.getScreenX() + previousX;
+                double currentRightX = event.getScreenX() + newWidth;
+                if (newWidth > MIN_WIDTH && currentRightX <= previousRightX) {
+                    primaryStage.setWidth(newWidth);
+                    primaryStage.setX(event.getScreenX());
+                }
+                rememberPreviousCoordinates(event);            }
+        });
+
+        Label bottomResizeDetector = (Label) root.lookup("#bottomResize");
+
+        bottomResizeDetector.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                double eventX = event.getScreenX();
+                if (eventX - primaryStage.getX() <= RESIZE_PADDING) {
+                    primaryStage.getScene().setCursor(Cursor.NE_RESIZE);
+                } else if (primaryStage.getX() + primaryStage.getWidth() - eventX <= RESIZE_PADDING) {
+                    primaryStage.getScene().setCursor(Cursor.NW_RESIZE);
+                } else {
+                    primaryStage.getScene().setCursor(Cursor.V_RESIZE);
+                }
+            }
+        });
+
+        setDefaultCursorOnExited(bottomResizeDetector, primaryStage);
+        bottomResizeDetector.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                rememberPreviousCoordinates(event);
+                previousRightX = event.getScreenX() + primaryStage.getWidth();
+            }
+        });
+
+        bottomResizeDetector.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+
+                double newHeight = primaryStage.getHeight() + event.getScreenY() - previousY;
+                double eventX = event.getScreenX();
+                if (eventX - primaryStage.getX() <= RESIZE_PADDING) {
+                    double newWidth = primaryStage.getWidth() - event.getScreenX() + previousX;
+                    double currentRightX = event.getScreenX() + newWidth;
+                    if (newWidth > MIN_WIDTH && currentRightX <= previousRightX) {
+                        primaryStage.setWidth(newWidth);
+                        primaryStage.setX(event.getScreenX());
+                    }
+                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
+                        primaryStage.setHeight(newHeight);
+                    }
+
+                } else if (primaryStage.getX() + primaryStage.getWidth() - eventX <= RESIZE_PADDING) {
+                    double newWidth = primaryStage.getWidth() + event.getScreenX() - previousX;
+                    if (newWidth >= MIN_WIDTH && newWidth <= primaryStage.getMaxWidth()) {
+                        primaryStage.setWidth(newWidth);
+                    }
+                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
+                        primaryStage.setHeight(newHeight);
+                    }
+
+                } else {
+                    if (newHeight > MIN_HEIGHT && newHeight <= primaryStage.getMaxHeight()) {
+                        primaryStage.setHeight(newHeight);
+                    }
+                }
+
+                rememberPreviousCoordinates(event);
+            }
+        });
+    }
+
+    private void setDefaultCursorOnExited(Label resizeDetector, Stage primaryStage) {
+        resizeDetector.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                primaryStage.getScene().setCursor(Cursor.DEFAULT);
+            }
+        });
+    }
+
+    private void rememberPreviousCoordinates(MouseEvent event) {
+        previousX = event.getScreenX();
+        previousY = event.getScreenY();
     }
 }

@@ -52,9 +52,9 @@ public class Calculator {
     private BigDecimal memorizedNumber = ZERO;
 
     /**
-     * The list of current expression parts (numbers and math operations).
+     * The list of current expression parts: {@link BigDecimal} numbers and {@link MathOperation}s.
      */
-    private final List expression = new ArrayList<>();
+    private final List<Object> expression = new ArrayList<>();
 
     /**
      * The value of temporary number stores last entered number before calculation result. Used as argument
@@ -89,22 +89,6 @@ public class Calculator {
     private static final String NO_SUCH_OPERATION_FOUND = "No such operation found";
 
     /**
-     * Constructs a new {@code InputValueProcessor} instance that uses the {@link StandardCalculationExecutor} for
-     * calculations.
-     */
-    public Calculator() {
-        this.calculationExecutor = new StandardCalculationExecutor();
-    }
-
-    /**
-     * Constructs a new {@code InputValueProcessor} instance that uses the specified {@link CalculationExecutor} implementation
-     * for calculations.
-     */
-    public Calculator(CalculationExecutor calculationExecutor) {
-        this.calculationExecutor = calculationExecutor;
-    }
-
-    /**
      * Sets the specified {@link CalculationExecutor} implementation.
      *
      * @param calculationExecutor a {@link CalculationExecutor} implementation to set
@@ -127,7 +111,7 @@ public class Calculator {
      *
      * @return the list of expression arguments represented by {@link BigDecimal} numbers and {@link MathOperation}s
      */
-    public List getExpressionArguments() {
+    public List<Object> getExpressionArguments() {
         return Collections.unmodifiableList(expression);
     }
 
@@ -159,7 +143,7 @@ public class Calculator {
      */
     private boolean appendDigit(BigDecimal digit) {
         if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
-            return false;
+            return false; // TODO move this to controller
         }
         if (isZero(lastNumber) && !isZero(digit) &&
                 lastNumber.scale() == 0 && !needAddPoint) {
@@ -185,7 +169,6 @@ public class Calculator {
         }
         if (needAddPoint || lastNumber.scale() != 0) {
             // if called adding the decimal separator or current number already has fraction part
-
             int newScale = lastNumber.scale() + 1;
             BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
             lastNumber = lastNumber.add(tailToAdd);
@@ -242,7 +225,7 @@ public class Calculator {
         if (operation == null) {
             operation = currentOperation;
         }
-        if (!wasUnaryBefore) {
+        if (!wasUnaryBefore) { // TODO try to refactor this
             addToExpression(lastNumber);
         }
         addToExpression(currentOperation);
@@ -262,6 +245,7 @@ public class Calculator {
      */
     private BigDecimal getPreviousResult() {
         if (expression.isEmpty() || expression.size() == 2) {
+            // if wasn't any calculations or added one number and one any operation
             return lastNumber;
         } else {
             lastNumber = previousNumber;
@@ -334,10 +318,16 @@ public class Calculator {
         return lastNumber;
     }
 
+    /**
+     * TODO javadocs
+     * @param currentOperation
+     * @throws CalculationException
+     */
     private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
         if (wasUnaryBefore || operation == null || !isNewNumber) {
+            // if wasn't binary operation before current unary operation applies to the last entered number
             lastNumber = getResult(currentOperation, lastNumber);
-        } else {
+        } else { // if was binary operation before current unary operation applies to previous number that stores last binary result
             lastNumber = getResult(currentOperation, previousNumber);
         }
     }
@@ -360,6 +350,8 @@ public class Calculator {
      */
     private void addNumberToExpression() {
         if (operation != null && expression.size() > 4) {
+            // if binary operation called more than once. It means that result of the last binary operation was stored
+            // in previous number variable
             addToExpression(previousNumber);
         } else {
             addToExpression(lastNumber);
@@ -427,7 +419,6 @@ public class Calculator {
      * added after unary operation without entering any digit.
      */
     public void addPoint() {
-
         if (isNewNumber) { // If point adds when expected entering new number need to replace last number by zero
             lastNumber = ZERO;
             isNewNumber = false;
@@ -478,7 +469,6 @@ public class Calculator {
         } else if (lastNumberStr.length() == 1 ||
                 lastNumberStr.length() == 2 && lastNumber.signum() == -1) {
             // if number consists of only one digit with or without minus sign
-
             lastNumber = ZERO;
             needAddPoint = false;
         } else {
@@ -555,7 +545,7 @@ public class Calculator {
      * Replaces last binary operation in expression by the last specified one.
      */
     private void replaceLastOperationInExpression() {
-        if (expression.size() != 0) {
+        if (!expression.isEmpty()) {
             expression.set(expression.size() - 1, operation);
         }
     }
@@ -585,6 +575,8 @@ public class Calculator {
      */
     private void removeLastUnaryFromExpression() {
         if (wasUnaryBefore && indexOfLastNumberInExpression < expression.size()) {
+            // if last math operation was unary and it wasn't removed yet,
+            // because number added before this operation is still in expression
             for (int i = expression.size() - 1; i >= indexOfLastNumberInExpression; i--) {
 
                 expression.remove(i);
