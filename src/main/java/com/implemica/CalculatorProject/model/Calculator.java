@@ -1,9 +1,9 @@
 package com.implemica.CalculatorProject.model;
 
 import com.implemica.CalculatorProject.model.calculation.CalculationExecutor;
+import com.implemica.CalculatorProject.model.calculation.EditOperation;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 import com.implemica.CalculatorProject.model.calculation.MemoryOperation;
-import com.implemica.CalculatorProject.model.calculation.StandardCalculationExecutor;
 import com.implemica.CalculatorProject.model.exception.CalculationException;
 
 import java.math.BigDecimal;
@@ -18,9 +18,9 @@ import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 
 /**
- * The class holds the components of the mathematical expression
- * such as number and operations. Grants functionality to input numbers, operations and calculate the
- * result for it.
+ * The class holds the components of the mathematical expression {@link BigDecimal} numbers and {@link MathOperation}s.
+ * Grants functionality to input {@link BigDecimal} numbers, {@link MathOperation}s, {@link MemoryOperation}s and
+ * {@link EditOperation}s and calculate the result for it.
  *
  * @author V. Kozina-Kravchenko
  */
@@ -32,22 +32,24 @@ public class Calculator {
     private CalculationExecutor calculationExecutor;
 
     /**
-     * The value of previous entered number or result of the last binary operation. By default it is zero.
+     * The value of previous entered {@link BigDecimal} number or result of the last binary {@link MathOperation}.
+     * By default it is zero.
      */
     private BigDecimal previousNumber = ZERO;
 
     /**
-     * The last requested binary operation.
+     * The last requested binary {@link MathOperation}.
      */
     private MathOperation operation;
 
     /**
-     * The value of last entered number or result of the last unary operation. By default it is zero.
+     * The value of last entered {@link BigDecimal} number or result of the last unary {@link MathOperation}.
+     * By default it is zero.
      */
     private BigDecimal lastNumber = ZERO;
 
     /**
-     * The value of last memorized number. By default it is zero.
+     * The value of last memorized {@link BigDecimal} number. By default it is zero.
      */
     private BigDecimal memorizedNumber = ZERO;
 
@@ -57,29 +59,30 @@ public class Calculator {
     private final List<Object> expression = new ArrayList<>();
 
     /**
-     * The value of temporary number stores last entered number before calculation result. Used as argument
-     * for calculations with multiple callings of calculating result without entering new numbers. Default value is zero.
+     * The value of temporary {@link BigDecimal} number stores last entered {@link BigDecimal} number before
+     * calculation result. Used as argument for calculations with multiple callings of calculating result without
+     * entering new numbers. Default value is zero.
      */
     private BigDecimal tempNumber = ZERO;
 
     /**
-     * The flag variable shows is entering a new number or continuing type the last number.
+     * The flag variable shows is now entering a new number or continuing enter the last number.
      */
     private boolean isNewNumber = true;
 
     /**
-     * The flag variable shows was previous operation unary or binary.
+     * The flag variable shows was previous {@link MathOperation} unary or binary.
      */
     private boolean wasUnaryBefore = false;
 
     /**
-     * The flag variable shows the last symbol in current number is decimal point. Will be added to the number
-     * with the first fraction number.
+     * The flag variable shows the last symbol in current {@link BigDecimal} number is decimal point. Will be added to
+     * the number with the first fraction digit.
      */
     private boolean needAddPoint = false;
 
     /**
-     * The index of the last number added to the current expression.
+     * The index of the last {@link BigDecimal} number added to the current expression.
      */
     private int indexOfLastNumberInExpression = 0;
 
@@ -116,35 +119,29 @@ public class Calculator {
     }
 
     /**
-     * Adds digit to the last entered number. Returns true is digit appended successfully.
+     * Adds digit to the last entered {@link BigDecimal} number. Returns last entered {@link BigDecimal} number.
      *
-     * @param digit to add to the last entered number
-     * @return true is digit appended successfully
+     * @param digit to add to the last entered {@link BigDecimal} number
+     * @return last entered {@link BigDecimal} number
      */
-    public boolean enterDigit(BigDecimal digit) {
-        boolean isDigitAdded;
+    public BigDecimal enterDigit(BigDecimal digit) {
         if (isNewNumber) {
             lastNumber = digit;
             removeLastUnaryFromExpression();
             needAddPoint = false;
-            isDigitAdded = true;
         } else {
-            isDigitAdded = appendDigit(digit);
+            appendDigit(digit);
         }
         isNewNumber = false;
-        return isDigitAdded;
+        return lastNumber;
     }
 
     /**
-     * Appends the given digit to the current number. Returns true is digit appended successfully.
+     * Appends the given digit to the current {@link BigDecimal} number.
      *
-     * @param digit a digit to append to the current number
-     * @return true is digit appended successfully
+     * @param digit a digit to append to the current {@link BigDecimal} number
      */
-    private boolean appendDigit(BigDecimal digit) {
-        if (!isNumberLengthValid(lastNumber.toPlainString() + digit)) {
-            return false; // TODO move this to controller
-        }
+    private void appendDigit(BigDecimal digit) {
         if (isZero(lastNumber) && !isZero(digit) &&
                 lastNumber.scale() == 0 && !needAddPoint) {
             // if current number is zero, it has no fraction part and adding decimal separator didn't called
@@ -155,11 +152,10 @@ public class Calculator {
             appendDigitImpl(digit);
             needAddPoint = false;
         }
-        return true;
     }
 
     /**
-     * Appends the given digit to the last entered number.
+     * Appends the given digit represented by {@link BigDecimal} number to the last entered {@link BigDecimal} number.
      *
      * @param digit a digit to append
      */
@@ -178,11 +174,11 @@ public class Calculator {
     }
 
     /**
-     * Executes the specified mathematical operation, writes it to the current expression. Returns last entered number
-     * or operation result if needed for some operations.
+     * Executes the specified {@link MathOperation}, writes it to the current expression. Returns last entered
+     * {@link BigDecimal} number or result if needed for some {@link MathOperation}.
      *
-     * @param currentOperation an operation to execute
-     * @return last entered number or operation result if needed for some operations
+     * @param currentOperation a {@link MathOperation} to execute
+     * @return last entered {@link BigDecimal} number or result if needed for some {@link MathOperation}
      * @throws CalculationException if some error while calculations occurred
      */
     public BigDecimal executeMathOperation(MathOperation currentOperation) throws CalculationException {
@@ -201,12 +197,13 @@ public class Calculator {
     }
 
     /**
-     * Executes current called binary operation and returns last entered number if it is the first
-     * binary operation in expression or result of previous binary operations. Also writes to the current expression.
+     * Executes current called binary {@link MathOperation} and returns last entered {@link BigDecimal} number if it is the first
+     * binary {@link MathOperation} in expression or result of previous binary {@link MathOperation}s. Also writes
+     * to the current expression.
      *
-     * @param currentOperation a current binary mathematical operation to execute
-     * @return last entered number if it is the first binary operation in expression or result of
-     * previous binary operations
+     * @param currentOperation a current binary {@link MathOperation} to execute
+     * @return last entered {@link BigDecimal} number if it is the first binary {@link MathOperation} in expression or result of
+     * previous binary {@link MathOperation}s
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal executeBinaryOperation(MathOperation currentOperation) throws CalculationException {
@@ -225,7 +222,7 @@ public class Calculator {
         if (operation == null) {
             operation = currentOperation;
         }
-        if (!wasUnaryBefore) { // TODO try to refactor this
+        if (!wasUnaryBefore) {
             addToExpression(lastNumber);
         }
         addToExpression(currentOperation);
@@ -237,11 +234,11 @@ public class Calculator {
     }
 
     /**
-     * Returns the last result of binary operation or the last entered number if there is only one binary operation
-     * in expression.
+     * Returns the last result of binary {@link MathOperation} or the last entered {@link BigDecimal} number if there
+     * is only one binary {@link MathOperation} in expression.
      *
-     * @return the last result of binary operation or the last entered number if there is only one binary operation
-     * in expression
+     * @return the last result of binary {@link MathOperation} or the last entered {@link BigDecimal} number if there
+     * is only one binary {@link MathOperation} in expression
      */
     private BigDecimal getPreviousResult() {
         if (expression.isEmpty() || expression.size() == 2) {
@@ -254,9 +251,9 @@ public class Calculator {
     }
 
     /**
-     * Executes a percentage operation and returns the result of it.
+     * Executes a {@link MathOperation#PERCENT} and returns the result of it.
      *
-     * @return the result of percentage operation
+     * @return the result of {@link MathOperation#PERCENT}
      * @throws CalculationException if some error occurred while calculations
      */
     private BigDecimal executePercentOperation() throws CalculationException {
@@ -268,7 +265,7 @@ public class Calculator {
     }
 
     /**
-     * Updates an expression for percentage operation by adding or replacing the last unary argument.
+     * Updates an expression for {@link MathOperation#PERCENT} by adding or replacing the last unary argument.
      */
     private void updateExpressionAfterPercentage() {
         if (wasUnaryBefore) { // replace last unary operation in expression
@@ -278,7 +275,7 @@ public class Calculator {
     }
 
     /**
-     * Updates the value of previous entered number.
+     * Updates the value of previous entered {@link BigDecimal} number.
      *
      * @throws CalculationException if some error while calculations occurred
      */
@@ -293,11 +290,11 @@ public class Calculator {
     }
 
     /**
-     * Returns the result of current called unary mathematical operation with the last entered number.
+     * Returns the result of current called unary {@link MathOperation} with the last entered {@link BigDecimal} number.
      * Also writes to expression.
      *
-     * @param currentOperation a current unary mathematical operation to execute
-     * @return the result of current called unary mathematical operation with the last entered number
+     * @param currentOperation a current unary {@link MathOperation} to execute
+     * @return the result of current called unary {@link MathOperation} with the last entered {@link BigDecimal} number
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
@@ -319,9 +316,11 @@ public class Calculator {
     }
 
     /**
-     * TODO javadocs
-     * @param currentOperation
-     * @throws CalculationException
+     * Updates the value of last entered {@link BigDecimal} number by replacing it with result of current unary
+     * {@link MathOperation}.
+     *
+     * @param currentOperation an unary {@link MathOperation} to execute
+     * @throws CalculationException if some error occurred while calculations
      */
     private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
         if (wasUnaryBefore || operation == null || !isNewNumber) {
@@ -333,10 +332,10 @@ public class Calculator {
     }
 
     /**
-     * Updates an expression after last unary operation by adding the given unary operation. If this unary operation is
-     * the first after binary adds last number before.
+     * Updates an expression after last unary {@link MathOperation} by adding the given unary {@link MathOperation}.
+     * If this unary {@link MathOperation} is the first after binary adds last entered {@link BigDecimal} number before.
      *
-     * @param currentOperation a current unary operation to add to expression
+     * @param currentOperation a current unary {@link MathOperation} to add to expression
      */
     private void updateExpressionForUnary(MathOperation currentOperation) {
         if (!wasUnaryBefore) { // if was binary operation before add last number that is the base for current unary operation
@@ -346,7 +345,7 @@ public class Calculator {
     }
 
     /**
-     * Adds last entered number or last result of operations to the expression.
+     * Adds last entered {@link BigDecimal} number or last result of {@link MathOperation}s to the expression.
      */
     private void addNumberToExpression() {
         if (operation != null && expression.size() > 4) {
@@ -359,11 +358,11 @@ public class Calculator {
     }
 
     /**
-     * Returns the result of calculations for the given mathematical operation and number(s).
+     * Returns the result of calculations for the given {@link MathOperation} and {@link BigDecimal} number(s).
      *
-     * @param operation a current mathematical operation to execute
-     * @param arguments the list of numbers
-     * @return the result of calculations for the given mathematical operation and number(s)
+     * @param operation a current {@link MathOperation} to execute
+     * @param arguments the list of {@link BigDecimal} numbers
+     * @return the result of calculations for the given {@link MathOperation} and {@link BigDecimal} number(s)
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
@@ -392,10 +391,10 @@ public class Calculator {
     }
 
     /**
-     * Calculates the result for the current mathematical expression consists of entered numbers and mathematical
-     * operations. The result of calculations assigns to last entered number value.
+     * Calculates the result for the current {@link MathOperation} and entered {@link BigDecimal} numbers. The result
+     * of calculations assigns to last entered {@link BigDecimal} number value.
      *
-     * @throws CalculationException if some error while calculations occurred or result is out of valid bounds
+     * @throws CalculationException if some error while calculations occurred
      */
     private void calculateResultImpl() throws CalculationException {
         if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last operation
@@ -415,8 +414,8 @@ public class Calculator {
     }
 
     /**
-     * Adds a decimal point to the last entered number. Updates expression and resets last number to zero if point
-     * added after unary operation without entering any digit.
+     * Adds a decimal point to the last entered {@link BigDecimal} number. Updates expression and resets last number
+     * to {@link BigDecimal#ZERO} if point added after unary {@link MathOperation} without entering any digit.
      */
     public void addPoint() {
         if (isNewNumber) { // If point adds when expected entering new number need to replace last number by zero
@@ -432,7 +431,7 @@ public class Calculator {
     }
 
     /**
-     * Resets all numbers and operation to default values.
+     * Resets all {@link BigDecimal}s and {@link MathOperation} fields to default values.
      */
     public void cleanAll() {
         cleanCurrent();
@@ -443,7 +442,7 @@ public class Calculator {
     }
 
     /**
-     * Resets the last entered number to default value - zero.
+     * Resets the last entered {@link BigDecimal} number to default value - zero.
      */
     public void cleanCurrent() {
         lastNumber = ZERO;
@@ -453,8 +452,8 @@ public class Calculator {
     }
 
     /**
-     * Deletes last digit in the current entered number. Returns true if the last symbol in current number is
-     * decimal point.
+     * Deletes last digit in the current entered {@link BigDecimal} number. Returns true if the last symbol in current
+     * number is decimal point.
      *
      * @return true if the last symbol in current number is decimal point
      */
@@ -478,8 +477,8 @@ public class Calculator {
     }
 
     /**
-     * Deletes last digit in the current entered number. Returns true if the last symbol in current number is
-     * decimal point.
+     * Deletes last digit in the current entered {@link BigDecimal} number. Returns true if the last symbol in current
+     * number is decimal point.
      *
      * @return true if the last symbol in current number is decimal point
      */
@@ -488,16 +487,16 @@ public class Calculator {
         int currentNumberScale = lastNumber.scale();
         if (currentNumberScale > 0) { // if number has fraction part
 
-            lastNumber = lastNumber.setScale(currentNumberScale - 1, RoundingMode.HALF_DOWN);
+            lastNumber = lastNumber.setScale(currentNumberScale - 1, RoundingMode.DOWN);
             isLastSymbolPoint = checkIsLastSymbolPoint();
         } else {
-            lastNumber = lastNumber.divide(TEN, 0, RoundingMode.HALF_DOWN);
+            lastNumber = lastNumber.divide(TEN, 0, RoundingMode.DOWN);
         }
         return isLastSymbolPoint;
     }
 
     /**
-     * Checks the current number is the last symbol after deleting last digit becomes decimal separator.
+     * Checks the current {@link MathOperation} number is the last symbol after deleting last digit becomes decimal separator.
      *
      * @return true if the last symbol after deleting last digit becomes decimal separator
      */
@@ -512,9 +511,9 @@ public class Calculator {
     }
 
     /**
-     * Executes the given operation with memorized number.
+     * Executes the given {@link MemoryOperation} with memorized number.
      *
-     * @param operation a memory operation to execute
+     * @param operation a {@link MemoryOperation} to execute
      * @throws CalculationException if some error while calculations occurred
      */
     public void executeMemoryOperation(MemoryOperation operation) throws CalculationException {
@@ -542,7 +541,7 @@ public class Calculator {
     }
 
     /**
-     * Replaces last binary operation in expression by the last specified one.
+     * Replaces last binary {@link MathOperation} in expression by the last specified one.
      */
     private void replaceLastOperationInExpression() {
         if (!expression.isEmpty()) {
@@ -551,9 +550,10 @@ public class Calculator {
     }
 
     /**
-     * Adds the given number to the current math expression. Also updates index of the last added number to the expression.
+     * Adds the given {@link BigDecimal} number to the current mathematical expression. Also updates index of the
+     * last added {@link BigDecimal} number to the expression.
      *
-     * @param number a number to add into expression
+     * @param number a {@link BigDecimal} number to add into expression
      */
     private void addToExpression(BigDecimal number) {
         expression.add(number);
@@ -563,15 +563,15 @@ public class Calculator {
     /**
      * Adds the given {@link MathOperation} operation to the current expression.
      *
-     * @param operation a given operation to add into expression
+     * @param operation a given {@link MathOperation} to add into expression
      */
     private void addToExpression(MathOperation operation) {
         expression.add(operation);
     }
 
     /**
-     * Removes last unary operation from expression. This operation starts with the last added number and up to the last
-     * argument.
+     * Removes last unary {@link MathOperation} from expression. This {@link MathOperation} starts with the last added
+     * {@link BigDecimal} number and up to the last argument.
      */
     private void removeLastUnaryFromExpression() {
         if (wasUnaryBefore && indexOfLastNumberInExpression < expression.size()) {
