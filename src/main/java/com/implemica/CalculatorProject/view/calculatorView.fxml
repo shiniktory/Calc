@@ -543,14 +543,28 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button id="hide" fx:id="hide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="_">
+                  <Button id="hide" fx:id="hide" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="−" textAlignment="CENTER" textFill="TRANSPARENT">
                      <font>
                         <Font size="14.0" />
-                     </font></Button>
-                  <Button id="expand" fx:id="expand" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="⎕" GridPane.columnIndex="1">
+                     </font>
+                     <graphic>
+                        <Label alignment="CENTER" contentDisplay="CENTER" scaleX="1.4" text="−" textAlignment="CENTER">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </Label>
+                     </graphic></Button>
+                  <Button id="expand" fx:id="expand" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="⎕" textAlignment="CENTER" textFill="TRANSPARENT" GridPane.columnIndex="1">
                      <font>
                         <Font size="15.0" />
-                     </font></Button>
+                     </font>
+                     <graphic>
+                        <Label alignment="CENTER" contentDisplay="CENTER" scaleX="1.2" text="⎕" textAlignment="CENTER">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </graphic></Button>
                   <Button id="close" fx:id="close" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="✕" GridPane.columnIndex="2">
                      <font>
                         <Font size="13.0" />

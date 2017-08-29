@@ -323,10 +323,13 @@ public class Calculator {
      * @throws CalculationException if some error occurred while calculations
      */
     private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
-        if (wasUnaryBefore || operation == null || !isNewNumber) {
-            // if wasn't binary operation before current unary operation applies to the last entered number
+        if (wasUnaryBefore || operation == null || !isNewNumber || expression.size() == 2) {
+            // if wasn't or was only one binary operation before
+            // current unary operation applies to the last entered number
             lastNumber = getResult(currentOperation, lastNumber);
-        } else { // if was binary operation before current unary operation applies to previous number that stores last binary result
+        } else {
+            // if was binary operations before current unary operation
+            // applies to previous number that stores last binary result
             lastNumber = getResult(currentOperation, previousNumber);
         }
     }

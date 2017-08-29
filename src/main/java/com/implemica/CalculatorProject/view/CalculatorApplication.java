@@ -224,13 +224,13 @@ public class CalculatorApplication extends Application {
     private TextField currentNumberTextField;
 
     /**
-     * The list of button ids associated with an arrays contains minimum, medium and maximum values
-     * of an appropriate button font size.
+     * The list of {@link Button} ids associated with an arrays contains minimum, medium and maximum values
+     * of an appropriate {@link Button} font size.
      */
     private static final Map<String, Double[]> fontSizes = new LinkedHashMap<>();
 
     /**
-     * The list of buttons contains labels.
+     * The list of {@link Button}s contains {@link Label}s.
      */
     private static final List<String> labeledButtons = new ArrayList<>();
 
@@ -334,7 +334,7 @@ public class CalculatorApplication extends Application {
                 double currentEventX = event.getScreenX();
                 double currentEventY = event.getScreenY();
 
-                if (currentEventY > currentStage.getY() + RESIZE_PADDING && isWindowMoving) {
+                if (isWindowMoving && currentEventY <= SCREEN_BOUNDS.getMaxY()) {
                     currentStage.setX(currentEventX + moveDeltaX);
                     currentStage.setY(currentEventY + moveDeltaY);
                 }
@@ -619,7 +619,7 @@ public class CalculatorApplication extends Application {
      */
     private double updateResizeDeltaAndGetX() {
         double newStageX = currentStage.getX();
-        if (currentEventPoint.getX() <= maxResizeX) {
+        if (currentEventPoint.getX() <= maxResizeX && currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX()) {
             resizeDeltaX = previousMouseEventPoint.getX() - currentEventPoint.getX();
             newStageX = currentEventPoint.getX();
         }
@@ -635,7 +635,7 @@ public class CalculatorApplication extends Application {
     private double updateResizeDeltaAndGetY() {
         double newStageY = currentStage.getY();
 
-        if (currentEventPoint.getY() <= maxResizeY) {
+        if (currentEventPoint.getY() <= maxResizeY && currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY()) {
             resizeDeltaY = previousMouseEventPoint.getY() - currentEventPoint.getY();
             newStageY = currentEventPoint.getY();
         }
@@ -648,7 +648,7 @@ public class CalculatorApplication extends Application {
     private void updateResizeDeltaX() {
         double rightXforMinWidth = currentStage.getX() + currentStage.getMinWidth();
 
-        if (currentEventPoint.getX() >= rightXforMinWidth) {
+        if (currentEventPoint.getX() >= rightXforMinWidth && currentEventPoint.getX() <= SCREEN_BOUNDS.getMaxX()) {
             resizeDeltaX = currentEventPoint.getX() - previousMouseEventPoint.getX();
         }
     }
