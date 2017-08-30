@@ -55,7 +55,8 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     private BigDecimal[] numbers;
 
     /**
-     * The value of a {@link MathOperation} instance.
+     * The value of a {@link MathOperation} instance that indicates what manipulations with given {@link BigDecimal} numbers
+     * need to do.
      */
     private MathOperation operation;
 
@@ -72,10 +73,10 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * Returns the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers.
      *
-     * @param operation a {@link MathOperation} to perform with the given numbers
+     * @param operation a {@link MathOperation} to perform with the given {@link BigDecimal} numbers
      * @param numbers   a {@link BigDecimal} numbers to perform a {@link MathOperation} with
      * @return the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers
-     * @throws CalculationException in cases when of operation does not exist, division by zero or
+     * @throws CalculationException in cases when of {@link MathOperation} does not exist, division by zero or
      *                              specified invalid arguments
      */
     public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException {
@@ -122,7 +123,8 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * Checks are the given arguments valid.
      *
-     * @throws CalculationException if the given arguments are null or invalid count of number for the given operation
+     * @throws CalculationException if the given arguments are null or invalid count of {@link BigDecimal} numbers for
+     * the given {@link MathOperation}
      */
     private void checkArgumentsAreValid() throws CalculationException {
         if (operation == null) {
@@ -138,47 +140,47 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     }
 
     /**
-     * Returns the sum of two specified numbers.
+     * Returns the sum of two specified {@link BigDecimal} numbers.
      *
      * @param firstNumber  a value of the first argument for sum
      * @param secondNumber a value of the second argument for sum
-     * @return the sum of two specified numbers
+     * @return the sum of two specified {@link BigDecimal} numbers
      */
-    private BigDecimal add(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private static BigDecimal add(BigDecimal firstNumber, BigDecimal secondNumber) {
         return firstNumber.add(secondNumber);
     }
 
     /**
-     * Returns the subtraction of two specified numbers.
+     * Returns the subtraction of two specified {@link BigDecimal} numbers.
      *
      * @param firstNumber  a value of the first argument for subtraction
      * @param secondNumber a value of the second argument for subtraction
-     * @return the subtraction of two specified numbers
+     * @return the subtraction of two specified {@link BigDecimal} numbers
      */
-    private BigDecimal subtract(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private static BigDecimal subtract(BigDecimal firstNumber, BigDecimal secondNumber) {
         return firstNumber.subtract(secondNumber);
     }
 
     /**
-     * Returns the multiplication of two specified numbers.
+     * Returns the multiplication of two specified {@link BigDecimal} numbers.
      *
      * @param firstNumber  a value of the first argument for multiplication
      * @param secondNumber a value of the second argument for multiplication
      * @return the multiplication of two specified numbers
      */
-    private BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private static BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) {
         return firstNumber.multiply(secondNumber);
     }
 
     /**
-     * Returns the division of two specified numbers.
+     * Returns the division of two specified {@link BigDecimal} numbers.
      *
      * @param firstNumber  a value of the first argument for division
      * @param secondNumber a value of the second argument for division
-     * @return the division of two specified numbers
+     * @return the division of two specified {@link BigDecimal} numbers
      * @throws CalculationException if divisor or both arguments are equal to zero
      */
-    private BigDecimal divide(BigDecimal firstNumber, BigDecimal secondNumber) throws CalculationException {
+    private static BigDecimal divide(BigDecimal firstNumber, BigDecimal secondNumber) throws CalculationException {
         if (isZero(firstNumber) && isZero(secondNumber)) {
             throw new CalculationException(RESULT_UNDEFINED_ERROR);
         }
@@ -189,34 +191,34 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     }
 
     /**
-     * Returns the square calculated for the specified number.
+     * Returns the square calculated for the specified {@link BigDecimal} number.
      *
-     * @param base a number to calculate square for
-     * @return the square for the specified number
+     * @param base a {@link BigDecimal} number to calculate square for
+     * @return the square for the specified {@link BigDecimal} number
      */
-    private BigDecimal square(BigDecimal base) {
+    private static BigDecimal square(BigDecimal base) {
         return base.abs().pow(2);
     }
 
     /**
-     * Returns the negated given number.
+     * Returns the negated given {@link BigDecimal} number.
      *
-     * @param number a number to negate
-     * @return the negated given number
+     * @param number a {@link BigDecimal} number to negate
+     * @return the negated given {@link BigDecimal} number
      */
-    private BigDecimal negate(BigDecimal number) {
+    private static BigDecimal negate(BigDecimal number) {
         return number.negate();
     }
 
     /**
-     * Returns the square root calculated for the given number. Source of square root for {@link BigDecimal} is
+     * Returns the square root calculated for the given {@link BigDecimal} number. Source of square root algorithm for {@link BigDecimal} is
      * <a href="https://www.java-forums.org/advanced-java/44345-square-rooting-bigdecimal.html">square rooting a BigDecimal</a>
      *
-     * @param x a number to calculate square root for
-     * @return the square root calculated for the given number
-     * @throws CalculationException if the given number is negative
+     * @param x a {@link BigDecimal} number to calculate square root for
+     * @return the square root calculated for the given {@link BigDecimal} number
+     * @throws CalculationException if the given {@link BigDecimal} number is negative
      */
-    private BigDecimal sqrt(BigDecimal x) throws CalculationException {
+    private static BigDecimal sqrt(BigDecimal x) throws CalculationException {
         if (x.compareTo(ZERO) < 0) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
@@ -247,13 +249,13 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     }
 
     /**
-     * Returns the number that is a specified percentage calculated for the given number.
+     * Returns the {@link BigDecimal} number that is a specified percentage calculated for the given {@link BigDecimal} number.
      *
-     * @param base    a number to calculate percentage from
+     * @param base    a {@link BigDecimal} number to calculate percentage from
      * @param percent a count of percents to calculate
-     * @return the number that is a specified percentage calculated for the given number
+     * @return the {@link BigDecimal} number that is a specified percentage calculated for the given {@link BigDecimal} number
      */
-    private BigDecimal percent(BigDecimal base, BigDecimal percent) {
+    private static BigDecimal percent(BigDecimal base, BigDecimal percent) {
         if (isZero(base) || isZero(percent)) {
             return ZERO;
         }
@@ -263,13 +265,13 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     }
 
     /**
-     * Returns the number calculated as a division of 1 by the given number.
+     * Returns the {@link BigDecimal} number calculated as a division of 1 by the given {@link BigDecimal} number.
      *
-     * @param base a number to reverse
-     * @return the number calculated as a division of 1 by the given number
-     * @throws CalculationException if number is equal to zero
+     * @param base a {@link BigDecimal} number to reverse
+     * @return the {@link BigDecimal} number calculated as a division of 1 by the given {@link BigDecimal} number
+     * @throws CalculationException if {@link BigDecimal} number is equal to zero
      */
-    private BigDecimal reverse(BigDecimal base) throws CalculationException {
+    private static BigDecimal reverse(BigDecimal base) throws CalculationException {
         if (isZero(base)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }

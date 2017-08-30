@@ -1,7 +1,7 @@
 package com.implemica.CalculatorProject.model.calculation;
 
 /**
- * The enum contains a Mathematical operation types with its string representations.
+ * The enum contains a mathematical operation types with its string representations.
  *
  * @author V. Kozina-Kravchenko
  */

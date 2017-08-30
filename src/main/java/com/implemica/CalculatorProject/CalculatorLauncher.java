@@ -4,8 +4,7 @@ import com.implemica.CalculatorProject.view.CalculatorApplication;
 import javafx.application.Application;
 
 /**
- * The {@code CalculatorLauncher} class starts the {@link CalculatorApplication} from the
- * {@link CalculatorLauncher#main(String[])} method.
+ * The class launches the {@link CalculatorApplication}.
  *
  * @author V. Kozina-Kravchenko
  */

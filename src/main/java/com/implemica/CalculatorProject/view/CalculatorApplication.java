@@ -15,9 +15,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -27,6 +25,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -295,8 +294,9 @@ public class CalculatorApplication extends Application {
             addResizeListeners();
 
             currentStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } catch (Exception e) {
+            showErrorMessage("Cannot load fxml file with view. " + e.getMessage());
         }
     }
 
@@ -309,6 +309,19 @@ public class CalculatorApplication extends Application {
     private Parent loadParent() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         return loader.load(getClass().getResourceAsStream(CALCULATOR_VIEW_FILE));
+    }
+
+    /**
+     * Shows window with information about occurred {@link Exception} while starting an application.
+     *
+     * @param errorMessage an error message with information about occurred {@link Exception}
+     */
+    private void showErrorMessage(String errorMessage) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(errorMessage);
+        alert.showAndWait();
     }
 
     /**
@@ -394,6 +407,7 @@ public class CalculatorApplication extends Application {
         if (!isFullScreen) {
             savedBoundsBeforeFullScreen = new BoundingBox(currentStage.getX(), currentStage.getY(), currentStage.getWidth(), currentStage.getHeight());
             setNewStageParameters(0, 0, currentStage.getMaxWidth(), currentStage.getMaxHeight());
+
         } else {
             setNewStageParameters(savedBoundsBeforeFullScreen.getMinX(), savedBoundsBeforeFullScreen.getMinY(),
                     savedBoundsBeforeFullScreen.getWidth(), savedBoundsBeforeFullScreen.getHeight());
@@ -504,19 +518,26 @@ public class CalculatorApplication extends Application {
     }
 
     /**
-     * Changes {@link Cursor} style depends on at what {@link ApplicationBorder} mouse is.
+     * Changes {@link Cursor} style depends on at what {@link ApplicationBorder} current mouse position is.
      */
     private void changeCursorStyle() {
-        if (applicationBorder == TOP_LEFT_CORNER || applicationBorder == BOTTOM_RIGHT_CORNER) {
+        if (isFullScreen) {
+            return;
+        }
+        if (applicationBorder == TOP_LEFT_CORNER ||
+                applicationBorder == BOTTOM_RIGHT_CORNER) {
             setCursor(Cursor.NW_RESIZE);
 
-        } else if (applicationBorder == LEFT_EDGE || applicationBorder == RIGHT_EDGE) {
+        } else if (applicationBorder == LEFT_EDGE ||
+                applicationBorder == RIGHT_EDGE) {
             setCursor(Cursor.H_RESIZE);
 
-        } else if (applicationBorder == BOTTOM_LEFT_CORNER || applicationBorder == TOP_RIGHT_CORNER) {
+        } else if (applicationBorder == BOTTOM_LEFT_CORNER ||
+                applicationBorder == TOP_RIGHT_CORNER) {
             setCursor(Cursor.NE_RESIZE);
 
-        } else if (applicationBorder == BOTTOM_EDGE || applicationBorder == TOP_EDGE) {
+        } else if (applicationBorder == BOTTOM_EDGE ||
+                applicationBorder == TOP_EDGE) {
             setCursor(Cursor.V_RESIZE);
 
         } else {
@@ -561,7 +582,7 @@ public class CalculatorApplication extends Application {
      * @param event a {@link MouseEvent} to handle
      */
     private void handleResizeEvent(MouseEvent event) {
-        if (applicationBorder == null) { // if event occurred not on the borders
+        if (applicationBorder == null || isFullScreen) { // if event occurred not on the borders or window is on full screen
             return;
         }
         // set initial values
@@ -619,7 +640,11 @@ public class CalculatorApplication extends Application {
      */
     private double updateResizeDeltaAndGetX() {
         double newStageX = currentStage.getX();
-        if (currentEventPoint.getX() <= maxResizeX && currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX()) {
+        if (currentEventPoint.getX() <= maxResizeX &&
+                currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX()) {
+            // resize left side only if new x coordinate is between minimal x on screen and
+            // x coordinate of point that is window coordinate with min width
+
             resizeDeltaX = previousMouseEventPoint.getX() - currentEventPoint.getX();
             newStageX = currentEventPoint.getX();
         }
@@ -635,7 +660,11 @@ public class CalculatorApplication extends Application {
     private double updateResizeDeltaAndGetY() {
         double newStageY = currentStage.getY();
 
-        if (currentEventPoint.getY() <= maxResizeY && currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY()) {
+        if (currentEventPoint.getY() <= maxResizeY &&
+                currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY()) {
+            // resize top side only if new y coordinate is between minimal y on screen and
+            // y coordinate of point that is window coordinate with min height
+
             resizeDeltaY = previousMouseEventPoint.getY() - currentEventPoint.getY();
             newStageY = currentEventPoint.getY();
         }
@@ -648,7 +677,10 @@ public class CalculatorApplication extends Application {
     private void updateResizeDeltaX() {
         double rightXforMinWidth = currentStage.getX() + currentStage.getMinWidth();
 
-        if (currentEventPoint.getX() >= rightXforMinWidth && currentEventPoint.getX() <= SCREEN_BOUNDS.getMaxX()) {
+        if (currentEventPoint.getX() >= rightXforMinWidth &&
+                currentEventPoint.getX() <= SCREEN_BOUNDS.getMaxX()) {
+            // resize right side only if new x coordinate of right edge is between this coordinate for min width and
+            // maximum x on screen
             resizeDeltaX = currentEventPoint.getX() - previousMouseEventPoint.getX();
         }
     }
@@ -661,7 +693,8 @@ public class CalculatorApplication extends Application {
 
         if (currentEventPoint.getY() >= bottomYforMinHeight &&
                 currentEventPoint.getY() <= SCREEN_BOUNDS.getMaxY()) {
-
+            // resize bottom side only if new y coordinate of bottom edge is between this coordinate for min height and
+            // maximum y on screen
             resizeDeltaY = currentEventPoint.getY() - previousMouseEventPoint.getY();
         }
     }
@@ -765,7 +798,7 @@ public class CalculatorApplication extends Application {
      * @return font size for the element with specified id and index of current window size bound
      */
     private double getFontSize(String elementId, int boundIndex) {
-        if (isDigit(elementId) || POINT_BUTTON_ID.equals(elementId)) {
+        if (isDigit(elementId) || POINT_BUTTON_ID.equals(elementId)) { // get font size for buttons with digits or point
             return fontSizes.get(FONT_ID_FOR_NUMBERS)[boundIndex];
         } else {
             return fontSizes.get(elementId.toUpperCase())[boundIndex];

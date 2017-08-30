@@ -143,8 +143,8 @@ public class OutputFormatter {
     private static DecimalFormat roundingFormatWithGroups = getRoundingFormatWithGroups();
 
     /**
-     * Returns the formatted specified number to Mathematical view (without group delimiters). Removes trailing zeroes in
-     * fractional part of the number, rounds or converts to exponential view if needed.
+     * Returns the formatted specified {@link BigDecimal} number to Mathematical view (without group delimiters).
+     * Removes trailing zeroes in fractional part of the number, rounds or converts to exponential view if needed.
      *
      * @param number a {@link BigDecimal} number to format
      * @return the formatted string containing number rounded or converted to an exponential view without
@@ -166,8 +166,8 @@ public class OutputFormatter {
     }
 
     /**
-     * Returns the formatted specified number with group delimiters. Removes trailing zeroes, rounds or converts to an
-     * exponential view if necessary to number.
+     * Returns the formatted specified {@link BigDecimal} number with group delimiters. Removes trailing zeroes,
+     * rounds or converts to an exponential view if necessary.
      *
      * @param number a {@link BigDecimal} number to format
      * @return the formatted string containing number rounded or converted to an exponential view with
@@ -184,7 +184,7 @@ public class OutputFormatter {
     }
 
     /**
-     * Formats the specified number by adding group delimiters. Do not change the fraction part on a number.
+     * Formats the specified {@link BigDecimal} number by adding group delimiters. Do not change the fraction part of the number.
      * Returns the string contains this formatted number.
      *
      * @param number a {@link BigDecimal} number to format
@@ -208,13 +208,12 @@ public class OutputFormatter {
         return formattedIntPart + fractionPart;
     }
 
-
     /**
-     * Formats the given number to an exponential view with group delimiters and returns this formatted number
-     * represented by string.
+     * Formats the given {@link BigDecimal} number to an exponential view with group delimiters and returns this
+     * formatted number represented by string.
      *
-     * @param number a number to format to an exponential view with group delimiters
-     * @return formatted given number represented by string
+     * @param number a {@link BigDecimal} number to format to an exponential view with group delimiters
+     * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatToExponentialViewWithGroups(BigDecimal number) {
         String formattedNumber = exponentialFormatWithGroups.format(number).toLowerCase();
@@ -222,10 +221,10 @@ public class OutputFormatter {
     }
 
     /**
-     * Rounds the given number and returns it's string representation.
+     * Rounds the given {@link BigDecimal} number and returns it's string representation.
      *
-     * @param number a number to round
-     * @return formatted given number represented by string
+     * @param number a {@link BigDecimal} number to round
+     * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatWithRoundingWithGroups(BigDecimal number) {
         int fractionDigitsCount = getCountFractionDigits(number.toPlainString());
@@ -242,8 +241,8 @@ public class OutputFormatter {
     }
 
     /**
-     * Adjusts the given string contains number formatted to an exponential view. For example, removes trailing
-     * zeroes between point and exponent, adds a plus sign to an exponent positive degree and etc.
+     * Adjusts the given string contains number formatted to an exponential view by adding a plus sign to an
+     * exponent positive degree.
      *
      * @param number a string representation of a number formatted to an exponential view
      * @return formatted number represented by string
@@ -288,12 +287,12 @@ public class OutputFormatter {
     }
 
     /**
-     * Returns a string contains formatted expression for the specified argument and mathematical operation.
+     * Returns a string contains formatted expression for the specified argument and {@link MathOperation}.
      * For example, square root: √(x); square: sqr(x); reverse: 1/(x).
      *
-     * @param operation a mathematical operation to use for formatting
-     * @param argument  a string contains number or previous formatted expression to use for formatting
-     * @return a string contains formatted expression for the specified argument and mathematical operation
+     * @param operation a {@link MathOperation} to use for formatting
+     * @param argument  a string contains number or previous formatted unary expression to use for formatting
+     * @return a string contains formatted expression for the specified argument and {@link MathOperation}
      */
     public static String formatUnaryOperation(MathOperation operation, String argument) {
         String formattedExpression = EMPTY_VALUE;
@@ -359,10 +358,10 @@ public class OutputFormatter {
     }
 
     /**
-     * Returns a new {@link DecimalFormat} instance configured for formatting with rounding with
+     * Returns a new {@link DecimalFormat} instance configured for formatting with rounding and
      * group delimiters.
      *
-     * @return a new {@link DecimalFormat} instance configured for formatting with rounding with
+     * @return a new {@link DecimalFormat} instance configured for formatting with rounding and
      * group delimiters
      */
     private static DecimalFormat getRoundingFormatWithGroups() {

@@ -207,14 +207,19 @@ public class CalculatorController {
     @FXML
     private void handleKeyEvent(KeyEvent event) {
         initializeButtons();
+
         if (isViewPanelShown) {
             showOrHideViewPanel();
         }
+
         KeyCode key = event.getCode();
+
         if (key.isModifierKey()) {
             return;
         }
+
         KeyCodeCombination combination;
+
         if (event.isShiftDown()) {
             combination = new KeyCodeCombination(key, SHIFT_DOWN);
         } else {
@@ -232,6 +237,7 @@ public class CalculatorController {
     private static void fireButton(KeyCodeCombination combination) {
         Platform.runLater(() -> {
             Button button = BUTTONS_WITH_KEYS.get(combination);
+
             if (button != null) {
                 addButtonPressedEffect(button);
                 button.fire();
@@ -261,11 +267,14 @@ public class CalculatorController {
     @FXML
     private void handleButtonEvent(Event event) {
         initializeButtons();
+
         if (isViewPanelShown) {
             showOrHideViewPanel();
         }
+
         Button button = (Button) event.getSource();
         String textToSet;
+
         try {
             textToSet = handleButtonEventImpl(button);
         } catch (CalculationException e) {
@@ -274,6 +283,7 @@ public class CalculatorController {
 
         setCurrentNumber(textToSet);
         updateExpression();
+
         if (isErrorOccurred) {
             calculator.cleanAll();
         }
@@ -289,26 +299,22 @@ public class CalculatorController {
      * @throws CalculationException if some error occurred while data processing
      */
     private String handleButtonEventImpl(Button button) throws CalculationException {
-        String textToSet = "";
         Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
+        String textToSet; // TODO without assignment ""
 
         if (buttonFunction instanceof BigDecimal) {
-            textToSet = addDigit((BigDecimal) buttonFunction);
-
+            return addDigit((BigDecimal) buttonFunction);
         } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
-            textToSet = addDecimalSeparator();
-
+            return addDecimalSeparator();
         } else if (buttonFunction instanceof MathOperation) {
-            textToSet = executeMathOperation((MathOperation) buttonFunction);
-
+            return executeMathOperation((MathOperation) buttonFunction);
         } else if (buttonFunction instanceof MemoryOperation) {
-            textToSet = executeMemoryOperation((MemoryOperation) buttonFunction);
-
+            return executeMemoryOperation((MemoryOperation) buttonFunction);
         } else if (buttonFunction instanceof EditOperation) {
-            textToSet = executeEditOperation((EditOperation) buttonFunction);
+            return executeEditOperation((EditOperation) buttonFunction);
         }
 
-        return textToSet;
+        return null; // or throw new UnsupportedOperationException()?
     }
 
     /**
@@ -391,7 +397,7 @@ public class CalculatorController {
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         calculator.executeMemoryOperation(operation);
 
-        boolean needEnable = !(operation == MEMORY_CLEAN);
+        boolean needEnable = operation != MEMORY_CLEAN;
         enableMemoryStateButtons(needEnable);
         return formatWithGroupDelimiters(calculator.getLastNumber());
     }
@@ -411,6 +417,7 @@ public class CalculatorController {
         if (operation == CLEAN) {
             calculator.cleanAll();
             isErrorOccurred = false;
+
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
@@ -544,6 +551,7 @@ public class CalculatorController {
                 appendToExpression(lastUnaryArgument);
             }
             appendToExpression(operation.symbol());
+
         } else {
             lastUnaryArgument = formatUnaryOperation(operation, lastUnaryArgument);
 
@@ -594,6 +602,7 @@ public class CalculatorController {
 
             timeline = getTimeline(0, 0, ANIMATION_DURATION, VIEW_PANEL_MAX_WIDTH);
         }
+
         timeline.play();
         // add delay for animation complete
         PauseTransition pause = new PauseTransition(Duration.millis(ANIMATION_DURATION));
@@ -651,9 +660,11 @@ public class CalculatorController {
 
         for (String type : CALCULATOR_TYPES) {
             Label label = new Label(type);
+
             if (CONVERTER_GROUP.equals(type)) {
                 label.setFont(CONVERTER_FONT);
             }
+
             labelList.add(label);
         }
         return FXCollections.observableList(labelList);
@@ -819,6 +830,7 @@ public class CalculatorController {
         if (!BUTTONS_WITH_FUNCTIONS.containsKey(button)) {
             BUTTONS_WITH_FUNCTIONS.put(button, buttonFunction);
         }
+
         if (keyCode != null) {
             BUTTONS_WITH_KEYS.put(new KeyCodeCombination(keyCode, modifiers), button);
         }
