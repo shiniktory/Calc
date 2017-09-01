@@ -124,23 +124,23 @@ public class OutputFormatter {
      * The {@link DecimalFormat} instance configured to format number to an exponential view without group
      * delimiters.
      */
-    private static DecimalFormat mathFormatWithExponent = getMathFormatWithExponent();
+    private static final DecimalFormat mathFormatWithExponent = getMathFormatWithExponent();
 
     /**
      * The {@link DecimalFormat} instance configured to format number with rounding without group delimiters.
      */
-    private static DecimalFormat mathFormatWithRounding = getMathFormatWithRounding();
+    private static final DecimalFormat mathFormatWithRounding = getMathFormatWithRounding();
 
     /**
      * The {@link DecimalFormat} instance configured to format number to an exponential view with group
      * delimiters.
      */
-    private static DecimalFormat exponentialFormatWithGroups = getExponentialFormatWithGroups();
+    private static final DecimalFormat exponentialFormatWithGroups = getExponentialFormatWithGroups();
 
     /**
      * The {@link DecimalFormat} instance configured to format number with rounding with group delimiters.
      */
-    private static DecimalFormat roundingFormatWithGroups = getRoundingFormatWithGroups();
+    private static final DecimalFormat roundingFormatWithGroups = getRoundingFormatWithGroups();
 
     /**
      * Returns the formatted specified {@link BigDecimal} number to Mathematical view (without group delimiters).

@@ -43,7 +43,7 @@ public class CalculatorTest {
 
     private static TextField currentNumberText, prevOperationsText;
 
-    private static Map<String, Button> buttons = new LinkedHashMap<>();
+    private static final Map<String, Button> buttons = new LinkedHashMap<>();
 
     @BeforeClass
     public static void setUpInit() {

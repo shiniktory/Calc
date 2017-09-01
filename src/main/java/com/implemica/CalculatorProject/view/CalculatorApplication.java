@@ -25,7 +25,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.Window;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -218,6 +217,16 @@ public class CalculatorApplication extends Application {
     private static final String CLOSE_BUTTON_ID = "#close";
 
     /**
+     * The title of {@link Alert} window with occurred error information.
+     */
+    private static final String ERROR_WINDOW_TITLE = "Error";
+
+    /**
+     * An error message about {@link Parent} from fxml-file cannot be loaded.
+     */
+    private static final String CANNOT_LOAD_PARENT_MESSAGE = "Cannot load fxml-file with view. ";
+
+    /**
      * A reference to the {@link TextField} with the current number.
      */
     private TextField currentNumberTextField;
@@ -296,7 +305,7 @@ public class CalculatorApplication extends Application {
             currentStage.show();
 
         } catch (Exception e) {
-            showErrorMessage("Cannot load fxml file with view. " + e.getMessage());
+            showErrorMessage(CANNOT_LOAD_PARENT_MESSAGE + e.getMessage());
         }
     }
 
@@ -316,9 +325,9 @@ public class CalculatorApplication extends Application {
      *
      * @param errorMessage an error message with information about occurred {@link Exception}
      */
-    private void showErrorMessage(String errorMessage) {
+    public static void showErrorMessage(String errorMessage) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle(ERROR_WINDOW_TITLE);
         alert.setHeaderText(null);
         alert.setContentText(errorMessage);
         alert.showAndWait();
