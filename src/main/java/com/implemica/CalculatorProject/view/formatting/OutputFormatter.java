@@ -41,7 +41,7 @@ public class OutputFormatter {
     public static final String ZERO_VALUE = "0";
 
     /**
-     * Tha value of {@link BigDecimal} number with fraction part with nines. Used to detect number with fraction part
+     * Tha value of {@link BigDecimal} number with fractional part with nines. Used to detect number with fractional part
      * with nine in period.
      */
     private static final BigDecimal FRACTION_PART_WITH_NINES = BigDecimal.valueOf(0.99);
@@ -97,25 +97,25 @@ public class OutputFormatter {
     private static final String NEGATE_PATTERN = "negate(%s)";
 
     /**
-     * The maximum fraction part length for numbers with point, that are positive and
+     * The maximum fractional part length for numbers with point, that are positive and
      * greater than {@link BigDecimal#ONE}.
      */
     private static final int FRACTION_LENGTH_WITH_POINT = 16;
 
     /**
-     * The maximum fraction part length for numbers with point, that are positive and
+     * The maximum fractional part length for numbers with point, that are positive and
      * less than {@link BigDecimal#ONE}.
      */
     private static final int FRACTION_LENGTH_WITH_ZERO = 17;
 
     /**
-     * The maximum fraction part length for numbers with point, that are negative and
+     * The maximum fractional part length for numbers with point, that are negative and
      * less than {@link BigDecimal#ONE}.
      */
     private static final int FRACTION_LENGTH_WITH_MINUS_ZERO = 18;
 
     /**
-     * The maximum fraction part length for numbers with point, that are negative and
+     * The maximum fractional part length for numbers with point, that are negative and
      * greater than {@link BigDecimal#ONE}.
      */
     private static final int FRACTION_LENGTH_WITH_MINUS_AND_POINT = 17;
@@ -141,6 +141,12 @@ public class OutputFormatter {
      * The {@link DecimalFormat} instance configured to format number with rounding with group delimiters.
      */
     private static final DecimalFormat roundingFormatWithGroups = getRoundingFormatWithGroups();
+
+    /**
+     * The {@link DecimalFormat} instance configured to format entered by user numbers by adding group
+     * delimiters. Do not change fractional part of the number.
+     */
+    private static final DecimalFormat formatForEnteredNumber = getRoundingFormatWithGroups();
 
     /**
      * Returns the formatted specified {@link BigDecimal} number to Mathematical view (without group delimiters).
@@ -184,28 +190,17 @@ public class OutputFormatter {
     }
 
     /**
-     * Formats the specified {@link BigDecimal} number by adding group delimiters. Do not change the fraction part of the number.
-     * Returns the string contains this formatted number.
+     * Formats the specified {@link BigDecimal} number by adding group delimiters. Do not change the fractional part of the number.
+     * Returns the string contains this formatted {@link BigDecimal} number.
      *
      * @param number a {@link BigDecimal} number to format
-     * @return the string contains this formatted number
+     * @return the string contains this formatted {@link BigDecimal} number
      */
     public static String formatEnteredNumber(BigDecimal number, boolean isLastSymbolPoint) {
-        String formattedIntPart = formatWithRoundingWithGroups(number.setScale(0, ROUND_DOWN));
+        formatForEnteredNumber.setDecimalSeparatorAlwaysShown(isLastSymbolPoint);
+        formatForEnteredNumber.setMinimumFractionDigits(number.scale());
 
-        String numberStr = number.toPlainString();
-        String fractionPart = EMPTY_VALUE;
-
-        if (numberStr.contains(POINT)) {
-            fractionPart = numberStr.substring(numberStr.indexOf(POINT));
-        }
-        if (numberStr.startsWith(MINUS + ZERO_VALUE)) {
-            formattedIntPart = MINUS + formattedIntPart;
-        }
-        if (isLastSymbolPoint) {
-            formattedIntPart += POINT;
-        }
-        return formattedIntPart + fractionPart;
+        return formatForEnteredNumber.format(number);
     }
 
     /**
@@ -227,16 +222,16 @@ public class OutputFormatter {
      * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatWithRoundingWithGroups(BigDecimal number) {
-        int fractionDigitsCount = getCountFractionDigits(number.toPlainString());
+        int fractionalDigitsCount = getCountFractionDigits(number.toPlainString());
 
         // Check for tail with nine in period and round it
         BigDecimal tail = number.remainder(ONE).abs();
         if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
                 tail.toPlainString().length() > MAX_LENGTH_WITH_POINT_AND_MINUS) {
 
-            fractionDigitsCount--;
+            fractionalDigitsCount--;
         }
-        roundingFormatWithGroups.setMaximumFractionDigits(fractionDigitsCount);
+        roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);
         return roundingFormatWithGroups.format(number).toLowerCase();
     }
 
@@ -259,31 +254,31 @@ public class OutputFormatter {
     }
 
     /**
-     * Returns a count of fraction digits to the specified number represented by string.
+     * Returns a count of fractional digits to the specified number represented by string.
      *
-     * @param number a string representation of a number to count fraction digits
-     * @return a count of fraction digits to the specified number represented by string
+     * @param number a string representation of a number to count fractional digits
+     * @return a count of fractional digits to the specified number represented by string
      */
     private static int getCountFractionDigits(String number) {
-        int fractionDigitsCount = 0;
+        int fractionalDigitsCount = 0;
 
         if (number.contains(POINT)) {
-            fractionDigitsCount = FRACTION_LENGTH_WITH_POINT - number.indexOf(POINT);
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_POINT - number.indexOf(POINT);
         }
 
         if (number.startsWith(MINUS) && number.contains(POINT)) {
-            fractionDigitsCount = FRACTION_LENGTH_WITH_MINUS_AND_POINT - number.indexOf(POINT);
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_MINUS_AND_POINT - number.indexOf(POINT);
         }
 
         if (number.startsWith(MINUS + ZERO_VALUE + POINT)) {
-            fractionDigitsCount = FRACTION_LENGTH_WITH_MINUS_ZERO - number.indexOf(POINT);
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_MINUS_ZERO - number.indexOf(POINT);
         }
 
         if (number.startsWith(ZERO_VALUE + POINT)) {
-            fractionDigitsCount = FRACTION_LENGTH_WITH_ZERO - number.indexOf(POINT);
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_ZERO - number.indexOf(POINT);
         }
 
-        return fractionDigitsCount;
+        return fractionalDigitsCount;
     }
 
     /**

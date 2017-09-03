@@ -467,15 +467,14 @@ public class Calculator {
      * @return true if the last symbol in current number is decimal point
      */
     public boolean deleteLastDigit() {
-        String lastNumberStr = lastNumber.toPlainString();
+        String lastNumberStr = lastNumber.abs().toPlainString();
         boolean isLastSymbolPoint = false;
 
         if (needAddPoint) { // if the last symbol in number is decimal separator
             isLastSymbolPoint = false;
             needAddPoint = false;
 
-        } else if (lastNumberStr.length() == 1 ||
-                lastNumberStr.length() == 2 && lastNumber.signum() == -1) { // if number consists of only one digit with or without minus sign
+        } else if (lastNumberStr.length() == 1) { // if number consists of only one digit
             lastNumber = ZERO;
             needAddPoint = false;
 

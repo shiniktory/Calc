@@ -39,7 +39,6 @@ import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isEmptyString;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumberLengthValid;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isResultOverflow;
-import static com.implemica.CalculatorProject.view.CalculatorApplication.showErrorMessage;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.*;
 import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 
@@ -283,13 +282,8 @@ public class CalculatorController {
 
         try {
             textToSet = handleButtonEventImpl(button);
-
         } catch (CalculationException e) {
             textToSet = handleException(e);
-
-        } catch (UnsupportedOperationException e) {
-            showErrorMessage(e.getMessage());
-            return;
         }
 
         setCurrentNumber(textToSet);
@@ -358,6 +352,8 @@ public class CalculatorController {
     private String addDecimalSeparator() {
         calculator.addPoint();
         BigDecimal currentNumber = calculator.getLastNumber();
+        // if after adding decimal separator number's scale still is zero,
+        // than need to format with point at the end of number
         boolean needAppendPoint = currentNumber.scale() == 0;
 
         return formatEnteredNumber(currentNumber, needAppendPoint);
@@ -509,12 +505,12 @@ public class CalculatorController {
         List<Object> arguments = calculator.getExpressionArguments();
         expression = new StringBuilder();
         lastUnaryArgument = "";
+        int lastArgumentIndex = arguments.size() - 1;
 
         for (int i = 0; i < arguments.size(); i++) {
             Object argument = arguments.get(i);
-            boolean isTheLastArgument = i == arguments.size() - 1;
 
-            formatAndAppendCurrentArgument(argument, isTheLastArgument);
+            formatAndAppendCurrentArgument(argument, i == lastArgumentIndex);
         }
         return expression.toString().trim();
     }
@@ -602,21 +598,16 @@ public class CalculatorController {
      */
     @FXML
     private void showOrHideViewPanel() {
-        Timeline timeline;
-        if (isViewPanelShown) { // if panel is already shown - hide it
-
-            timeline = getTimeline(0, VIEW_PANEL_MAX_WIDTH, ANIMATION_DURATION, 0);
-
-        } else { // if panel is invisible - show it
-            // add list of calculator's view types
+        if (!isViewPanelShown) { // add list of calculator's view types
             viewTypesList.setItems(LIST_OF_CALCULATOR_TYPES);
             viewTypesList.getSelectionModel().select(0);
             viewTypesPanel.setVisible(true);
-
-            timeline = getTimeline(0, 0, ANIMATION_DURATION, VIEW_PANEL_MAX_WIDTH);
         }
 
+        // play show/hide animation
+        Timeline timeline = getTimeline();
         timeline.play();
+
         // add delay for animation complete
         PauseTransition pause = new PauseTransition(Duration.millis(ANIMATION_DURATION));
         pause.setOnFinished(event1 -> viewTypesPanel.setVisible(isViewPanelShown));
@@ -625,20 +616,24 @@ public class CalculatorController {
     }
 
     /**
-     * Returns a {@link Timeline} instance configured with the specified parameters of start end end
-     * animation duration and panel width.
+     * Returns a {@link Timeline} instance configured for showing or hiding a {@link #viewTypesPanel}.
      *
-     * @param startDuration a start animation duration value in millis
-     * @param startWidth    a start value of panel width
-     * @param endDuration   an end animation duration value in millis
-     * @param endWidth      an end value of panel width
-     * @return a {@link Timeline} instance configured with the specified parameters of start end end
-     * animation duration and panel width
+     * @return a {@link Timeline} instance configured for showing or hiding a {@link #viewTypesPanel}
      */
-    private Timeline getTimeline(int startDuration, double startWidth, int endDuration, double endWidth) {
-        return new Timeline(
-                getKeyFrame(startDuration, startWidth),
-                getKeyFrame(endDuration, endWidth));
+    private Timeline getTimeline() {
+        double startWidth;
+        double endWidth;
+
+        if (isViewPanelShown) {
+            startWidth = VIEW_PANEL_MAX_WIDTH;
+            endWidth = 0;
+        } else {
+            startWidth = 0;
+            endWidth = VIEW_PANEL_MAX_WIDTH;
+        }
+
+        return new Timeline(getKeyFrame(0, startWidth),
+                getKeyFrame(ANIMATION_DURATION, endWidth));
     }
 
     /**
@@ -734,19 +729,33 @@ public class CalculatorController {
     }
 
     /**
-     * Disables or enables the given {@link Button}.
+     * Disables or enables the given {@link Button} with {@link MathOperation} or decimal separator.
      *
-     * @param button a {@link Button} to disable or enable
+     * @param button a {@link Button} with {@link MathOperation} or decimal separator to disable or enable
      * @param enable a boolean value shows to enable or disable {@link Button}
      */
-    private void enableOperationButton(Button button, boolean enable) {
+    private static void enableOperationButton(Button button, boolean enable) {
         Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
 
-        if (buttonFunction instanceof MathOperation && buttonFunction != RESULT ||
-                POINT.equals(buttonFunction)) {
-
-            button.setDisable(!enable);
+        if (buttonFunction == RESULT) {
+            return;
         }
+
+        boolean isMathOperation = buttonFunction instanceof MathOperation;
+
+        if (!isMathOperation && !POINT.equals(buttonFunction)) {
+            return;
+        }
+
+        button.setDisable(!enable);
+
+//        if (buttonFunction instanceof MathOperation &&
+//                buttonFunction != RESULT) {
+//            button.setDisable(!enable);
+//
+//        } else if (POINT.equals(buttonFunction)) {
+//            button.setDisable(!enable);
+//        }
     }
 
     /**
@@ -768,28 +777,37 @@ public class CalculatorController {
      * to the {@link Button} storage. The initialization executes only if storage is empty.
      */
     private void initializeButtons() {
-        if (BUTTONS_WITH_FUNCTIONS.size() != 0 || BUTTONS_WITH_KEYS.size() != 0) {
+        if (!BUTTONS_WITH_FUNCTIONS.isEmpty() || !BUTTONS_WITH_KEYS.isEmpty()) {
             return;
         }
         // buttons with digits
         addButton(digit0, BigDecimal.ZERO, KeyCode.DIGIT0);
         addButton(digit0, BigDecimal.ZERO, KeyCode.NUMPAD0);
+
         addButton(digit1, BigDecimal.ONE, KeyCode.DIGIT1);
         addButton(digit1, BigDecimal.ONE, KeyCode.NUMPAD1);
+
         addButton(digit2, BigDecimal.valueOf(2), KeyCode.DIGIT2);
         addButton(digit2, BigDecimal.valueOf(2), KeyCode.NUMPAD2);
+
         addButton(digit3, BigDecimal.valueOf(3), KeyCode.DIGIT3);
         addButton(digit3, BigDecimal.valueOf(3), KeyCode.NUMPAD3);
+
         addButton(digit4, BigDecimal.valueOf(4), KeyCode.DIGIT4);
         addButton(digit4, BigDecimal.valueOf(4), KeyCode.NUMPAD4);
+
         addButton(digit5, BigDecimal.valueOf(5), KeyCode.DIGIT5);
         addButton(digit5, BigDecimal.valueOf(5), KeyCode.NUMPAD5);
+
         addButton(digit6, BigDecimal.valueOf(6), KeyCode.DIGIT6);
         addButton(digit6, BigDecimal.valueOf(6), KeyCode.NUMPAD6);
+
         addButton(digit7, BigDecimal.valueOf(7), KeyCode.DIGIT7);
         addButton(digit7, BigDecimal.valueOf(7), KeyCode.NUMPAD7);
+
         addButton(digit8, BigDecimal.valueOf(8), KeyCode.DIGIT8);
         addButton(digit8, BigDecimal.valueOf(8), KeyCode.NUMPAD8);
+
         addButton(digit9, BigDecimal.valueOf(9), KeyCode.DIGIT9);
         addButton(digit9, BigDecimal.valueOf(9), KeyCode.NUMPAD9);
 
@@ -840,9 +858,7 @@ public class CalculatorController {
      * @param modifiers      a {@link Modifier}s to {@link KeyCode} that actives current {@link Button}
      */
     private static void addButton(Button button, Object buttonFunction, KeyCode keyCode, Modifier... modifiers) {
-        if (!BUTTONS_WITH_FUNCTIONS.containsKey(button)) {
-            BUTTONS_WITH_FUNCTIONS.put(button, buttonFunction);
-        }
+        BUTTONS_WITH_FUNCTIONS.putIfAbsent(button, buttonFunction);
 
         if (keyCode != null) {
             BUTTONS_WITH_KEYS.put(new KeyCodeCombination(keyCode, modifiers), button);

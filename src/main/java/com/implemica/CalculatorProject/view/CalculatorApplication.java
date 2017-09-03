@@ -305,6 +305,7 @@ public class CalculatorApplication extends Application {
             currentStage.show();
 
         } catch (Exception e) {
+            e.printStackTrace();
             showErrorMessage(CANNOT_LOAD_PARENT_MESSAGE + e.getMessage());
         }
     }
@@ -325,7 +326,7 @@ public class CalculatorApplication extends Application {
      *
      * @param errorMessage an error message with information about occurred {@link Exception}
      */
-    public static void showErrorMessage(String errorMessage) {
+    private static void showErrorMessage(String errorMessage) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(ERROR_WINDOW_TITLE);
         alert.setHeaderText(null);
@@ -410,7 +411,7 @@ public class CalculatorApplication extends Application {
     }
 
     /**
-     * Expand application window on full screen or restore saved window position, width and height.
+     * Expand application window on full screen or restore saved before full screen window position, width and height.
      */
     private void setFullScreen() {
         if (!isFullScreen) {
@@ -440,7 +441,7 @@ public class CalculatorApplication extends Application {
     }
 
     /**
-     * Verifies and sets an application width equal the specified value.
+     * Verifies new width value is in allowed bounds and sets an application width equal the specified value.
      *
      * @param newWidth a new value of width
      */
@@ -451,7 +452,7 @@ public class CalculatorApplication extends Application {
     }
 
     /**
-     * Verifies and sets an application height equal the specified value.
+     * Verifies new height value is in allowed bounds and sets an application height equal the specified value.
      *
      * @param newHeight a new value of application height
      */
@@ -533,6 +534,7 @@ public class CalculatorApplication extends Application {
         if (isFullScreen) {
             return;
         }
+
         if (applicationBorder == TOP_LEFT_CORNER ||
                 applicationBorder == BOTTOM_RIGHT_CORNER) {
             setCursor(Cursor.NW_RESIZE);
@@ -580,7 +582,8 @@ public class CalculatorApplication extends Application {
 
         // save init mouse position where resize event starts
         applicationBorder = ApplicationBorder.getMousePosition(initMouseEventPoint, savedBoundsBeforeResize);
-        if (applicationBorder == TOP_LEFT_CORNER || applicationBorder == TOP_EDGE) {
+        if (applicationBorder == TOP_LEFT_CORNER ||
+                applicationBorder == TOP_EDGE) {
             isWindowMoving = false;
         }
     }
@@ -649,11 +652,11 @@ public class CalculatorApplication extends Application {
      */
     private double updateResizeDeltaAndGetX() {
         double newStageX = currentStage.getX();
-        if (currentEventPoint.getX() <= maxResizeX &&
-                currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX()) {
+
+        if (currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX() &&
+                currentEventPoint.getX() <= maxResizeX) {
             // resize left side only if new x coordinate is between minimal x on screen and
             // x coordinate of point that is window coordinate with min width
-
             resizeDeltaX = previousMouseEventPoint.getX() - currentEventPoint.getX();
             newStageX = currentEventPoint.getX();
         }
@@ -669,11 +672,10 @@ public class CalculatorApplication extends Application {
     private double updateResizeDeltaAndGetY() {
         double newStageY = currentStage.getY();
 
-        if (currentEventPoint.getY() <= maxResizeY &&
-                currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY()) {
+        if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY() &&
+                currentEventPoint.getY() <= maxResizeY) {
             // resize top side only if new y coordinate is between minimal y on screen and
             // y coordinate of point that is window coordinate with min height
-
             resizeDeltaY = previousMouseEventPoint.getY() - currentEventPoint.getY();
             newStageY = currentEventPoint.getY();
         }
@@ -755,7 +757,7 @@ public class CalculatorApplication extends Application {
         double newFontSize = defaultFontSize;
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentWidth / textWidth - 0.1;
-        if (scale < 1.0) {
+        if (scale < 1.0) { // if need to reduce a font size
             newFontSize = defaultFont.getSize() * scale;
         }
 
