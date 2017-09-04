@@ -954,8 +954,7 @@ public class CalculatorTest {
         String expectedMemorizedValue = expression.substring(equalSignIndex + 1).trim();
 
         String[] expressionParts = expression.substring(0, equalSignIndex).trim().split(ARGUMENT_DELIMITERS);
-        for (int i = 0; i < expressionParts.length; i++) {
-            String argument = expressionParts[i];
+        for (String argument : expressionParts) {
             if (isNumber(argument)) {
                 enterNumber(argument);
             } else {

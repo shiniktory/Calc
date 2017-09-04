@@ -616,38 +616,37 @@ public class CalculatorApplication extends Application {
 
         // calculate difference between previous and current mouse positions
         if (borderForResize == TOP_LEFT_CORNER && !isWindowMoving) { // do not resize if window move event started
-            newStageX = updateResizeDeltaAndGetX();
-            newStageY = updateResizeDeltaAndGetY();
+            newStageX = resizeLeftSideByX();
+            newStageY = resizeTopSideByY();
 
         } else if (borderForResize == LEFT_EDGE) {
-            newStageX = updateResizeDeltaAndGetX();
+            newStageX = resizeLeftSideByX();
 
         } else if (borderForResize == BOTTOM_LEFT_CORNER) {
-            newStageX = updateResizeDeltaAndGetX();
-            updateResizeDeltaY();
+            newStageX = resizeLeftSideByX();
+            newStageY = resizeBottomSideByY();
 
         } else if (borderForResize == BOTTOM_EDGE) {
-            updateResizeDeltaY();
+            newStageY = resizeBottomSideByY();
 
         } else if (borderForResize == BOTTOM_RIGHT_CORNER) {
-            updateResizeDeltaY();
-            updateResizeDeltaX();
+            newStageY = resizeBottomSideByY();
+            resizeRightSideByX();
 
         } else if (borderForResize == RIGHT_EDGE) {
-            updateResizeDeltaX();
+            resizeRightSideByX();
 
         } else if (borderForResize == TOP_RIGHT_CORNER) {
-            newStageY = updateResizeDeltaAndGetY();
-            updateResizeDeltaX();
+            newStageY = resizeTopSideByY();
+            resizeRightSideByX();
 
         } else if (borderForResize == TOP_EDGE && !isWindowMoving) {
-            newStageY = updateResizeDeltaAndGetY();
+            newStageY = resizeTopSideByY();
         }
 
         // calculate and set new stage parameters: width, height, position
         double newWidth = currentStage.getWidth() + resizeDeltaX;
         double newHeight = currentStage.getHeight() + resizeDeltaY;
-
         setNewStageParameters(newStageX, newStageY, newWidth, newHeight);
 
         // save current event coordinates
@@ -661,7 +660,7 @@ public class CalculatorApplication extends Application {
      *
      * @return new X coordinate for application window
      */
-    private double updateResizeDeltaAndGetX() {
+    private double resizeLeftSideByX() {
         double newStageX = currentStage.getX();
 
         if (currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX() &&
@@ -680,7 +679,7 @@ public class CalculatorApplication extends Application {
      *
      * @return new Y coordinate for application window
      */
-    private double updateResizeDeltaAndGetY() {
+    private double resizeTopSideByY() {
         double newStageY = currentStage.getY();
 
         if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY() &&
@@ -696,7 +695,7 @@ public class CalculatorApplication extends Application {
     /**
      * Updates difference between previous and current {@link MouseEvent} X coordinate.
      */
-    private void updateResizeDeltaX() {
+    private void resizeRightSideByX() {
         double rightXForMinWidth = currentStage.getX() + currentStage.getMinWidth();
 
         if (currentEventPoint.getX() >= rightXForMinWidth &&
@@ -708,15 +707,18 @@ public class CalculatorApplication extends Application {
     }
 
     /**
-     * Updates difference between previous and current {@link MouseEvent} Y coordinate.
+     * Updates difference between previous and current {@link MouseEvent} Y coordinate. Returns new y coordinate
+     * of current window. If bottom window edge y coordinate reached bottom screen y coordinate need to resize window
+     * height on maximum and move by y to 0. In other cases window's y coordinate will not change.
+     *
+     * @return  new y coordinate of current window
      */
-    private void updateResizeDeltaY() {
-        double bottomYForMinHeight = currentStage.getY() + currentStage.getMinHeight();
-        if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMaxY()) { // TODO fix this
-            currentStage.setHeight( currentStage.getMaxHeight());
-            currentStage.setY(0);
-            return;
+    private double resizeBottomSideByY() {
+        if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMaxY()) { // if bottom edge y coordinate reached bottom screen y coordinate
+            currentStage.setHeight(currentStage.getMaxHeight());
+            return 0;
         }
+        double bottomYForMinHeight = currentStage.getY() + currentStage.getMinHeight();
 
         if (currentEventPoint.getY() >= bottomYForMinHeight &&
                 currentEventPoint.getY() <= SCREEN_BOUNDS.getMaxY()) {
@@ -724,6 +726,8 @@ public class CalculatorApplication extends Application {
             // maximum y on screen
             resizeDeltaY = currentEventPoint.getY() - previousMouseEventPoint.getY();
         }
+        return currentStage.getY();
+
     }
 
     /**
