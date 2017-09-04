@@ -630,8 +630,7 @@ public class CalculatorTest {
 
     private boolean enterArguments(String[] arguments) {
         boolean wasBinaryOperation = false;
-        for (int i = 0; i < arguments.length; i++) {
-            String argument = arguments[i];
+        for (String argument : arguments) {
             if (isNumber(argument)) {
                 enterNumber(argument);
             } else {

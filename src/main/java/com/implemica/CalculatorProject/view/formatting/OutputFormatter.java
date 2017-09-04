@@ -8,6 +8,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static java.lang.String.format;
 import static java.math.BigDecimal.*;
@@ -224,10 +225,9 @@ public class OutputFormatter {
     private static String formatWithRoundingWithGroups(BigDecimal number) {
         int fractionalDigitsCount = getCountFractionDigits(number.toPlainString());
 
-        // Check for tail with nine in period and round it
         BigDecimal tail = number.remainder(ONE).abs();
         if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
-                tail.toPlainString().length() > MAX_LENGTH_WITH_POINT_AND_MINUS) {
+                tail.toPlainString().length() > MAX_LENGTH_WITH_POINT_AND_MINUS) { // Check for tail with nine in period and round it
 
             fractionalDigitsCount--;
         }
@@ -292,22 +292,16 @@ public class OutputFormatter {
     public static String formatUnaryOperation(MathOperation operation, String argument) {
         String formattedExpression = EMPTY_VALUE;
 
-        switch (operation) {
-            case SQUARE_ROOT:
-                formattedExpression = format(SQUARE_ROOT_PATTERN, argument);
-                break;
-
-            case SQUARE:
-                formattedExpression = format(SQUARE_PATTERN, argument);
-                break;
-
-            case REVERSE:
-                formattedExpression = format(REVERSE_PATTERN, argument);
-                break;
-
-            case NEGATE:
-                formattedExpression = format(NEGATE_PATTERN, argument);
+        if (operation == SQUARE_ROOT) {
+            formattedExpression = format(SQUARE_ROOT_PATTERN, argument);
+        } else if (operation == SQUARE) {
+            formattedExpression = format(SQUARE_PATTERN, argument);
+        } else if (operation == REVERSE) {
+            formattedExpression = format(REVERSE_PATTERN, argument);
+        } else if (operation == NEGATE) {
+            formattedExpression = format(NEGATE_PATTERN, argument);
         }
+
         return formattedExpression;
     }
 

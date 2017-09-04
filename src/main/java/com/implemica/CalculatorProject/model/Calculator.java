@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
@@ -530,23 +531,20 @@ public class Calculator {
         if (operation == null) {
             return;
         }
-        switch (operation) {
-            case MEMORY_CLEAN:
-                memorizedNumber = ZERO;
-                break;
-            case MEMORY_RECALL:
-                lastNumber = memorizedNumber;
-                removeLastUnaryFromExpression();
-                break;
-            case MEMORY_ADD:
-                memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
-                break;
-            case MEMORY_SUBTRACT:
-                memorizedNumber = getResult(SUBTRACT, memorizedNumber, lastNumber);
-                break;
-            case MEMORY_STORE:
-                memorizedNumber = lastNumber;
+
+        if (operation == MEMORY_CLEAN) {
+            memorizedNumber = ZERO;
+        } else if (operation == MEMORY_RECALL) {
+            lastNumber = memorizedNumber;
+            removeLastUnaryFromExpression();
+        } else if (operation == MEMORY_ADD) {
+            memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
+        } else if (operation == MEMORY_SUBTRACT) {
+            memorizedNumber = getResult(SUBTRACT, memorizedNumber, lastNumber);
+        } else if (operation == MEMORY_STORE) {
+            memorizedNumber = lastNumber;
         }
+
         isNewNumber = true;
     }
 
@@ -587,9 +585,7 @@ public class Calculator {
         // if last math operation was unary and it wasn't removed yet,
         // because number added before this operation is still in expression
         if (wasUnaryBefore && indexOfLastNumberInExpression < expression.size()) {
-            for (int i = expression.size() - 1; i >= indexOfLastNumberInExpression; i--) {
-                expression.remove(i);
-            }
+            expression.subList(indexOfLastNumberInExpression, expression.size()).clear();
             wasUnaryBefore = false;
         }
     }
