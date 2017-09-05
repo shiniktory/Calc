@@ -209,8 +209,8 @@ public class OutputFormatter {
 
         BigDecimal tail = number.remainder(ONE).abs();
         if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
-                tail.toPlainString().length() > MAX_LENGTH_WITH_POINT_AND_MINUS) { // Check for tail with nine in period and round it
-
+                tail.scale() > FRACTION_LENGTH_WITH_POINT) { // Check for tail with nine in period and round it
+            // TODO
             fractionalDigitsCount--;
         }
         roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);

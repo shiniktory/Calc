@@ -711,7 +711,7 @@ public class CalculatorApplication extends Application {
      * of current window. If bottom window edge y coordinate reached bottom screen y coordinate need to resize window
      * height on maximum and move by y to 0. In other cases window's y coordinate will not change.
      *
-     * @return  new y coordinate of current window
+     * @return new y coordinate of current window
      */
     private double resizeBottomSideByY() {
         if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMaxY()) { // if bottom edge y coordinate reached bottom screen y coordinate
@@ -777,6 +777,7 @@ public class CalculatorApplication extends Application {
         double newFontSize = defaultFontSize;
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentWidth / textWidth - 0.1;
+
         if (scale < 1.0) { // if need to reduce a font size
             newFontSize = defaultFont.getSize() * scale;
         }
@@ -881,38 +882,36 @@ public class CalculatorApplication extends Application {
             double distanceToRightEdge = applicationBounds.getMaxX() - mouseEventPoint.getX();
 
             ApplicationBorder applicationBorder = null;
-            if (distanceToLeftEdge <= RESIZE_PADDING &&
-                    distanceToTopEdge <= RESIZE_PADDING) {
+
+            if (distanceToLeftEdge <= RESIZE_PADDING && distanceToTopEdge <= RESIZE_PADDING) {
                 applicationBorder = TOP_LEFT_CORNER;
 
             } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING &&
                     distanceToLeftEdge <= RESIZE_PADDING) {
                 applicationBorder = LEFT_EDGE;
 
-            } else if (distanceToLeftEdge <= RESIZE_PADDING &&
-                    distanceToBottomEdge <= RESIZE_PADDING) {
+            } else if (distanceToLeftEdge <= RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_LEFT_CORNER;
 
             } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING &&
                     distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_EDGE;
 
-            } else if (distanceToRightEdge <= RESIZE_PADDING &&
-                    distanceToBottomEdge <= RESIZE_PADDING) {
+            } else if (distanceToRightEdge <= RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_RIGHT_CORNER;
 
             } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING &&
                     distanceToRightEdge <= RESIZE_PADDING) {
                 applicationBorder = RIGHT_EDGE;
 
-            } else if (distanceToTopEdge <= RESIZE_PADDING &&
-                    distanceToRightEdge <= RESIZE_PADDING) {
+            } else if (distanceToTopEdge <= RESIZE_PADDING && distanceToRightEdge <= RESIZE_PADDING) {
                 applicationBorder = TOP_RIGHT_CORNER;
 
-            } else if (distanceToTopEdge < RESIZE_PADDING &&
-                    distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING) {
+            } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING &&
+                    distanceToTopEdge < RESIZE_PADDING) {
                 applicationBorder = TOP_EDGE;
             }
+
             return applicationBorder;
         }
     }

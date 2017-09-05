@@ -78,7 +78,7 @@ public class Calculator {
 
     /**
      * The flag variable shows the last symbol in current {@link BigDecimal} number is decimal point. Will be added to
-     * the number with the first fraction digit.
+     * the number with the first fractional digit.
      */
     private boolean needAddPoint = false;
 
@@ -147,7 +147,7 @@ public class Calculator {
     private void appendDigit(BigDecimal digit) {
         if (isZero(lastNumber) && !isZero(digit) &&
                 lastNumber.scale() == 0 && !needAddPoint) {
-            // if current number is zero, it has no fraction part and adding decimal separator didn't called
+            // if current number is zero, it has no fractional part and adding decimal separator didn't called
             // than replace current number by specified non-zero digit
             lastNumber = digit;
 
@@ -167,7 +167,7 @@ public class Calculator {
             digit = digit.negate();
         }
 
-        if (needAddPoint || lastNumber.scale() != 0) { // if called adding the decimal separator or current number already has fraction part
+        if (needAddPoint || lastNumber.scale() != 0) { // if called adding the decimal separator or current number already has fractional part
             int newScale = lastNumber.scale() + 1;
             BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
             lastNumber = lastNumber.add(tailToAdd);
@@ -216,7 +216,11 @@ public class Calculator {
             return executePercentOperation();
         }
 
-        if (operation != null && !wasUnaryBefore && isNewNumber && !expression.isEmpty()) {
+        if (operation == null) {
+            operation = currentOperation;
+        }
+
+        if (!wasUnaryBefore && isNewNumber && !expression.isEmpty()) {
             // if after last binary operation called new binary instead of entering number.
             // need to replace last operation and return previous result
             operation = currentOperation;
@@ -225,16 +229,7 @@ public class Calculator {
             return getPreviousResult();
         }
 
-        if (!wasUnaryBefore) {
-            addToExpression(lastNumber);
-        }
-
-        if (operation == null) {
-            operation = currentOperation;
-        }
-
-        addToExpression(currentOperation);
-
+        updateExpressionForOperation(currentOperation);
         // replace previous number by last entered number or by result of previous binary operations
         updatePreviousNumber();
         operation = currentOperation;
@@ -251,11 +246,15 @@ public class Calculator {
      * is only one binary {@link MathOperation} in expression
      */
     private BigDecimal getPreviousResult() {
+        BigDecimal previousResult;
+
         if (expression.isEmpty() || expression.size() == 2) {  // if weren't any calculations or added one number and one any operation
-            return lastNumber;
+            previousResult = lastNumber;
         } else {
-            return previousNumber;
+            previousResult = previousNumber;
         }
+
+        return previousResult;
     }
 
     /**
@@ -265,7 +264,7 @@ public class Calculator {
      * @throws CalculationException if some error occurred while calculations
      */
     private BigDecimal executePercentOperation() throws CalculationException {
-        lastNumber = getResult(PERCENT, previousNumber, lastNumber);
+        lastNumber = calculationExecutor.calculate(PERCENT, previousNumber, lastNumber);
         updateExpressionAfterPercentage();
         wasUnaryBefore = true; // for expression percentage acts like unary operation
 
@@ -288,12 +287,14 @@ public class Calculator {
      * @throws CalculationException if some error while calculations occurred
      */
     private void updatePreviousNumber() throws CalculationException {
+        BigDecimal newPreviousNumberValue;
         if (expression.size() > 2) { // If was already entered more than one number and binary operation execute last binary operation
-            previousNumber = getResult(operation, previousNumber, lastNumber);
+            newPreviousNumberValue = calculationExecutor.calculate(operation, previousNumber, lastNumber);
 
         } else { // or store last entered number in previous to enter new number
-            previousNumber = lastNumber;
+            newPreviousNumberValue = lastNumber;
         }
+        previousNumber = newPreviousNumberValue;
     }
 
     /**
@@ -309,12 +310,11 @@ public class Calculator {
             updateLastNumberAfterUnary(currentOperation);
 
             if (wasUnaryBefore) {
-                updateExpressionForUnary(NEGATE);
-                wasUnaryBefore = true;
+                updateExpressionForOperation(NEGATE);
             }
 
         } else {
-            updateExpressionForUnary(currentOperation);
+            updateExpressionForOperation(currentOperation);
             updateLastNumberAfterUnary(currentOperation);
 
             wasUnaryBefore = true;
@@ -331,24 +331,28 @@ public class Calculator {
      * @throws CalculationException if some error occurred while calculations
      */
     private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
+        BigDecimal unaryArgument;
+
         if (wasUnaryBefore || operation == null || !isNewNumber || expression.size() == 2) {
-            // if wasn't or was only one binary operation before
+            // if weren't or was only one binary operation before
             // current unary operation applies to the last entered number
-            lastNumber = getResult(currentOperation, lastNumber);
+            unaryArgument = lastNumber;
         } else {
             // if was binary operations before current unary operation
             // applies to previous number that stores last binary result
-            lastNumber = getResult(currentOperation, previousNumber);
+            unaryArgument = previousNumber;
         }
+
+        lastNumber = calculationExecutor.calculate(currentOperation, unaryArgument);
     }
 
     /**
-     * Updates an expression after last unary {@link MathOperation} by adding the given unary {@link MathOperation}.
-     * If this unary {@link MathOperation} is the first after binary adds last entered {@link BigDecimal} number before.
+     * Updates an expression after the specified {@link MathOperation} by adding the given {@link MathOperation} to it.
+     * If this {@link MathOperation} is the first after binary adds last entered {@link BigDecimal} number before.
      *
-     * @param currentOperation a current unary {@link MathOperation} to add to expression
+     * @param currentOperation a current {@link MathOperation} to add into expression
      */
-    private void updateExpressionForUnary(MathOperation currentOperation) {
+    private void updateExpressionForOperation(MathOperation currentOperation) {
         if (!wasUnaryBefore) { // if was binary operation before add last number that is the base for current unary operation
             addNumberToExpression();
         }
@@ -359,26 +363,17 @@ public class Calculator {
      * Adds last entered {@link BigDecimal} number or last result of {@link MathOperation}s to the expression.
      */
     private void addNumberToExpression() {
+        BigDecimal lastNumberForExpression;
+
         if (operation != null && expression.size() > 4) {
             // if binary operation called more than once. It means that result of the last binary operation was stored
             // in previous number variable
-            addToExpression(previousNumber);
+            lastNumberForExpression = previousNumber;
         } else {
-            addToExpression(lastNumber);
+            lastNumberForExpression = lastNumber;
         }
-    }
 
-    /**
-     * Returns the result of calculations for the given {@link MathOperation} and {@link BigDecimal} number(s).
-     *
-     * @param operation a current {@link MathOperation} to execute
-     * @param arguments the list of {@link BigDecimal} numbers
-     * @return the result of calculations for the given {@link MathOperation} and {@link BigDecimal} number(s)
-     * @throws CalculationException if some error while calculations occurred
-     */
-    private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
-        return calculationExecutor.calculate(operation, arguments);
-
+        addToExpression(lastNumberForExpression);
     }
 
     /**
@@ -390,33 +385,36 @@ public class Calculator {
      * @throws CalculationException if some error while calculations occurred
      */
     public BigDecimal calculateResult() throws CalculationException {
-
-        if (wasUnaryBefore || operation != null) { // calculate result if any math operation executes
-            calculateResultImpl();
+        if (operation != null) { // calculate result if any binary math operation executes
+            calculateResultForBinary();
         }
-        return lastNumber;
-    }
-
-    /**
-     * Calculates the result for the current {@link MathOperation} and entered {@link BigDecimal} numbers. The result
-     * of calculations assigns to last entered {@link BigDecimal} number value.
-     *
-     * @throws CalculationException if some error while calculations occurred
-     */
-    private void calculateResultImpl() throws CalculationException {
-        if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last binary operation
-            lastNumber = getResult(operation, lastNumber, tempNumber);
-
-        } else if (operation != null) { // If was binary operation, remember last number and execute this operation
-            tempNumber = lastNumber;
-            lastNumber = getResult(operation, previousNumber, lastNumber);
-        }
-
         // If all operations were unary return result (last number) and reset all
         isNewNumber = true;
         expression.clear();
         wasUnaryBefore = false;
         needAddPoint = false;
+        return lastNumber;
+    }
+
+    /**
+     * Calculates the result for the current binary {@link MathOperation} and entered {@link BigDecimal} numbers. The result
+     * of calculations assigns to last entered {@link BigDecimal} number value.
+     *
+     * @throws CalculationException if some error while calculations occurred
+     */
+    private void calculateResultForBinary() throws CalculationException {
+        BigDecimal[] numberArguments = new BigDecimal[2];
+
+        if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last binary operation
+            numberArguments[0] = lastNumber;
+            numberArguments[1] = tempNumber;
+        } else { // If was binary operation, remember last number and execute this operation
+            tempNumber = lastNumber;
+            numberArguments[0] = previousNumber;
+            numberArguments[1] = lastNumber;
+        }
+
+        lastNumber = calculationExecutor.calculate(operation, numberArguments);
     }
 
     /**
@@ -430,8 +428,8 @@ public class Calculator {
             removeLastUnaryFromExpression();
         }
 
-        BigDecimal fractionPart = lastNumber.remainder(BigDecimal.ONE);
-        if (isZero(fractionPart) && lastNumber.scale() == 0) { // if number has no fraction part
+        BigDecimal fractionalPart = lastNumber.remainder(BigDecimal.ONE);
+        if (isZero(fractionalPart) && lastNumber.scale() == 0) { // if number has no fractional part
             needAddPoint = true;
         }
     }
@@ -470,7 +468,7 @@ public class Calculator {
             isLastSymbolPoint = false;
             needAddPoint = false;
 
-        } else if (lastNumber.abs().compareTo(TEN) < 0 && lastNumber.scale() == 0 ) { // if number consists of only one digit
+        } else if (lastNumber.abs().compareTo(TEN) < 0 && lastNumber.scale() == 0) { // if number consists of only one digit
             lastNumber = ZERO;
             needAddPoint = false;
 
@@ -490,7 +488,7 @@ public class Calculator {
         boolean isLastSymbolPoint = false;
         int currentNumberScale = lastNumber.scale();
 
-        if (currentNumberScale > 0) { // if number has fraction part
+        if (currentNumberScale > 0) { // if number has fractional part
             lastNumber = lastNumber.setScale(currentNumberScale - 1, RoundingMode.DOWN);
             isLastSymbolPoint = checkIsLastSymbolPoint();
 
@@ -502,7 +500,7 @@ public class Calculator {
 
     /**
      * Checks the current {@link MathOperation} number is the last symbol after deleting last digit becomes decimal separator.
-     * Method calls only when number before deleting last digit had fraction part.
+     * Method calls only when number before deleting last digit had fractional part.
      *
      * @return true if the last symbol after deleting last digit becomes decimal separator
      */
@@ -533,9 +531,9 @@ public class Calculator {
             lastNumber = memorizedNumber;
             removeLastUnaryFromExpression();
         } else if (operation == MEMORY_ADD) {
-            memorizedNumber = getResult(ADD, memorizedNumber, lastNumber);
+            memorizedNumber = calculationExecutor.calculate(ADD, memorizedNumber, lastNumber);
         } else if (operation == MEMORY_SUBTRACT) {
-            memorizedNumber = getResult(SUBTRACT, memorizedNumber, lastNumber);
+            memorizedNumber = calculationExecutor.calculate(SUBTRACT, memorizedNumber, lastNumber);
         } else if (operation == MEMORY_STORE) {
             memorizedNumber = lastNumber;
         }

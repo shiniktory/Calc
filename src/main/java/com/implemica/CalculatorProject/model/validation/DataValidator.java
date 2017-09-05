@@ -115,36 +115,30 @@ public class DataValidator {
     }
 
     /**
-     * Returns true if the length of current number represented by string is valid.
+     * Returns true if the length of current {@link BigDecimal} number is valid.
      *
-     * @param number a number to validate represented by string
-     * @return true if the length of current number represented by string is valid
+     * @param number a {@link BigDecimal} number to validate
+     * @return true if the length of current {@link BigDecimal} number is valid
      */
-    public static boolean isNumberLengthValid(String number) {
-        if (isEmptyString(number)) {
-            return false;
-        }
-
+    public static boolean isNumberLengthValid(BigDecimal number) {
+        String numberStr = number.abs().toPlainString(); //TODO
         boolean isLengthValid = false;
 
-        if (number.startsWith(MINUS)) { // get absolute value of number
-            number = number.substring(1);
-        }
-
-        if (!number.contains(POINT) && number.length() <= MAX_NUMBER_LENGTH) {
+        if (!numberStr.contains(POINT) && numberStr.length() <= MAX_NUMBER_LENGTH) {
             isLengthValid = true;
         }
 
-        if (number.contains(POINT) && number.length() <= MAX_LENGTH_WITH_POINT) {
+        if (numberStr.contains(POINT) && numberStr.length() <= MAX_LENGTH_WITH_POINT) {
             isLengthValid = true;
         }
 
-        if (number.startsWith(ZERO_VALUE + POINT) && number.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
+        if (numberStr.startsWith(ZERO_VALUE + POINT) && numberStr.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
             isLengthValid = true;
         }
 
         return isLengthValid;
     }
+
 
     /**
      * Returns true if the specified {@link BigDecimal} number needs exponential formatting.

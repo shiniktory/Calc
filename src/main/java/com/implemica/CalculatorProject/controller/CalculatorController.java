@@ -334,10 +334,9 @@ public class CalculatorController {
         resetAfterError();
 
         BigDecimal modifiedNumber = calculator.enterDigit(digit);
-        String currentNumber = modifiedNumber.toPlainString();
         boolean isLastPoint = false;
 
-        if (!isNumberLengthValid(currentNumber)) {
+        if (!isNumberLengthValid(modifiedNumber)) {
             isLastPoint = calculator.deleteLastDigit();
             modifiedNumber = calculator.getLastNumber();
         }

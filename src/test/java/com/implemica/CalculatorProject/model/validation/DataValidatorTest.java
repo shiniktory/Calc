@@ -182,7 +182,7 @@ public class DataValidatorTest {
     }
 
     private void testNumberLength(boolean expected, String number) {
-        boolean validationResult = isNumberLengthValid(number);
+        boolean validationResult = isNumberLengthValid(new BigDecimal(number));
         assertEquals(expected, validationResult);
     }
 
