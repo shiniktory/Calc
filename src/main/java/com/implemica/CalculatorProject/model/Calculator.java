@@ -377,12 +377,8 @@ public class Calculator {
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal getResult(MathOperation operation, BigDecimal... arguments) throws CalculationException {
-        BigDecimal result = calculationExecutor.calculate(operation, arguments);
+        return calculationExecutor.calculate(operation, arguments);
 
-        if (isZero(result)) {
-            result = ZERO;
-        }
-        return result;
     }
 
     /**
@@ -468,14 +464,13 @@ public class Calculator {
      * @return true if the last symbol in current number is decimal point
      */
     public boolean deleteLastDigit() {
-        String lastNumberStr = lastNumber.abs().toPlainString();
         boolean isLastSymbolPoint = false;
 
         if (needAddPoint) { // if the last symbol in number is decimal separator
             isLastSymbolPoint = false;
             needAddPoint = false;
 
-        } else if (lastNumberStr.length() == 1) { // if number consists of only one digit
+        } else if (lastNumber.abs().compareTo(TEN) < 0 && lastNumber.scale() == 0 ) { // if number consists of only one digit
             lastNumber = ZERO;
             needAddPoint = false;
 
@@ -585,6 +580,7 @@ public class Calculator {
         // if last math operation was unary and it wasn't removed yet,
         // because number added before this operation is still in expression
         if (wasUnaryBefore && indexOfLastNumberInExpression < expression.size()) {
+
             expression.subList(indexOfLastNumberInExpression, expression.size()).clear();
             wasUnaryBefore = false;
         }

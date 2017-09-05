@@ -12,6 +12,7 @@ import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
 import static java.lang.String.format;
 import static java.math.BigDecimal.*;
+import static java.math.RoundingMode.DOWN;
 import static java.math.RoundingMode.HALF_UP;
 
 /**
@@ -98,28 +99,9 @@ public class OutputFormatter {
     private static final String NEGATE_PATTERN = "negate(%s)";
 
     /**
-     * The maximum fractional part length for numbers with point, that are positive and
-     * greater than {@link BigDecimal#ONE}.
+     * The maximum fractional part length for numbers with point.
      */
     private static final int FRACTION_LENGTH_WITH_POINT = 16;
-
-    /**
-     * The maximum fractional part length for numbers with point, that are positive and
-     * less than {@link BigDecimal#ONE}.
-     */
-    private static final int FRACTION_LENGTH_WITH_ZERO = 17;
-
-    /**
-     * The maximum fractional part length for numbers with point, that are negative and
-     * less than {@link BigDecimal#ONE}.
-     */
-    private static final int FRACTION_LENGTH_WITH_MINUS_ZERO = 18;
-
-    /**
-     * The maximum fractional part length for numbers with point, that are negative and
-     * greater than {@link BigDecimal#ONE}.
-     */
-    private static final int FRACTION_LENGTH_WITH_MINUS_AND_POINT = 17;
 
     /**
      * The {@link DecimalFormat} instance configured to format number to an exponential view without group
@@ -164,7 +146,7 @@ public class OutputFormatter {
             formattedNumber = adjustExponentialView(formattedNumber);
 
         } else { // format with rounding
-            int maxFractionDigitsCount = getCountFractionDigits(number.toPlainString());
+            int maxFractionDigitsCount = getCountFractionDigits(number);
             mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
             formattedNumber = mathFormatWithRounding.format(number).toLowerCase();
         }
@@ -223,7 +205,7 @@ public class OutputFormatter {
      * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatWithRoundingWithGroups(BigDecimal number) {
-        int fractionalDigitsCount = getCountFractionDigits(number.toPlainString());
+        int fractionalDigitsCount = getCountFractionDigits(number);
 
         BigDecimal tail = number.remainder(ONE).abs();
         if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
@@ -244,38 +226,32 @@ public class OutputFormatter {
      */
     private static String adjustExponentialView(String number) {
         String formattedNumber = number.toLowerCase();
-        Pattern pattern = Pattern.compile(EXPONENT_PATTERN);
-        Matcher matcher = pattern.matcher(number);
 
-        if (matcher.find()) { // If exponent has no sign before grade add plus sign
+        if (Pattern.compile(EXPONENT_PATTERN).matcher(number).find()) { // If exponent has no sign before grade add plus sign
             formattedNumber = formattedNumber.replace(EXPONENT, EXPONENT_REPLACEMENT);
         }
+
         return formattedNumber;
     }
 
     /**
-     * Returns a count of fractional digits to the specified number represented by string.
+     * Returns a count of fractional digits to the specified {@link BigDecimal} number.
      *
-     * @param number a string representation of a number to count fractional digits
-     * @return a count of fractional digits to the specified number represented by string
+     * @param number a {@link BigDecimal}  number to count fractional digits
+     * @return a count of fractional digits to the specified {@link BigDecimal} number
      */
-    private static int getCountFractionDigits(String number) {
-        int fractionalDigitsCount = 0;
+    private static int getCountFractionDigits(BigDecimal number) {
+        BigDecimal fractionalPart = number.remainder(ONE);
+        BigDecimal intPart = number.setScale(0, DOWN);
+        int fractionalDigitsCount;
 
-        if (number.contains(POINT)) {
-            fractionalDigitsCount = FRACTION_LENGTH_WITH_POINT - number.indexOf(POINT);
-        }
-
-        if (number.startsWith(MINUS) && number.contains(POINT)) {
-            fractionalDigitsCount = FRACTION_LENGTH_WITH_MINUS_AND_POINT - number.indexOf(POINT);
-        }
-
-        if (number.startsWith(MINUS + ZERO_VALUE + POINT)) {
-            fractionalDigitsCount = FRACTION_LENGTH_WITH_MINUS_ZERO - number.indexOf(POINT);
-        }
-
-        if (number.startsWith(ZERO_VALUE + POINT)) {
-            fractionalDigitsCount = FRACTION_LENGTH_WITH_ZERO - number.indexOf(POINT);
+        if (isZero(fractionalPart)) { // if number has no fractional part
+            fractionalDigitsCount = 0;
+        } else if (isZero(intPart)) { // if int part is zero
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_POINT;
+        } else { // if number greater 1 and has fractional part
+            int digitsInIntPart = number.precision() - number.scale();
+            fractionalDigitsCount = FRACTION_LENGTH_WITH_POINT - digitsInIntPart;
         }
 
         return fractionalDigitsCount;
@@ -290,19 +266,21 @@ public class OutputFormatter {
      * @return a string contains formatted expression for the specified argument and {@link MathOperation}
      */
     public static String formatUnaryOperation(MathOperation operation, String argument) {
-        String formattedExpression = EMPTY_VALUE;
+        String operationPattern;
 
         if (operation == SQUARE_ROOT) {
-            formattedExpression = format(SQUARE_ROOT_PATTERN, argument);
+            operationPattern = SQUARE_ROOT_PATTERN;
         } else if (operation == SQUARE) {
-            formattedExpression = format(SQUARE_PATTERN, argument);
+            operationPattern = SQUARE_PATTERN;
         } else if (operation == REVERSE) {
-            formattedExpression = format(REVERSE_PATTERN, argument);
+            operationPattern = REVERSE_PATTERN;
         } else if (operation == NEGATE) {
-            formattedExpression = format(NEGATE_PATTERN, argument);
+            operationPattern = NEGATE_PATTERN;
+        } else { // for binary operations
+            operationPattern = EMPTY_VALUE;
         }
 
-        return formattedExpression;
+        return format(operationPattern, argument);
     }
 
     /**

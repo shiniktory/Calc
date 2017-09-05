@@ -830,10 +830,11 @@ public class CalculatorApplication extends Application {
      */
     private double getFontSize(String elementId, int boundIndex) {
         if (isDigit(elementId) || POINT_BUTTON_ID.equals(elementId)) { // get font size for buttons with digits or point
-            return fontSizes.get(FONT_ID_FOR_NUMBERS)[boundIndex];
+            elementId = FONT_ID_FOR_NUMBERS;
         } else {
-            return fontSizes.get(elementId.toUpperCase())[boundIndex];
+            elementId = elementId.toUpperCase();
         }
+        return fontSizes.get(elementId)[boundIndex];
     }
 
     /**
@@ -844,15 +845,14 @@ public class CalculatorApplication extends Application {
      */
     private void setButtonFontSize(Button button, double newFontSize) {
         String buttonId = button.getId().toUpperCase();
+        Labeled labeledElement = button;
 
         if (labeledButtons.contains(buttonId)) {
-            Label buttonLabel = (Label) button.getChildrenUnmodifiable().get(0);
-            Font newFont = new Font(buttonLabel.getFont().getFamily(), newFontSize);
-            buttonLabel.setFont(newFont);
-        } else {
-            Font newFont = new Font(button.getFont().getFamily(), newFontSize);
-            button.setFont(newFont);
+            labeledElement = (Label) button.getChildrenUnmodifiable().get(0);
         }
+
+        Font newFont = new Font(labeledElement.getFont().getFamily(), newFontSize);
+        labeledElement.setFont(newFont);
     }
 
     /**

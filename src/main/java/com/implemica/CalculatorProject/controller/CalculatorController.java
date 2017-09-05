@@ -737,25 +737,12 @@ public class CalculatorController {
     private static void enableOperationButton(Button button, boolean enable) {
         Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
 
-        if (buttonFunction == RESULT) {
-            return;
+        boolean isMathOperation = (buttonFunction instanceof MathOperation) &&
+                (buttonFunction != RESULT);
+
+        if (isMathOperation || POINT.equals(buttonFunction)) {
+            button.setDisable(!enable);
         }
-
-        boolean isMathOperation = buttonFunction instanceof MathOperation;
-
-        if (!isMathOperation && !POINT.equals(buttonFunction)) {
-            return;
-        }
-
-        button.setDisable(!enable);
-
-//        if (buttonFunction instanceof MathOperation &&
-//                buttonFunction != RESULT) {
-//            button.setDisable(!enable);
-//
-//        } else if (POINT.equals(buttonFunction)) {
-//            button.setDisable(!enable);
-//        }
     }
 
     /**

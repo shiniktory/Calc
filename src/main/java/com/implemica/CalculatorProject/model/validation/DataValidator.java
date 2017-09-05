@@ -2,12 +2,11 @@ package com.implemica.CalculatorProject.model.validation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.ZERO_VALUE;
+import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 /**
@@ -102,13 +101,7 @@ public class DataValidator {
      * @return true if the specified string represents a digit
      */
     public static boolean isDigit(String value) {
-        if (isEmptyString(value)) {
-            return false;
-        }
-
-        Pattern patternForDigit = Pattern.compile(PATTERN_FOR_DIGIT);
-        Matcher matcher = patternForDigit.matcher(value);
-        return matcher.matches();
+        return value != null && value.matches(PATTERN_FOR_DIGIT);
     }
 
     /**
@@ -118,12 +111,7 @@ public class DataValidator {
      * @return true if the specified string contains only number
      */
     public static boolean isNumber(String value) {
-        if (isEmptyString(value)) {
-            return false;
-        }
-        Pattern patternForNumbers = Pattern.compile(PATTERN_FOR_NUMBERS);
-        Matcher matcher = patternForNumbers.matcher(value);
-        return matcher.matches();
+        return value != null && value.matches(PATTERN_FOR_NUMBERS);
     }
 
     /**
