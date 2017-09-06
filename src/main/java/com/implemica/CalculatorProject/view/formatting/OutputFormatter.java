@@ -29,6 +29,11 @@ public class OutputFormatter {
     private static final String EXPONENT = "e";
 
     /**
+     * The string value contains exponent symbol with plus sign.
+     */
+    private static final String POSITIVE_EXPONENT = "e+";
+
+    /**
      * The string value contains minus sign.
      */
     public static final String MINUS = "-";
@@ -50,11 +55,6 @@ public class OutputFormatter {
     private static final String NUMBER_FORMAT_PATTERN = "0.###############E0";
 
     /**
-     * The string value contains exponent symbol and plus sign.
-     */
-    private static final String EXPONENT_REPLACEMENT = "e+";
-
-    /**
      * The string contains a point for double numbers.
      */
     public static final String POINT = ".";
@@ -68,11 +68,6 @@ public class OutputFormatter {
      * The value of character used as group separator.
      */
     private static final char GROUP_SEPARATOR = ',';
-
-    /**
-     * The value of pattern for exponent with positive degree.
-     */
-    private static final String EXPONENT_PATTERN = "[Ee]\\d+";
 
     /**
      * The value of pattern for formatting the history expression for square root operation.
@@ -139,8 +134,8 @@ public class OutputFormatter {
         String formattedNumber;
 
         if (isExponentFormattingNeed(number)) { // format with exponent
-            formattedNumber = mathFormatWithExponent.format(number).toLowerCase();
-            formattedNumber = adjustExponentialView(formattedNumber);
+            setExponentSeparator(mathFormatWithExponent, number);
+            formattedNumber = mathFormatWithExponent.format(number);
 
         } else { // format with rounding
             int maxFractionDigitsCount = getFractionDigitsCount(number);
@@ -192,8 +187,28 @@ public class OutputFormatter {
      * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatToExponentialViewWithGroups(BigDecimal number) {
-        String formattedNumber = exponentialFormatWithGroups.format(number).toLowerCase();
-        return adjustExponentialView(formattedNumber);
+        setExponentSeparator(exponentialFormatWithGroups, number);
+        return exponentialFormatWithGroups.format(number);
+    }
+
+    /**
+     * Sets an exponent separator for the given {@link DecimalFormat} depends on value of the given
+     * {@link BigDecimal} number. Exponent sign is always shown.
+     *
+     * @param formatter the {@link DecimalFormat} instance to add an exponent separator
+     * @param number    the number to set exponent separator depends on
+     */
+    private static void setExponentSeparator(DecimalFormat formatter, BigDecimal number) {
+        boolean isPositiveExponent = number.abs().compareTo(ONE) > 0;
+        DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
+
+        if (isPositiveExponent) {
+            symbols.setExponentSeparator(POSITIVE_EXPONENT);
+        } else {
+            symbols.setExponentSeparator(EXPONENT);
+        }
+
+        formatter.setDecimalFormatSymbols(symbols);
     }
 
     /**
@@ -217,23 +232,6 @@ public class OutputFormatter {
         int fractionalDigitsCount = getFractionDigitsCount(number);
         roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);
         return roundingFormatWithGroups.format(number).toLowerCase();
-    }
-
-    /**
-     * Adjusts the given string contains number formatted to an exponential view by adding a plus sign to an
-     * exponent positive degree.
-     *
-     * @param number a string representation of a number formatted to an exponential view
-     * @return formatted number represented by string
-     */
-    private static String adjustExponentialView(String number) { // TODO replace with decimal formatter
-        String formattedNumber = number.toLowerCase();
-
-        if (Pattern.compile(EXPONENT_PATTERN).matcher(number).find()) { // If exponent has no sign before grade add plus sign
-            formattedNumber = formattedNumber.replace(EXPONENT, EXPONENT_REPLACEMENT);
-        }
-
-        return formattedNumber;
     }
 
     /**
@@ -308,7 +306,8 @@ public class OutputFormatter {
     private static DecimalFormat getExponentialFormatWithGroups() {
         DecimalFormat format = new DecimalFormat(NUMBER_FORMAT_PATTERN);
         format.setRoundingMode(HALF_UP);
-        format.setDecimalFormatSymbols(getDelimiters());
+        DecimalFormatSymbols symbols = getDelimiters();
+        format.setDecimalFormatSymbols(symbols);
         format.setDecimalSeparatorAlwaysShown(true);
         return format;
     }

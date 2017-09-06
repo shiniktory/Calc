@@ -1109,29 +1109,24 @@ public class CalculatorTest {
 
     @Test
     public void testInitWithWrongArgumentCount() {
-        testInitForException(null, 0);
-        testInitForException(null, 1);
+        testInitForException(null, null, null);
+        testInitForException(BigDecimal.ONE, null, null);
 
         // binary operation with wrong argument count
-        testInitForException(ADD, 0);
-        testInitForException(ADD, 1);
-        testInitForException(ADD, 3);
-        testInitForException(ADD, 4);
-        testInitForException(ADD, 10);
+        testInitForException(null, ADD, null);
+        testInitForException(BigDecimal.ONE, ADD, null);
+        testInitForException(null, ADD, BigDecimal.ONE);
 
         // unary operation with wrong argument count
-        testInitForException(SQUARE_ROOT, 0);
-        testInitForException(SQUARE_ROOT, 2);
-        testInitForException(SQUARE_ROOT, 3);
-        testInitForException(SQUARE_ROOT, 4);
-        testInitForException(SQUARE_ROOT, 10);
+        testInitForException(null, SQUARE_ROOT, null);
+        testInitForException(null, SQUARE_ROOT, BigDecimal.ONE);
     }
 
-    private void testInitForException(MathOperation operation, int argumentsCount) {
+    private void testInitForException(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) {
         try {
-            new StandardCalculationExecutor().calculate(operation, new BigDecimal[argumentsCount]);
-            fail(format("Expected CalculationException with wrong arguments. Your operation is %s, count of arguments is %d",
-                    operation, argumentsCount));
+            new StandardCalculationExecutor().calculate(firstNumber, operation, secondNumber);
+            fail(format("Expected CalculationException with wrong arguments. Your operation is %s, first number is %d, " +
+                    "second number is %d", operation, firstNumber, secondNumber));
         } catch (CalculationException e) {
             // expected
         }

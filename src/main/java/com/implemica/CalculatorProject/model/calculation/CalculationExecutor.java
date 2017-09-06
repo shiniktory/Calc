@@ -14,10 +14,11 @@ public interface CalculationExecutor {
     /**
      * Returns the result of Mathematical calculations for the given {@link BigDecimal} numbers.
      *
-     * @param operation a Mathematical operation to perform with the given numbers
-     * @param numbers   a numbers to perform a Mathematical operation with
+     * @param firstNumber  a number to perform a {@link MathOperation} with
+     * @param operation    a Mathematical operation to perform with the given numbers
+     * @param secondNumber a number to perform a binary {@link MathOperation} with
      * @return the result of Mathematical calculations for the given {@link BigDecimal} numbers
      * @throws CalculationException if some error occurs during the calculations
      */
-    BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException;
+    BigDecimal calculate(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) throws CalculationException;
 }

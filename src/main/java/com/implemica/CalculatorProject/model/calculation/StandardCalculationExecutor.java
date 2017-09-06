@@ -8,7 +8,6 @@ import java.math.BigInteger;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isZero;
-import static java.lang.String.format;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ROUND_HALF_UP;
 import static java.math.BigDecimal.ZERO;
@@ -24,8 +23,14 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * The error message about invalid count of {@link BigDecimal} numbers for the current {@link MathOperation}.
      */
-    private static final String INVALID_ARGUMENTS_COUNT = "Invalid count of numbers for your operation. " +
-            "Your operation is %s, count of numbers is %s";
+    private static final String INVALID_ARGUMENTS_FOR_UNARY_OPERATION = "Invalid count of numbers for unary operation %s, " +
+            "number is %s";
+
+    /**
+     * The error message about invalid count of {@link BigDecimal} numbers for the current {@link MathOperation}.
+     */
+    private static final String INVALID_ARGUMENTS_FOR_BINARY_OPERATION = "Invalid count of numbers for binary operation %s, " +
+            "first number is %s, second number is %s";
 
     /**
      * The error message about division by zero occurs.
@@ -50,9 +55,14 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     private static final String INVALID_INPUT_ERROR = "Invalid input";
 
     /**
-     * The list of one or two {@link BigDecimal} numbers for calculations.
+     * The value of first number used for calculations.
      */
-    private BigDecimal[] numbers;
+    private BigDecimal firstNumber;
+
+    /**
+     * The value of second number used for calculations.
+     */
+    private BigDecimal secondNumber;
 
     /**
      * The value of a {@link MathOperation} instance that indicates what manipulations with given {@link BigDecimal} numbers
@@ -73,47 +83,49 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * Returns the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers.
      *
-     * @param operation a {@link MathOperation} to perform with the given {@link BigDecimal} numbers
-     * @param numbers   a {@link BigDecimal} numbers to perform a {@link MathOperation} with
+     * @param firstNumber  a number to perform a {@link MathOperation} with
+     * @param operation    a Mathematical operation to perform with the given numbers
+     * @param secondNumber a number to perform a binary {@link MathOperation} with
      * @return the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers
      * @throws CalculationException in cases when of {@link MathOperation} does not exist, division by zero or
      *                              specified invalid arguments
      */
-    public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException { // todo without varargs. replace with null, null
+    public BigDecimal calculate(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) throws CalculationException { // todo without varargs. replace with null, null
         this.operation = operation;
-        this.numbers = numbers;
+        this.firstNumber = firstNumber;
+        this.secondNumber = secondNumber;
         checkArgumentsAreValid();
 
         BigDecimal result;
 
         // Binary operations
         if (operation == ADD) {
-            result = add(numbers[0], numbers[1]);
+            result = add(firstNumber, secondNumber);
 
         } else if (operation == SUBTRACT) {
-            result = subtract(numbers[0], numbers[1]);
+            result = subtract(firstNumber, secondNumber);
 
         } else if (operation == MULTIPLY) {
-            result = multiply(numbers[0], numbers[1]);
+            result = multiply(firstNumber, secondNumber);
 
         } else if (operation == DIVIDE) {
-            result = divide(numbers[0], numbers[1]);
+            result = divide(firstNumber, secondNumber);
 
         } else if (operation == PERCENT) {
-            result = percent(numbers[0], numbers[1]);
+            result = percent(firstNumber, secondNumber);
 
             // Unary operations
         } else if (operation == NEGATE) {
-            result = negate(numbers[0]);
+            result = negate(firstNumber);
 
         } else if (operation == SQUARE_ROOT) {
-            result = sqrt(numbers[0]);
+            result = sqrt(firstNumber);
 
         } else if (operation == SQUARE) {
-            result = square(numbers[0]);
+            result = square(firstNumber);
 
         } else if (operation == REVERSE) {
-            result = reverse(numbers[0]);
+            result = reverse(firstNumber);
 
         } else {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
@@ -133,13 +145,14 @@ public class StandardCalculationExecutor implements CalculationExecutor {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
 
-        if (numbers == null || numbers.length == 0) {
-            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, 0));
+        boolean isBinaryOperation = operation.isBinary();
+        if ((firstNumber == null || secondNumber != null) && !isBinaryOperation) {
+            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_UNARY_OPERATION, operation, firstNumber));
         }
 
-        if (operation.isBinary() && numbers.length != 2 ||
-                !operation.isBinary() && numbers.length != 1) {
-            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length)); // todo String.format without static import
+        if (isBinaryOperation && (firstNumber == null || secondNumber == null)) {
+            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_BINARY_OPERATION,
+                    operation, firstNumber, secondNumber)); //todo message incorrect
         }
     }
 

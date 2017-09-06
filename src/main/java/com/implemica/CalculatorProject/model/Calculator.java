@@ -220,19 +220,17 @@ public class Calculator {
         if (operation != null && !wasUnaryBefore && isNewNumber && !expression.isEmpty()) {
             // if after last binary operation called new binary instead of entering number.
             // need to replace last operation and return previous result
-            operation = currentOperation; //todo this line duplicate in each clause
-            replaceLastOperationInExpression();
+            replaceLastOperationInExpression(currentOperation);
             temporaryResult = getPreviousResult();
 
         } else {
             updateExpressionForOperation(currentOperation);
             // replace previous number by last entered number or by result of previous binary operations
             updatePreviousNumber();
-            operation = currentOperation;
             wasUnaryBefore = false;
             temporaryResult = previousNumber;
         }
-
+        operation = currentOperation;
         return temporaryResult;
     }
 
@@ -262,7 +260,7 @@ public class Calculator {
      * @throws CalculationException if some error occurred while calculations
      */
     private BigDecimal executePercentOperation() throws CalculationException {
-        lastNumber = calculationExecutor.calculate(PERCENT, previousNumber, lastNumber);
+        lastNumber = calculationExecutor.calculate(previousNumber, PERCENT, lastNumber);
         updateExpressionAfterPercentage();
         wasUnaryBefore = true; // for expression percentage acts like unary operation
 
@@ -286,7 +284,7 @@ public class Calculator {
      */
     private void updatePreviousNumber() throws CalculationException {
         if (expression.size() > 2 && operation != null) { // If was already entered more than one number and binary operation execute last binary operation
-            previousNumber = calculationExecutor.calculate(operation, previousNumber, lastNumber);
+            previousNumber = calculationExecutor.calculate(previousNumber, operation, lastNumber);
         } else { // or store last entered number in previous to enter new number
             previousNumber = lastNumber;
         }
@@ -338,7 +336,7 @@ public class Calculator {
             unaryArgument = previousNumber;
         }
 
-        lastNumber = calculationExecutor.calculate(currentOperation, unaryArgument);
+        lastNumber = calculationExecutor.calculate(unaryArgument, currentOperation, null);
     }
 
     /**
@@ -398,19 +396,19 @@ public class Calculator {
      * @throws CalculationException if some error while calculations occurred
      */
     private void calculateResultForBinary() throws CalculationException {
-        BigDecimal[] numbersForCalculations = new BigDecimal[2];
-
+        BigDecimal firstNumber;
+        BigDecimal secondNumber;
         if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last binary operation
-            numbersForCalculations[0] = lastNumber;
-            numbersForCalculations[1] = tempNumber;
+            firstNumber = lastNumber;
+            secondNumber = tempNumber;
 
         } else { // If was binary operation, remember last number and execute this operation
             tempNumber = lastNumber;
-            numbersForCalculations[0] = previousNumber;
-            numbersForCalculations[1] = lastNumber;
+            firstNumber = previousNumber;
+            secondNumber = lastNumber;
         }
 
-        lastNumber = calculationExecutor.calculate(operation, numbersForCalculations);
+        lastNumber = calculationExecutor.calculate(firstNumber, operation, secondNumber);
     }
 
     /**
@@ -513,9 +511,9 @@ public class Calculator {
             lastNumber = memorizedNumber;
             removeLastUnaryFromExpression();
         } else if (operation == MEMORY_ADD) {
-            memorizedNumber = calculationExecutor.calculate(ADD, memorizedNumber, lastNumber);
+            memorizedNumber = calculationExecutor.calculate(memorizedNumber, ADD, lastNumber);
         } else if (operation == MEMORY_SUBTRACT) {
-            memorizedNumber = calculationExecutor.calculate(SUBTRACT, memorizedNumber, lastNumber);
+            memorizedNumber = calculationExecutor.calculate(memorizedNumber, SUBTRACT, lastNumber);
         } else if (operation == MEMORY_STORE) {
             memorizedNumber = lastNumber;
         }
@@ -525,9 +523,9 @@ public class Calculator {
     /**
      * Replaces last binary {@link MathOperation} in expression by the last specified one.
      */
-    private void replaceLastOperationInExpression() {
+    private void replaceLastOperationInExpression(MathOperation currentOperation) {
         if (!expression.isEmpty()) {
-            expression.set(expression.size() - 1, operation);
+            expression.set(expression.size() - 1, currentOperation);
         }
     }
 
