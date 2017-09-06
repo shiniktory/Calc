@@ -3,10 +3,6 @@ package com.implemica.CalculatorProject.model.validation;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.ZERO_VALUE;
-import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
 /**
@@ -18,24 +14,14 @@ import static java.math.BigDecimal.ZERO;
 public class DataValidator {
 
     /**
-     * The maximum length for number without minus sign and point.
+     * The maximum length for number without fractional part.
      */
     private static final int MAX_NUMBER_LENGTH = 16;
 
     /**
-     * The maximum length for number greater than one with point and without minus sign.
+     * The maximum length for numbers with fractional part.
      */
-    private static final int MAX_LENGTH_WITH_POINT = 17;
-
-    /**
-     * The maximum length for number less than one with point and without minus sign.
-     */
-    private static final int MAX_LENGTH_WITH_ZERO_AND_POINT = 18;
-
-    /**
-     * The maximum length for any number with point and minus.
-     */
-    public static final int MAX_LENGTH_WITH_POINT_AND_MINUS = 19;
+    private static final int MAX_LENGTH_WITH_POINT = 16;
 
     /**
      * The string value of pattern for any digit.
@@ -121,24 +107,25 @@ public class DataValidator {
      * @return true if the length of current {@link BigDecimal} number is valid
      */
     public static boolean isNumberLengthValid(BigDecimal number) {
-        String numberStr = number.abs().toPlainString(); //TODO
+        number = number.abs();
+        int numberLength = number.precision();
         boolean isLengthValid = false;
 
-        if (!numberStr.contains(POINT) && numberStr.length() <= MAX_NUMBER_LENGTH) {
+        if (number.scale() == 0 && numberLength <= MAX_NUMBER_LENGTH) { // for numbers without fractional part
             isLengthValid = true;
         }
 
-        if (numberStr.contains(POINT) && numberStr.length() <= MAX_LENGTH_WITH_POINT) {
-            isLengthValid = true;
+        BigDecimal integerPart = number.setScale(0, RoundingMode.DOWN);
+        if (isZero(integerPart)) {
+            numberLength = number.scale();
         }
 
-        if (numberStr.startsWith(ZERO_VALUE + POINT) && numberStr.length() <= MAX_LENGTH_WITH_ZERO_AND_POINT) {
+        if (number.scale() != 0 && numberLength <= MAX_LENGTH_WITH_POINT) { // for numbers with fractional part
             isLengthValid = true;
         }
 
         return isLengthValid;
     }
-
 
     /**
      * Returns true if the specified {@link BigDecimal} number needs exponential formatting.
@@ -147,7 +134,6 @@ public class DataValidator {
      * @return true if the specified {@link BigDecimal} number needs exponential formatting
      */
     public static boolean isExponentFormattingNeed(BigDecimal number) {
-
         number = number.abs();
         boolean isExponentNeed = false;
 
@@ -157,14 +143,15 @@ public class DataValidator {
 
         // The value of number's fraction part after 16-th digit
         BigDecimal tailAfter16thDigit = number.remainder(MIN_VALUE).setScale(SCALE_FOR_FRACTION_PART_CHECK, RoundingMode.HALF_UP);
-
         if (number.compareTo(NUMBER_FOR_EXPONENTIAL_CHECK) < 0 &&
                 tailAfter16thDigit.compareTo(MIN_TAIL_VALUE_FOR_EXPONENT) >= 0) {
             isExponentNeed = true;
         }
+
         if (isZero(number)) {
             isExponentNeed = false;
         }
+
         return isExponentNeed;
     }
 

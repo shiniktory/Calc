@@ -79,13 +79,14 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      * @throws CalculationException in cases when of {@link MathOperation} does not exist, division by zero or
      *                              specified invalid arguments
      */
-    public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException {
+    public BigDecimal calculate(MathOperation operation, BigDecimal... numbers) throws CalculationException { // todo without varargs. replace with null, null
         this.operation = operation;
         this.numbers = numbers;
         checkArgumentsAreValid();
 
         BigDecimal result;
 
+        // Binary operations
         if (operation == ADD) {
             result = add(numbers[0], numbers[1]);
 
@@ -117,6 +118,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         } else {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
+
         return result;
     }
 
@@ -124,18 +126,20 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      * Checks are the given arguments valid.
      *
      * @throws CalculationException if the given arguments are null or invalid count of {@link BigDecimal} numbers for
-     * the given {@link MathOperation}
+     *                              the given {@link MathOperation}
      */
     private void checkArgumentsAreValid() throws CalculationException {
         if (operation == null) {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
+
         if (numbers == null || numbers.length == 0) {
             throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, 0));
         }
+
         if (operation.isBinary() && numbers.length != 2 ||
                 !operation.isBinary() && numbers.length != 1) {
-            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length));
+            throw new CalculationException(format(INVALID_ARGUMENTS_COUNT, operation, numbers.length)); // todo String.format without static import
         }
     }
 
@@ -184,9 +188,11 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         if (isZero(firstNumber) && isZero(secondNumber)) {
             throw new CalculationException(RESULT_UNDEFINED_ERROR);
         }
+
         if (isZero(secondNumber)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }
+
         return firstNumber.divide(secondNumber, SCALE, ROUND_HALF_UP);
     }
 
@@ -222,6 +228,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         if (x.compareTo(ZERO) < 0) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
+
         if (isZero(x)) {
             return ZERO;
         }
@@ -275,6 +282,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         if (isZero(base)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }
+
         return ONE.divide(base, SCALE, ROUND_HALF_UP);
     }
 }

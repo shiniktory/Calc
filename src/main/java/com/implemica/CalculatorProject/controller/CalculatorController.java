@@ -340,6 +340,7 @@ public class CalculatorController {
             isLastPoint = calculator.deleteLastDigit();
             modifiedNumber = calculator.getLastNumber();
         }
+
         return formatEnteredNumber(modifiedNumber, isLastPoint);
     }
 
@@ -368,15 +369,18 @@ public class CalculatorController {
      */
     private String executeMathOperation(MathOperation operation) throws CalculationException {
         BigDecimal result;
+
         if (operation != RESULT) {
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
+
             result = calculator.executeMathOperation(operation);
         } else {
             resetAfterError();
             result = calculator.calculateResult();
         }
+
         checkResultForOverflow(result);
         return formatWithGroupDelimiters(result);
     }
@@ -404,9 +408,9 @@ public class CalculatorController {
      */
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         calculator.executeMemoryOperation(operation);
-
         boolean needEnable = operation != MEMORY_CLEAN;
         enableMemoryStateButtons(needEnable);
+
         return formatWithGroupDelimiters(calculator.getLastNumber());
     }
 
@@ -437,6 +441,7 @@ public class CalculatorController {
         } else if (operation == LEFT_ERASE) {
             isLastSymbolPoint = calculator.deleteLastDigit();
         }
+
         return formatEnteredNumber(calculator.getLastNumber(), isLastSymbolPoint);
     }
 
@@ -508,9 +513,9 @@ public class CalculatorController {
 
         for (int i = 0; i < arguments.size(); i++) {
             Object argument = arguments.get(i);
-
             formatAndAppendCurrentArgument(argument, i == lastArgumentIndex);
         }
+
         return expression.toString().trim();
     }
 
@@ -674,6 +679,7 @@ public class CalculatorController {
 
             labelList.add(label);
         }
+
         return FXCollections.observableList(labelList);
     }
 

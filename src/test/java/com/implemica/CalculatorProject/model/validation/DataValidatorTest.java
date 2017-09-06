@@ -144,10 +144,6 @@ public class DataValidatorTest {
         testNumberLength(true, "-999999999999999.9");
 
         // Not valid number length
-        // Empty strings
-        testNumberLength(false, null);
-        testNumberLength(false, "");
-
         // Positive numbers
         testNumberLength(false, "99999999999999991");
         testNumberLength(false, "999999999999999951");

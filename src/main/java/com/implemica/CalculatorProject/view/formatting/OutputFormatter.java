@@ -3,9 +3,9 @@ package com.implemica.CalculatorProject.view.formatting;
 import com.implemica.CalculatorProject.model.calculation.MathOperation;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
@@ -14,6 +14,7 @@ import static java.lang.String.format;
 import static java.math.BigDecimal.*;
 import static java.math.RoundingMode.DOWN;
 import static java.math.RoundingMode.HALF_UP;
+import static java.math.RoundingMode.UP;
 
 /**
  * The class contains an instruments for formatting number views or expressions for history.
@@ -38,15 +39,10 @@ public class OutputFormatter {
     private static final String EMPTY_VALUE = "";
 
     /**
-     * The string contains zero value.
-     */
-    public static final String ZERO_VALUE = "0";
-
-    /**
      * Tha value of {@link BigDecimal} number with fractional part with nines. Used to detect number with fractional part
      * with nine in period.
      */
-    private static final BigDecimal FRACTION_PART_WITH_NINES = BigDecimal.valueOf(0.99);
+    private static final BigDecimal FRACTION_PART_WITH_NINE_IN_PERIOD = BigDecimal.valueOf(0.99);
 
     /**
      * The string value contains a pattern for decimal numbers with exponent.
@@ -141,12 +137,13 @@ public class OutputFormatter {
      */
     public static String formatToMathView(BigDecimal number) {
         String formattedNumber;
+
         if (isExponentFormattingNeed(number)) { // format with exponent
             formattedNumber = mathFormatWithExponent.format(number).toLowerCase();
             formattedNumber = adjustExponentialView(formattedNumber);
 
         } else { // format with rounding
-            int maxFractionDigitsCount = getCountFractionDigits(number);
+            int maxFractionDigitsCount = getFractionDigitsCount(number);
             mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
             formattedNumber = mathFormatWithRounding.format(number).toLowerCase();
         }
@@ -164,6 +161,7 @@ public class OutputFormatter {
      */
     public static String formatWithGroupDelimiters(BigDecimal number) {
         String stringValue;
+
         if (isExponentFormattingNeed(number)) {
             stringValue = formatToExponentialViewWithGroups(number);
         } else {
@@ -205,14 +203,18 @@ public class OutputFormatter {
      * @return formatted given {@link BigDecimal} number represented by string
      */
     private static String formatWithRoundingWithGroups(BigDecimal number) {
-        int fractionalDigitsCount = getCountFractionDigits(number);
+        RoundingMode roundingMode;
 
         BigDecimal tail = number.remainder(ONE).abs();
-        if (tail.compareTo(FRACTION_PART_WITH_NINES) > 0 &&
-                tail.scale() > FRACTION_LENGTH_WITH_POINT) { // Check for tail with nine in period and round it
-            // TODO
-            fractionalDigitsCount--;
+        if (tail.compareTo(FRACTION_PART_WITH_NINE_IN_PERIOD) > 0 &&
+                tail.scale() > FRACTION_LENGTH_WITH_POINT) { // If fractional part has nine in period - round it up
+            roundingMode = UP;
+        } else {
+            roundingMode = HALF_UP;
         }
+
+        roundingFormatWithGroups.setRoundingMode(roundingMode);
+        int fractionalDigitsCount = getFractionDigitsCount(number);
         roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);
         return roundingFormatWithGroups.format(number).toLowerCase();
     }
@@ -224,7 +226,7 @@ public class OutputFormatter {
      * @param number a string representation of a number formatted to an exponential view
      * @return formatted number represented by string
      */
-    private static String adjustExponentialView(String number) {
+    private static String adjustExponentialView(String number) { // TODO replace with decimal formatter
         String formattedNumber = number.toLowerCase();
 
         if (Pattern.compile(EXPONENT_PATTERN).matcher(number).find()) { // If exponent has no sign before grade add plus sign
@@ -240,7 +242,7 @@ public class OutputFormatter {
      * @param number a {@link BigDecimal}  number to count fractional digits
      * @return a count of fractional digits to the specified {@link BigDecimal} number
      */
-    private static int getCountFractionDigits(BigDecimal number) {
+    private static int getFractionDigitsCount(BigDecimal number) {
         BigDecimal fractionalPart = number.remainder(ONE);
         BigDecimal intPart = number.setScale(0, DOWN);
         int fractionalDigitsCount;

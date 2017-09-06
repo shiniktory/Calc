@@ -8,7 +8,7 @@ package com.implemica.CalculatorProject.model.calculation;
  * @author V. Kozina-Kravchenko
  */
 public enum MemoryOperation {
-
+    // todo javadocs to enum elements
     MEMORY_CLEAN("MC"), MEMORY_RECALL("MR"), MEMORY_ADD("M+"), MEMORY_SUBTRACT("M-"), MEMORY_STORE("MS"),
     MEMORY_SHOW("M\uD83E\uDC93");
 

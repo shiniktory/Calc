@@ -716,6 +716,7 @@ public class CalculatorApplication extends Application {
     private double resizeBottomSideByY() {
         if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMaxY()) { // if bottom edge y coordinate reached bottom screen y coordinate
             currentStage.setHeight(currentStage.getMaxHeight());
+
             return 0;
         }
         double bottomYForMinHeight = currentStage.getY() + currentStage.getMinHeight();
@@ -809,16 +810,17 @@ public class CalculatorApplication extends Application {
             width       200         280+        550+
             height      370         480+        640+
          */
-
         double currentWidth = currentStage.getWidth();
         double currentHeight = currentStage.getHeight();
 
         if (currentWidth < 280 || currentHeight < 480) {
             return 0;
         }
+
         if (currentWidth > 550 && currentHeight > 640) {
             return 2;
         }
+
         return 1;
     }
 
@@ -835,21 +837,24 @@ public class CalculatorApplication extends Application {
         } else {
             elementId = elementId.toUpperCase();
         }
+
         return fontSizes.get(elementId)[boundIndex];
     }
 
     /**
-     * Sets the given font size for the specified {@link Button}.
+     * Sets the given font size for the specified {@link Button}'s content.
      *
-     * @param button      a {@link Button} to change font size
+     * @param button      a {@link Button} to change content font size
      * @param newFontSize a value of a new font size
      */
     private void setButtonFontSize(Button button, double newFontSize) {
         String buttonId = button.getId().toUpperCase();
-        Labeled labeledElement = button;
+        Labeled labeledElement;
 
-        if (labeledButtons.contains(buttonId)) {
+        if (labeledButtons.contains(buttonId)) { // if button is labeled get label
             labeledElement = (Label) button.getChildrenUnmodifiable().get(0);
+        } else {
+            labeledElement = button;
         }
 
         Font newFont = new Font(labeledElement.getFont().getFamily(), newFontSize);
@@ -866,7 +871,7 @@ public class CalculatorApplication extends Application {
 
         /**
          * Returns {@link ApplicationBorder} where the specified mouse coordinates are or
-         * null if coordinates are not at the borders.
+         * null if mouse coordinates are not at the borders.
          *
          * @param mouseEventPoint   a {@link Point2D} instance contains coordinates where {@link MouseEvent} was generated
          * @param applicationBounds a current application {@link Bounds}
@@ -881,15 +886,12 @@ public class CalculatorApplication extends Application {
             double distanceToBottomEdge = applicationBounds.getMaxY() - mouseEventPoint.getY();
             double distanceToRightEdge = applicationBounds.getMaxX() - mouseEventPoint.getX();
 
-            ApplicationBorder applicationBorder = null;
+            ApplicationBorder applicationBorder;
 
             if (distanceToLeftEdge <= RESIZE_PADDING && distanceToTopEdge <= RESIZE_PADDING) {
                 applicationBorder = TOP_LEFT_CORNER;
-
-            } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING &&
-                    distanceToLeftEdge <= RESIZE_PADDING) {
+            } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING && distanceToLeftEdge <= RESIZE_PADDING) {
                 applicationBorder = LEFT_EDGE;
-
             } else if (distanceToLeftEdge <= RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_LEFT_CORNER;
 
@@ -910,6 +912,8 @@ public class CalculatorApplication extends Application {
             } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING &&
                     distanceToTopEdge < RESIZE_PADDING) {
                 applicationBorder = TOP_EDGE;
+            } else {
+                applicationBorder = null;
             }
 
             return applicationBorder;

@@ -1054,22 +1054,22 @@ public class CalculatorTest {
         testCurrentText(RESULT_IS_UNDEFINED_MESSAGE);
     }
 
-    @Test
-    public void testForOverflow() {
-        // the lower bound for overflow
-        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
-        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
-        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
-        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
-        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
-
-        // the upper bound for overflow
-        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
-        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
-        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
-        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
-        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
-    }
+//    @Test
+//    public void testForOverflow() {
+//        // the lower bound for overflow
+//        testForOverflow("1.e-9999 / 10 = Overflow", "1.e-9999 ÷ ");
+//        testForOverflow("1.e-9999 / 100 = Overflow","1.e-9999 ÷ " );
+//        testForOverflow("1.e-9999 * 0.1 = Overflow", "1.e-9999 × ");
+//        testForOverflow("1.e-9999 - 1 % = Overflow", "1.e-9999 − 1.e-10001");
+//        testForOverflow("1.e-9999 sqr = Overflow", "sqr(1.e-9999)");
+//
+//        // the upper bound for overflow
+//        testForOverflow("1.e+9999 * 10 = Overflow", "1.e+9999 × ");
+//        testForOverflow("1.e+9999 * 100 = Overflow", "1.e+9999 × ");
+//        testForOverflow("1.e+9999 sqr = Overflow", "sqr(1.e+9999)");
+//        testForOverflow("1.e+9999 / 0.1 = Overflow", "1.e+9999 ÷ ");
+//        testForOverflow("1.e+9999 + 1000 % = Overflow", "1.e+9999 + 1.e+10000");
+//    }
 
     private void testForOverflow(String expression, String expectedHistory) {
         pushKey(KeyCode.ESCAPE);
