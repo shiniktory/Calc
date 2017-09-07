@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.regex.Pattern;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.*;
@@ -53,11 +52,6 @@ public class OutputFormatter {
      * The string value contains a pattern for decimal numbers with exponent.
      */
     private static final String NUMBER_FORMAT_PATTERN = "0.###############E0";
-
-    /**
-     * The string contains a point for double numbers.
-     */
-    public static final String POINT = ".";
 
     /**
      * The value of character used as decimal separator.
@@ -140,7 +134,7 @@ public class OutputFormatter {
         } else { // format with rounding
             int maxFractionDigitsCount = getFractionDigitsCount(number);
             mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
-            formattedNumber = mathFormatWithRounding.format(number).toLowerCase();
+            formattedNumber = mathFormatWithRounding.format(number);
         }
 
         return formattedNumber;
@@ -201,13 +195,15 @@ public class OutputFormatter {
     private static void setExponentSeparator(DecimalFormat formatter, BigDecimal number) {
         boolean isPositiveExponent = number.abs().compareTo(ONE) > 0;
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
+        String exponentSeparator;
 
         if (isPositiveExponent) {
-            symbols.setExponentSeparator(POSITIVE_EXPONENT);
+            exponentSeparator = POSITIVE_EXPONENT;
         } else {
-            symbols.setExponentSeparator(EXPONENT);
+            exponentSeparator = EXPONENT;
         }
 
+        symbols.setExponentSeparator(exponentSeparator);
         formatter.setDecimalFormatSymbols(symbols);
     }
 
@@ -231,7 +227,7 @@ public class OutputFormatter {
         roundingFormatWithGroups.setRoundingMode(roundingMode);
         int fractionalDigitsCount = getFractionDigitsCount(number);
         roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);
-        return roundingFormatWithGroups.format(number).toLowerCase();
+        return roundingFormatWithGroups.format(number);
     }
 
     /**

@@ -22,7 +22,7 @@ import static com.implemica.CalculatorProject.model.calculation.EditOperation.CL
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
 import static com.implemica.CalculatorProject.model.calculation.MemoryOperation.*;
 import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.MINUS;
-import static com.implemica.CalculatorProject.view.formatting.OutputFormatter.POINT;
+import static com.implemica.CalculatorProject.controller.CalculatorController.POINT;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isNumber;
 import static java.lang.String.format;
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -54,6 +54,7 @@ public class CalculatorTest {
             addButton(number, number);
         }
         addButton(".", "point");
+        addButton("result", "result");
         addButton("history", "history");
 
         // init math operations
@@ -1023,9 +1024,7 @@ public class CalculatorTest {
         testOperationForException("0 / 0 = Result is undefined", "0 ÷ ");
 
         for (MathOperation operation : MathOperation.values()) {
-            if (operation != RESULT) {
-                testIsButtonEnable(operation.name(), false);
-            }
+            testIsButtonEnable(operation.name(), false);
         }
         for (MemoryOperation operation : MemoryOperation.values()) {
             testIsButtonEnable(operation.symbol(), false);
@@ -1125,8 +1124,8 @@ public class CalculatorTest {
     private void testInitForException(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) {
         try {
             new StandardCalculationExecutor().calculate(firstNumber, operation, secondNumber);
-            fail(format("Expected CalculationException with wrong arguments. Your operation is %s, first number is %d, " +
-                    "second number is %d", operation, firstNumber, secondNumber));
+            fail(format("Expected CalculationException with wrong arguments. Your operation is %s, first number is %s, " +
+                    "second number is %s", operation, firstNumber, secondNumber));
         } catch (CalculationException e) {
             // expected
         }

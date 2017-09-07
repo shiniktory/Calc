@@ -21,15 +21,9 @@ import static java.math.BigDecimal.ZERO;
 public class StandardCalculationExecutor implements CalculationExecutor {
 
     /**
-     * The error message about invalid count of {@link BigDecimal} numbers for the current {@link MathOperation}.
+     * The error message about invalid arguments for the current {@link MathOperation}.
      */
-    private static final String INVALID_ARGUMENTS_FOR_UNARY_OPERATION = "Invalid count of numbers for unary operation %s, " +
-            "number is %s";
-
-    /**
-     * The error message about invalid count of {@link BigDecimal} numbers for the current {@link MathOperation}.
-     */
-    private static final String INVALID_ARGUMENTS_FOR_BINARY_OPERATION = "Invalid count of numbers for binary operation %s, " +
+    private static final String INVALID_ARGUMENTS_FOR_OPERATION = "Invalid count of numbers for operation %s, " +
             "first number is %s, second number is %s";
 
     /**
@@ -85,12 +79,12 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      *
      * @param firstNumber  a number to perform a {@link MathOperation} with
      * @param operation    a Mathematical operation to perform with the given numbers
-     * @param secondNumber a number to perform a binary {@link MathOperation} with
+     * @param secondNumber a number to perform a binary {@link MathOperation} with or null if {@link MathOperation} is unary
      * @return the result of calculations of an {@link MathOperation}s with the specified {@link BigDecimal} numbers
      * @throws CalculationException in cases when of {@link MathOperation} does not exist, division by zero or
      *                              specified invalid arguments
      */
-    public BigDecimal calculate(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) throws CalculationException { // todo without varargs. replace with null, null
+    public BigDecimal calculate(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) throws CalculationException {
         this.operation = operation;
         this.firstNumber = firstNumber;
         this.secondNumber = secondNumber;
@@ -100,33 +94,25 @@ public class StandardCalculationExecutor implements CalculationExecutor {
 
         // Binary operations
         if (operation == ADD) {
-            result = add(firstNumber, secondNumber);
-
+            result = add();
         } else if (operation == SUBTRACT) {
-            result = subtract(firstNumber, secondNumber);
-
+            result = subtract();
         } else if (operation == MULTIPLY) {
-            result = multiply(firstNumber, secondNumber);
-
+            result = multiply();
         } else if (operation == DIVIDE) {
-            result = divide(firstNumber, secondNumber);
-
+            result = divide();
         } else if (operation == PERCENT) {
-            result = percent(firstNumber, secondNumber);
+            result = percent();
 
             // Unary operations
         } else if (operation == NEGATE) {
-            result = negate(firstNumber);
-
+            result = negate();
         } else if (operation == SQUARE_ROOT) {
-            result = sqrt(firstNumber);
-
+            result = sqrt();
         } else if (operation == SQUARE) {
-            result = square(firstNumber);
-
+            result = square();
         } else if (operation == REVERSE) {
-            result = reverse(firstNumber);
-
+            result = reverse();
         } else {
             throw new CalculationException(NO_SUCH_OPERATION_ERROR);
         }
@@ -146,58 +132,53 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         }
 
         boolean isBinaryOperation = operation.isBinary();
-        if ((firstNumber == null || secondNumber != null) && !isBinaryOperation) {
-            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_UNARY_OPERATION, operation, firstNumber));
+        boolean areArgumentsInvalid;
+
+        if (isBinaryOperation) {
+            areArgumentsInvalid = (firstNumber == null || secondNumber == null);
+        } else {
+            areArgumentsInvalid = (firstNumber == null || secondNumber != null);
         }
 
-        if (isBinaryOperation && (firstNumber == null || secondNumber == null)) {
-            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_BINARY_OPERATION,
-                    operation, firstNumber, secondNumber)); //todo message incorrect
+        if (areArgumentsInvalid) {
+            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_OPERATION, operation, firstNumber, secondNumber));
         }
     }
 
     /**
      * Returns the sum of two specified {@link BigDecimal} numbers.
      *
-     * @param firstNumber  a value of the first argument for sum
-     * @param secondNumber a value of the second argument for sum
      * @return the sum of two specified {@link BigDecimal} numbers
      */
-    private static BigDecimal add(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private BigDecimal add() {
         return firstNumber.add(secondNumber);
     }
 
     /**
      * Returns the subtraction of two specified {@link BigDecimal} numbers.
      *
-     * @param firstNumber  a value of the first argument for subtraction
-     * @param secondNumber a value of the second argument for subtraction
      * @return the subtraction of two specified {@link BigDecimal} numbers
      */
-    private static BigDecimal subtract(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private BigDecimal subtract() {
         return firstNumber.subtract(secondNumber);
     }
 
     /**
      * Returns the multiplication of two specified {@link BigDecimal} numbers.
      *
-     * @param firstNumber  a value of the first argument for multiplication
-     * @param secondNumber a value of the second argument for multiplication
      * @return the multiplication of two specified numbers
      */
-    private static BigDecimal multiply(BigDecimal firstNumber, BigDecimal secondNumber) {
+    private BigDecimal multiply() {
         return firstNumber.multiply(secondNumber);
     }
 
     /**
      * Returns the division of two specified {@link BigDecimal} numbers.
      *
-     * @param firstNumber  a value of the first argument for division
-     * @param secondNumber a value of the second argument for division
      * @return the division of two specified {@link BigDecimal} numbers
      * @throws CalculationException if divisor or both arguments are equal to zero
      */
-    private static BigDecimal divide(BigDecimal firstNumber, BigDecimal secondNumber) throws CalculationException {
+    private BigDecimal divide() throws CalculationException {
         if (isZero(firstNumber) && isZero(secondNumber)) {
             throw new CalculationException(RESULT_UNDEFINED_ERROR);
         }
@@ -212,42 +193,39 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * Returns the square calculated for the specified {@link BigDecimal} number.
      *
-     * @param base a {@link BigDecimal} number to calculate square for
      * @return the square for the specified {@link BigDecimal} number
      */
-    private static BigDecimal square(BigDecimal base) {
-        return base.abs().pow(2);
+    private BigDecimal square() {
+        return firstNumber.pow(2);
     }
 
     /**
      * Returns the negated given {@link BigDecimal} number.
      *
-     * @param number a {@link BigDecimal} number to negate
      * @return the negated given {@link BigDecimal} number
      */
-    private static BigDecimal negate(BigDecimal number) {
-        return number.negate();
+    private BigDecimal negate() {
+        return firstNumber.negate();
     }
 
     /**
      * Returns the square root calculated for the given {@link BigDecimal} number. Source of square root algorithm for {@link BigDecimal} is
      * <a href="https://www.java-forums.org/advanced-java/44345-square-rooting-bigdecimal.html">square rooting a BigDecimal</a>
      *
-     * @param x a {@link BigDecimal} number to calculate square root for
      * @return the square root calculated for the given {@link BigDecimal} number
      * @throws CalculationException if the given {@link BigDecimal} number is negative
      */
-    private static BigDecimal sqrt(BigDecimal x) throws CalculationException {
-        if (x.compareTo(ZERO) < 0) {
+    private BigDecimal sqrt() throws CalculationException {
+        if (firstNumber.compareTo(ZERO) < 0) {
             throw new CalculationException(INVALID_INPUT_ERROR);
         }
 
-        if (isZero(x)) {
+        if (isZero(firstNumber)) {
             return ZERO;
         }
 
         // n = x*(10^(2*scale))
-        BigInteger n = x.movePointRight(SCALE << 1).toBigInteger();
+        BigInteger n = firstNumber.movePointRight(SCALE << 1).toBigInteger();
 
         // The first approximation is the upper half of n.
         int bits = (n.bitLength() + 1) >> 1;
@@ -271,31 +249,29 @@ public class StandardCalculationExecutor implements CalculationExecutor {
     /**
      * Returns the {@link BigDecimal} number that is a specified percentage calculated for the given {@link BigDecimal} number.
      *
-     * @param base    a {@link BigDecimal} number to calculate percentage from
-     * @param percent a count of percents to calculate
      * @return the {@link BigDecimal} number that is a specified percentage calculated for the given {@link BigDecimal} number
      */
-    private static BigDecimal percent(BigDecimal base, BigDecimal percent) {
-        if (isZero(base) || isZero(percent)) {
+    private BigDecimal percent() {
+        if (isZero(firstNumber) || isZero(secondNumber)) {
             return ZERO;
         }
         // Convert percentage to an absolute value
-        BigDecimal absolutePercentageValue = percent.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP);
-        return base.multiply(absolutePercentageValue);
+        BigDecimal absolutePercentageValue = secondNumber.divide(ONE_HUNDRED, SCALE, ROUND_HALF_UP);
+
+        return firstNumber.multiply(absolutePercentageValue);
     }
 
     /**
      * Returns the {@link BigDecimal} number calculated as a division of 1 by the given {@link BigDecimal} number.
      *
-     * @param base a {@link BigDecimal} number to reverse
      * @return the {@link BigDecimal} number calculated as a division of 1 by the given {@link BigDecimal} number
      * @throws CalculationException if {@link BigDecimal} number is equal to zero
      */
-    private static BigDecimal reverse(BigDecimal base) throws CalculationException {
-        if (isZero(base)) {
+    private BigDecimal reverse() throws CalculationException {
+        if (isZero(firstNumber)) {
             throw new CalculationException(DIVISION_BY_ZERO_ERROR);
         }
 
-        return ONE.divide(base, SCALE, ROUND_HALF_UP);
+        return ONE.divide(firstNumber, SCALE, ROUND_HALF_UP);
     }
 }

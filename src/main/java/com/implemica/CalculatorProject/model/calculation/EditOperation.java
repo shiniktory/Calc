@@ -10,7 +10,20 @@ import java.math.BigDecimal;
  */
 public enum EditOperation {
 
-    CLEAN_CURRENT("CE"), CLEAN("C"), LEFT_ERASE("⌫");
+    /**
+     * Constant represents an edit operation for resetting current number to zero value.
+     */
+    CLEAN_CURRENT("CE"),
+
+    /**
+     * Constant represents an edit operation for resetting all numbers to zero values.
+     */
+    CLEAN("C"),
+
+    /**
+     * Constant represents an edit operation for deleting last digit in current number.
+     */
+    LEFT_ERASE("⌫");
 
     /**
      * A string representation of an {@link EditOperation}.

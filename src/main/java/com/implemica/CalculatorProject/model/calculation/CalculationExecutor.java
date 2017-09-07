@@ -16,7 +16,7 @@ public interface CalculationExecutor {
      *
      * @param firstNumber  a number to perform a {@link MathOperation} with
      * @param operation    a Mathematical operation to perform with the given numbers
-     * @param secondNumber a number to perform a binary {@link MathOperation} with
+     * @param secondNumber a number to perform a binary {@link MathOperation} with  or null if {@link MathOperation} is unary
      * @return the result of Mathematical calculations for the given {@link BigDecimal} numbers
      * @throws CalculationException if some error occurs during the calculations
      */

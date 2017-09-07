@@ -144,30 +144,42 @@ public class CalculatorController {
 
     /**
      * The storage of all {@link Button}s associated with its functions in application.
-     * For example, digit button associated with {@link BigDecimal} value,
-     * math operation button with {@link MathOperation}, etc.
+     * Digit button is associated with {@link BigDecimal} value, math operation button with {@link MathOperation},
+     * memory operation button with {@link MemoryOperation}, edit operation button with {@link EditOperation},
+     * button with decimal separator is associated with {@link #POINT} and button with equal sign associated
+     * with {@link #CALCULATE_RESULT_OPERATION}.
      */
     private static final Map<Button, Object> BUTTONS_WITH_FUNCTIONS = new LinkedHashMap<>();
 
     /**
-     * The storage of all {@link Button}s associated with the {@link KeyCodeCombination}s that activates these {@link Button}s.
+     * The storage of all {@link Button}s associated with the {@link KeyCodeCombination}s that activate these {@link Button}s.
      */
     private static final Map<KeyCodeCombination, Button> BUTTONS_WITH_KEYS = new LinkedHashMap<>();
 
     /**
+     * The string contains a decimal separator for double numbers.
+     */
+    public static final String POINT = ".";
+
+    /**
+     * The string contains an equal sign to indicate the calculate result operation.
+     */
+    private static final String CALCULATE_RESULT_OPERATION = "=";
+
+    /**
      * The flag variable shows is {@link #viewTypesPanel} shown right now.
      */
-    private boolean isViewPanelShown = false;
+    private boolean isViewPanelShown;
 
     /**
      * The flag variable shows is {@link #memoryStorage} shown right now.
      */
-    private boolean isMemoryStorageShown = false;
+    private boolean isMemoryStorageShown;
 
     /**
      * The flag variable shows is error occurred while calculations.
      */
-    private boolean isErrorOccurred = false;
+    private boolean isErrorOccurred;
 
     /**
      * A {@link StringBuilder} instance constructs a mathematical expression string.
@@ -182,12 +194,12 @@ public class CalculatorController {
     /**
      * The flag variable shows was a previous part of mathematical expression unary {@link MathOperation}.
      */
-    private boolean wasUnaryBefore = false;
+    private boolean wasUnaryBefore;
 
     /**
      * The string contains last formatted {@link BigDecimal} number or unary {@link MathOperation}.
      */
-    private String lastUnaryArgument = "";
+    private String lastUnaryArgument;
 
     /**
      * The value of duration in millis for the {@link Button} pressed animation.
@@ -212,17 +224,11 @@ public class CalculatorController {
     @FXML
     private void handleKeyEvent(KeyEvent event) {
         initializeButtons();
-
-        if (isViewPanelShown) {
-            showOrHideViewPanel();
-        }
-
         KeyCode key = event.getCode();
 
         if (key.isModifierKey()) {
             return;
         }
-
         KeyCodeCombination combination;
 
         if (event.isShiftDown()) {
@@ -286,7 +292,7 @@ public class CalculatorController {
             textToSet = handleException(e);
         }
 
-        setCurrentNumber(textToSet);
+        setDisplayedValue(textToSet);
         updateExpression();
 
         if (isErrorOccurred) {
@@ -309,14 +315,17 @@ public class CalculatorController {
 
         if (buttonFunction instanceof BigDecimal) {
             textToSet = addDigit((BigDecimal) buttonFunction);
-        } else if (buttonFunction instanceof String && POINT.equals(buttonFunction)) {
-            textToSet = addDecimalSeparator();
         } else if (buttonFunction instanceof MathOperation) {
             textToSet = executeMathOperation((MathOperation) buttonFunction);
         } else if (buttonFunction instanceof MemoryOperation) {
             textToSet = executeMemoryOperation((MemoryOperation) buttonFunction);
         } else if (buttonFunction instanceof EditOperation) {
             textToSet = executeEditOperation((EditOperation) buttonFunction);
+        } else if (POINT.equals(buttonFunction)) {
+            textToSet = addDecimalSeparator();
+        } else if (CALCULATE_RESULT_OPERATION.equals(buttonFunction)) {
+            resetAfterError();
+            textToSet = formatWithGroupDelimiters(calculator.calculateResult());
         } else {
             throw new UnsupportedOperationException(NO_FUNCTION_PROVIDED_FOR_BUTTON + button.getId());
         }
@@ -332,16 +341,17 @@ public class CalculatorController {
      */
     private String addDigit(BigDecimal digit) {
         resetAfterError();
-
         BigDecimal modifiedNumber = calculator.enterDigit(digit);
-        boolean isLastPoint = false;
+        boolean isInteger;
 
         if (!isNumberLengthValid(modifiedNumber)) {
-            isLastPoint = calculator.deleteLastDigit();
+            isInteger = calculator.deleteLastDigit();
             modifiedNumber = calculator.getLastNumber();
+        } else {
+            isInteger = false;
         }
 
-        return formatEnteredNumber(modifiedNumber, isLastPoint);
+        return formatEnteredNumber(modifiedNumber, isInteger);
     }
 
     /**
@@ -354,9 +364,9 @@ public class CalculatorController {
         BigDecimal currentNumber = calculator.getLastNumber();
         // if after adding decimal separator number's scale still is zero,
         // than need to format with point at the end of number
-        boolean needAppendPoint = currentNumber.scale() == 0;
+        boolean isInteger = currentNumber.scale() == 0;
 
-        return formatEnteredNumber(currentNumber, needAppendPoint);
+        return formatEnteredNumber(currentNumber, isInteger);
     }
 
     /**
@@ -370,17 +380,10 @@ public class CalculatorController {
     private String executeMathOperation(MathOperation operation) throws CalculationException {
         BigDecimal result;
 
-        if (operation != RESULT) {
-            if (isMemoryStorageShown) {
-                showOrHideMemoryPane();
-            }
-
-            result = calculator.executeMathOperation(operation);
-        } else {
-            resetAfterError();
-            result = calculator.calculateResult();
+        if (isMemoryStorageShown) {
+            showOrHideMemoryPane();
         }
-
+        result = calculator.executeMathOperation(operation);
         checkResultForOverflow(result);
         return formatWithGroupDelimiters(result);
     }
@@ -408,7 +411,7 @@ public class CalculatorController {
      */
     private String executeMemoryOperation(MemoryOperation operation) throws CalculationException {
         calculator.executeMemoryOperation(operation);
-        boolean needEnable = operation != MEMORY_CLEAN;
+        boolean needEnable = (operation != MEMORY_CLEAN);
         enableMemoryStateButtons(needEnable);
 
         return formatWithGroupDelimiters(calculator.getLastNumber());
@@ -424,25 +427,34 @@ public class CalculatorController {
      */
     private String executeEditOperation(EditOperation operation) {
         resetAfterError();
-        boolean isLastSymbolPoint = false;
+        boolean isInteger;
 
+        if (operation == LEFT_ERASE) {
+            isInteger = calculator.deleteLastDigit();
+        } else {
+            executeCleanOperation(operation);
+            isErrorOccurred = false;
+            isInteger = false;
+        }
+
+        return formatEnteredNumber(calculator.getLastNumber(), isInteger);
+    }
+
+    /**
+     * Executes the specified clean {@link EditOperation}.
+     *
+     * @param operation the clean {@link EditOperation} to execute
+     */
+    private void executeCleanOperation(EditOperation operation) {
         if (operation == CLEAN) {
             calculator.cleanAll();
-            isErrorOccurred = false;
 
             if (isMemoryStorageShown) {
                 showOrHideMemoryPane();
             }
-
         } else if (operation == CLEAN_CURRENT) {
             calculator.cleanCurrent();
-            isErrorOccurred = false;
-
-        } else if (operation == LEFT_ERASE) {
-            isLastSymbolPoint = calculator.deleteLastDigit();
         }
-
-        return formatEnteredNumber(calculator.getLastNumber(), isLastSymbolPoint);
     }
 
     /**
@@ -453,7 +465,7 @@ public class CalculatorController {
         if (isErrorOccurred) {
             enableAllOperations(true);
             String numberToReset = formatWithGroupDelimiters(calculator.getLastNumber());
-            setCurrentNumber(numberToReset);
+            setDisplayedValue(numberToReset);
             updateExpression();
             isErrorOccurred = false;
         }
@@ -474,15 +486,14 @@ public class CalculatorController {
     }
 
     /**
-     * Sets the given string contains formatted {@link BigDecimal} number to the {@link TextField} that contains
-     * current number value.
+     * Sets the given string to the {@link TextField} that contains current number value or error message.
      *
-     * @param formattedNumber the string contains formatted {@link BigDecimal} number to set
+     * @param value the string value to set for displaying
      */
-    private void setCurrentNumber(String formattedNumber) {
-        if (!isEmptyString(formattedNumber)) {
+    private void setDisplayedValue(String value) {
+        if (!isEmptyString(value)) {
             Platform.runLater(() -> {
-                currentNumberText.setText(formattedNumber);
+                currentNumberText.setText(value);
                 currentNumberText.end();
                 prevOperationsText.end();
             });
@@ -507,6 +518,7 @@ public class CalculatorController {
      */
     private String getExpression() {
         List<Object> arguments = calculator.getExpressionArguments();
+        // reset formatted expression properties
         expression = new StringBuilder();
         lastUnaryArgument = "";
         int lastArgumentIndex = arguments.size() - 1;
@@ -528,10 +540,8 @@ public class CalculatorController {
     private void formatAndAppendCurrentArgument(Object argument, boolean isTheLastArgument) {
         if (argument instanceof BigDecimal) {
             appendNumber((BigDecimal) argument, isTheLastArgument);
-
         } else if (argument instanceof MathOperation) {
             MathOperation operation = (MathOperation) argument;
-
             appendOperation(operation, isTheLastArgument);
             wasUnaryBefore = !operation.isBinary();
         }
@@ -559,18 +569,19 @@ public class CalculatorController {
      * @param isTheLastArgument a flag shows is this argument the last in expression
      */
     private void appendOperation(MathOperation operation, boolean isTheLastArgument) {
-        if (operation.isBinary()) {
+        boolean isBinaryOperation = operation.isBinary();
+
+        if (!isBinaryOperation) { // update last unary argument
+            lastUnaryArgument = formatUnaryOperation(operation, lastUnaryArgument);
+        }
+
+        if (isBinaryOperation) {
             if (wasUnaryBefore) {
                 appendToExpression(lastUnaryArgument);
             }
             appendToExpression(operation.symbol());
-
-        } else {
-            lastUnaryArgument = formatUnaryOperation(operation, lastUnaryArgument);
-
-            if (isTheLastArgument) {
-                appendToExpression(lastUnaryArgument);
-            }
+        } else if (isTheLastArgument) { // if current unary operation is the last in expression
+            appendToExpression(lastUnaryArgument);
         }
     }
 
@@ -741,9 +752,7 @@ public class CalculatorController {
      */
     private static void enableOperationButton(Button button, boolean enable) {
         Object buttonFunction = BUTTONS_WITH_FUNCTIONS.get(button);
-
-        boolean isMathOperation = (buttonFunction instanceof MathOperation) &&
-                (buttonFunction != RESULT);
+        boolean isMathOperation = (buttonFunction instanceof MathOperation);
 
         if (isMathOperation || POINT.equals(buttonFunction)) {
             button.setDisable(!enable);
@@ -820,9 +829,9 @@ public class CalculatorController {
         addButton(subtract, SUBTRACT, KeyCode.MINUS);
         addButton(add, ADD, KeyCode.ADD);
         addButton(add, ADD, KeyCode.EQUALS, SHIFT_DOWN);
-        addButton(result, RESULT, KeyCode.ENTER);
-        addButton(result, RESULT, KeyCode.EQUALS);
         addButton(negate, NEGATE, null);
+        addButton(result, CALCULATE_RESULT_OPERATION, KeyCode.ENTER);
+        addButton(result, CALCULATE_RESULT_OPERATION, KeyCode.EQUALS);
 
         // buttons with memory operations
         addButton(memoryClean, MEMORY_CLEAN, null);

@@ -118,12 +118,12 @@ public class CalculatorApplication extends Application {
     /**
      * The flag variable shows is window moving now. Using for excluding conflicts with resizing events.
      */
-    private boolean isWindowMoving = false;
+    private boolean isWindowMoving;
 
     /**
      * The flag variable shows is window expanded on full screen.
      */
-    private boolean isFullScreen = false;
+    private boolean isFullScreen;
 
     /**
      * The {@link Bounds} holds saved information about window position, width and height before expanding on
@@ -144,12 +144,12 @@ public class CalculatorApplication extends Application {
     /**
      * The difference between previous and current X coordinate where {@link MouseEvent} occurred.
      */
-    private double resizeDeltaX = 0;
+    private double resizeDeltaX;
 
     /**
      * The difference between previous and current Y coordinate where {@link MouseEvent} occurred.
      */
-    private double resizeDeltaY = 0;
+    private double resizeDeltaY;
 
     /**
      * The information about {@link Screen} where application runs.
@@ -180,6 +180,11 @@ public class CalculatorApplication extends Application {
      * The string value of the id for {@link Button} with decimal separator.
      */
     private static final String POINT_BUTTON_ID = "point";
+
+    /**
+     * The string value of the id for {@link Button} with equal sign that indicates result calculation.
+     */
+    private static final String CALCULATE_RESULT_BUTTON_ID = "RESULT";
 
     /**
      * The value of id for the {@link GridPane} with {@link Button}s with numbers and mathematical operations.
@@ -243,7 +248,7 @@ public class CalculatorApplication extends Application {
         fontSizes.put(MULTIPLY.name(), new Double[]{15.0, 19.0, 25.0});
         fontSizes.put(ADD.name(), new Double[]{24.0, 33.0, 42.0});
         fontSizes.put(SUBTRACT.name(), new Double[]{24.0, 35.0, 42.0});
-        fontSizes.put(RESULT.name(), new Double[]{24.0, 34.0, 42.0});
+        fontSizes.put(CALCULATE_RESULT_BUTTON_ID, new Double[]{24.0, 34.0, 42.0});
 
         fontSizes.put(FONT_ID_FOR_NUMBERS, new Double[]{15.0, 20.0, 25.0});
 
@@ -260,7 +265,7 @@ public class CalculatorApplication extends Application {
         labeledButtons.add(MULTIPLY.name());
         labeledButtons.add(SUBTRACT.name());
         labeledButtons.add(ADD.name());
-        labeledButtons.add(RESULT.name());
+        labeledButtons.add(CALCULATE_RESULT_BUTTON_ID);
         labeledButtons.add(LEFT_ERASE.name());
     }
 
@@ -439,10 +444,13 @@ public class CalculatorApplication extends Application {
      * @param height a value of height to set
      */
     private void setNewStageParameters(double x, double y, double width, double height) {
-        currentStage.setX(x);
-        currentStage.setY(y);
-        setNewWidth(width);
-        setNewHeight(height);
+        if (x != currentStage.getX() || y != currentStage.getY() ||
+                width != currentStage.getWidth() || height != currentStage.getHeight()) { // if changed any parameter
+            currentStage.setX(x);
+            currentStage.setY(y);
+            setNewWidth(width);
+            setNewHeight(height);
+        }
     }
 
     /**
@@ -540,24 +548,16 @@ public class CalculatorApplication extends Application {
         if (isFullScreen) {
             return;
         }
-
         Cursor newCursorType;
-        if (applicationBorder == TOP_LEFT_CORNER ||
-                applicationBorder == BOTTOM_RIGHT_CORNER) {
+
+        if (applicationBorder == TOP_LEFT_CORNER || applicationBorder == BOTTOM_RIGHT_CORNER) {
             newCursorType = Cursor.NW_RESIZE;
-
-        } else if (applicationBorder == LEFT_EDGE ||
-                applicationBorder == RIGHT_EDGE) {
+        } else if (applicationBorder == LEFT_EDGE || applicationBorder == RIGHT_EDGE) {
             newCursorType = Cursor.H_RESIZE;
-
-        } else if (applicationBorder == BOTTOM_LEFT_CORNER ||
-                applicationBorder == TOP_RIGHT_CORNER) {
+        } else if (applicationBorder == BOTTOM_LEFT_CORNER || applicationBorder == TOP_RIGHT_CORNER) {
             newCursorType = Cursor.NE_RESIZE;
-
-        } else if (applicationBorder == BOTTOM_EDGE ||
-                applicationBorder == TOP_EDGE) {
+        } else if (applicationBorder == BOTTOM_EDGE || applicationBorder == TOP_EDGE) {
             newCursorType = Cursor.V_RESIZE;
-
         } else {
             newCursorType = Cursor.DEFAULT;
         }
@@ -661,15 +661,20 @@ public class CalculatorApplication extends Application {
      * @return new X coordinate for application window
      */
     private double resizeLeftSideByX() {
-        double newStageX = currentStage.getX();
+        double currentStagePositionX = currentStage.getX();
+        double currentEventPositionX = currentEventPoint.getX();
+        double newStageX;
 
-        if (currentEventPoint.getX() >= SCREEN_BOUNDS.getMinX() &&
-                currentEventPoint.getX() <= maxResizeX) {
+        if (currentEventPositionX >= SCREEN_BOUNDS.getMinX() &&
+                currentEventPositionX <= maxResizeX) {
             // resize left side only if new x coordinate is between minimal x on screen and
             // x coordinate of point that is window coordinate with min width
-            resizeDeltaX = previousMouseEventPoint.getX() - currentEventPoint.getX();
-            newStageX -= resizeDeltaX;
+            resizeDeltaX = previousMouseEventPoint.getX() - currentEventPositionX;
+            newStageX = currentStagePositionX - resizeDeltaX;
+        } else {
+            newStageX = currentStagePositionX;
         }
+
         return newStageX;
     }
 
@@ -680,15 +685,20 @@ public class CalculatorApplication extends Application {
      * @return new Y coordinate for application window
      */
     private double resizeTopSideByY() {
-        double newStageY = currentStage.getY();
+        double currentStagePositionY = currentStage.getY();
+        double currentEventPositionY = currentEventPoint.getY();
+        double newStageY;
 
-        if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMinY() &&
-                currentEventPoint.getY() <= maxResizeY) {
+        if (currentEventPositionY >= SCREEN_BOUNDS.getMinY() &&
+                currentEventPositionY <= maxResizeY) {
             // resize top side only if new y coordinate is between minimal y on screen and
             // y coordinate of point that is window coordinate with min height
-            resizeDeltaY = previousMouseEventPoint.getY() - currentEventPoint.getY();
-            newStageY -= resizeDeltaY;
+            resizeDeltaY = previousMouseEventPoint.getY() - currentEventPositionY;
+            newStageY = currentStagePositionY - resizeDeltaY;
+        } else {
+            newStageY = currentStagePositionY;
         }
+
         return newStageY;
     }
 
@@ -697,12 +707,13 @@ public class CalculatorApplication extends Application {
      */
     private void resizeRightSideByX() {
         double rightXForMinWidth = currentStage.getX() + currentStage.getMinWidth();
+        double currentEventPositionX = currentEventPoint.getX();
 
-        if (currentEventPoint.getX() >= rightXForMinWidth &&
-                currentEventPoint.getX() <= SCREEN_BOUNDS.getMaxX()) {
+        if (currentEventPositionX >= rightXForMinWidth &&
+                currentEventPositionX <= SCREEN_BOUNDS.getMaxX()) {
             // resize right side only if new x coordinate of right edge is between this coordinate for min width and
             // maximum x on screen
-            resizeDeltaX = currentEventPoint.getX() - previousMouseEventPoint.getX();
+            resizeDeltaX = currentEventPositionX - previousMouseEventPoint.getX();
         }
     }
 
@@ -714,21 +725,26 @@ public class CalculatorApplication extends Application {
      * @return new y coordinate of current window
      */
     private double resizeBottomSideByY() {
-        if (currentEventPoint.getY() >= SCREEN_BOUNDS.getMaxY()) { // if bottom edge y coordinate reached bottom screen y coordinate
+        double currentEventPositionY = currentEventPoint.getY();
+        double newStagePositionY;
+
+        if (currentEventPositionY >= SCREEN_BOUNDS.getMaxY()) { // if bottom edge y coordinate reached bottom screen y coordinate
             currentStage.setHeight(currentStage.getMaxHeight());
+            newStagePositionY = 0;
+        } else {
+            double bottomYForMinHeight = currentStage.getY() + currentStage.getMinHeight();
 
-            return 0;
+            if (currentEventPositionY >= bottomYForMinHeight &&
+                    currentEventPositionY <= SCREEN_BOUNDS.getMaxY()) {
+                // resize bottom side only if new y coordinate of bottom edge is between this coordinate for min height and
+                // maximum y on screen
+                resizeDeltaY = currentEventPositionY - previousMouseEventPoint.getY();
+            }
+
+            newStagePositionY = currentStage.getY();
         }
-        double bottomYForMinHeight = currentStage.getY() + currentStage.getMinHeight();
 
-        if (currentEventPoint.getY() >= bottomYForMinHeight &&
-                currentEventPoint.getY() <= SCREEN_BOUNDS.getMaxY()) {
-            // resize bottom side only if new y coordinate of bottom edge is between this coordinate for min height and
-            // maximum y on screen
-            resizeDeltaY = currentEventPoint.getY() - previousMouseEventPoint.getY();
-        }
-        return currentStage.getY();
-
+        return newStagePositionY;
     }
 
     /**
@@ -775,12 +791,14 @@ public class CalculatorApplication extends Application {
         text.setFont(defaultFont);
 
         // calculate scale
-        double newFontSize = defaultFontSize;
         double textWidth = text.getLayoutBounds().getWidth();
         double scale = currentWidth / textWidth - 0.1;
+        double newFontSize;
 
         if (scale < 1.0) { // if need to reduce a font size
             newFontSize = defaultFont.getSize() * scale;
+        } else {
+            newFontSize = defaultFontSize;
         }
 
         return findFontForTextField(newFontSize);
@@ -865,7 +883,7 @@ public class CalculatorApplication extends Application {
      * The enum contains mouse positions on the application borders.
      */
     enum ApplicationBorder {
-
+        // Constants represent each window border positions.
         TOP_LEFT_CORNER, LEFT_EDGE, BOTTOM_LEFT_CORNER, BOTTOM_EDGE, BOTTOM_RIGHT_CORNER, RIGHT_EDGE,
         TOP_RIGHT_CORNER, TOP_EDGE;
 
@@ -894,23 +912,15 @@ public class CalculatorApplication extends Application {
                 applicationBorder = LEFT_EDGE;
             } else if (distanceToLeftEdge <= RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_LEFT_CORNER;
-
-            } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING &&
-                    distanceToBottomEdge <= RESIZE_PADDING) {
+            } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_EDGE;
-
             } else if (distanceToRightEdge <= RESIZE_PADDING && distanceToBottomEdge <= RESIZE_PADDING) {
                 applicationBorder = BOTTOM_RIGHT_CORNER;
-
-            } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING &&
-                    distanceToRightEdge <= RESIZE_PADDING) {
+            } else if (distanceToTopEdge <= applicationBounds.getHeight() - RESIZE_PADDING && distanceToRightEdge <= RESIZE_PADDING) {
                 applicationBorder = RIGHT_EDGE;
-
             } else if (distanceToTopEdge <= RESIZE_PADDING && distanceToRightEdge <= RESIZE_PADDING) {
                 applicationBorder = TOP_RIGHT_CORNER;
-
-            } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING &&
-                    distanceToTopEdge < RESIZE_PADDING) {
+            } else if (distanceToLeftEdge <= applicationBounds.getWidth() - RESIZE_PADDING && distanceToTopEdge < RESIZE_PADDING) {
                 applicationBorder = TOP_EDGE;
             } else {
                 applicationBorder = null;

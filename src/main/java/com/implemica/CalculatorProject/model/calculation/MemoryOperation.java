@@ -8,8 +8,35 @@ package com.implemica.CalculatorProject.model.calculation;
  * @author V. Kozina-Kravchenko
  */
 public enum MemoryOperation {
-    // todo javadocs to enum elements
-    MEMORY_CLEAN("MC"), MEMORY_RECALL("MR"), MEMORY_ADD("M+"), MEMORY_SUBTRACT("M-"), MEMORY_STORE("MS"),
+
+    /**
+     * Constant represents an operation for resetting a memorized number to zero value.
+     */
+    MEMORY_CLEAN("MC"),
+
+    /**
+     * Constant represents an operation for recalling a memorized value to the screen.
+     */
+    MEMORY_RECALL("MR"),
+
+    /**
+     * Constant represents an operation for adding to the memorized number another number value.
+     */
+    MEMORY_ADD("M+"),
+
+    /**
+     * Constant represents an operation for subtracting from the memorized number another number value.
+     */
+    MEMORY_SUBTRACT("M-"),
+
+    /**
+     * Constant represents an operation for storing new number as memorized.
+     */
+    MEMORY_STORE("MS"),
+
+    /**
+     * Constant represents an operation for showing panel with stored values.
+     */
     MEMORY_SHOW("M\uD83E\uDC93");
 
     /**

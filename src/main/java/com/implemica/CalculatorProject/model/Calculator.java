@@ -72,20 +72,20 @@ public class Calculator {
     private boolean isNewNumber = true;
 
     /**
-     * The flag variable shows was previous {@link MathOperation} unary or binary.
+     * The flag variable shows was previous unary or binary {@link MathOperation}.
      */
-    private boolean wasUnaryBefore = false;
+    private boolean wasUnaryBefore;
 
     /**
      * The flag variable shows the last symbol in current {@link BigDecimal} number is decimal point. Will be added to
      * the number with the first fractional digit.
      */
-    private boolean needAddPoint = false;
+    private boolean needAddPoint;
 
     /**
      * The index of the last {@link BigDecimal} number added to the current expression.
      */
-    private int indexOfLastNumberInExpression = 0;
+    private int indexOfLastNumberInExpression;
 
     /**
      * An error message about requested operation not found.
@@ -130,7 +130,6 @@ public class Calculator {
             lastNumber = digit;
             removeLastUnaryFromExpression();
             needAddPoint = false;
-
         } else {
             appendDigit(digit);
         }
@@ -145,12 +144,10 @@ public class Calculator {
      * @param digit a digit to append to the current {@link BigDecimal} number
      */
     private void appendDigit(BigDecimal digit) {
-        if (isZero(lastNumber) && !isZero(digit) &&
-                lastNumber.scale() == 0 && !needAddPoint) {
+        if (isZero(lastNumber) && !isZero(digit) && (lastNumber.scale() == 0) && !needAddPoint) {
             // if current number is zero, it has no fractional part and adding decimal separator didn't called
             // than replace current number by specified non-zero digit
             lastNumber = digit;
-
         } else {
             appendDigitImpl(digit);
             needAddPoint = false;
@@ -167,11 +164,10 @@ public class Calculator {
             digit = digit.negate();
         }
 
-        if (needAddPoint || lastNumber.scale() != 0) { // if called adding the decimal separator or current number already has fractional part
+        if (needAddPoint || (lastNumber.scale() != 0)) { // if called adding the decimal separator or current number already has fractional part
             int newScale = lastNumber.scale() + 1;
             BigDecimal tailToAdd = digit.divide(TEN.pow(newScale), newScale, RoundingMode.HALF_DOWN);
             lastNumber = lastNumber.add(tailToAdd);
-
         } else {
             lastNumber = lastNumber.multiply(TEN).add(digit);
         }
@@ -217,13 +213,10 @@ public class Calculator {
         }
 
         BigDecimal temporaryResult;
-        if (operation != null && !wasUnaryBefore && isNewNumber && !expression.isEmpty()) {
-            // if after last binary operation called new binary instead of entering number.
-            // need to replace last operation and return previous result
+        if (operation != null && !wasUnaryBefore && isNewNumber && !expression.isEmpty()) { // if after last binary operation called new binary instead of entering number need to replace last operation and return previous result
             replaceLastOperationInExpression(currentOperation);
             temporaryResult = getPreviousResult();
-
-        } else {
+        } else { // if need no replace last binary operation
             updateExpressionForOperation(currentOperation);
             // replace previous number by last entered number or by result of previous binary operations
             updatePreviousNumber();
@@ -299,15 +292,16 @@ public class Calculator {
      * @throws CalculationException if some error while calculations occurred
      */
     private BigDecimal executeUnaryOperation(MathOperation currentOperation) throws CalculationException {
-        if (currentOperation == NEGATE) {
-            if (wasUnaryBefore) {
-                updateExpressionForOperation(NEGATE);
-            }
-            updateLastNumberAfterUnary(currentOperation); //todo this line duplicates in each clause
+        boolean isNegateOperation = (currentOperation == NEGATE);
+        boolean needNegateFormatting = (isNegateOperation && wasUnaryBefore);
 
-        } else {
+        if (!isNegateOperation || needNegateFormatting) {
             updateExpressionForOperation(currentOperation);
-            updateLastNumberAfterUnary(currentOperation);
+        }
+
+        updateLastNumberAfterUnary(currentOperation);
+
+        if (!isNegateOperation) {
             wasUnaryBefore = true;
             isNewNumber = true;
         }
@@ -329,7 +323,6 @@ public class Calculator {
             // if weren't or was only one binary operation before
             // current unary operation applies to the last entered number
             unaryArgument = lastNumber;
-
         } else {
             // if was binary operations before current unary operation
             // applies to previous number that stores last binary result
@@ -362,7 +355,6 @@ public class Calculator {
             // if binary operation called more than once. It means that result of the last binary operation was stored
             // in previous number variable
             numberToAddToExpression = previousNumber;
-
         } else {
             numberToAddToExpression = lastNumber;
         }
@@ -401,7 +393,6 @@ public class Calculator {
         if (expression.isEmpty() && !wasUnaryBefore) { // If calculate result called without entering new number execute last binary operation
             firstNumber = lastNumber;
             secondNumber = tempNumber;
-
         } else { // If was binary operation, remember last number and execute this operation
             tempNumber = lastNumber;
             firstNumber = previousNumber;
@@ -460,11 +451,9 @@ public class Calculator {
         if (needAddPoint) { // if the last symbol in number is decimal separator
             isInteger = false;
             needAddPoint = false;
-
         } else if (lastNumber.abs().compareTo(TEN) < 0 && lastNumber.scale() == 0) { // if number consists of only one digit
             lastNumber = ZERO;
             isInteger = false;
-
         } else { // for other number that has more than one digit and decimal separator not at the end of number
             isInteger = deleteLastDigitImpl();
         }
