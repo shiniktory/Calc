@@ -183,7 +183,7 @@ public class Calculator {
      */
     public BigDecimal executeMathOperation(MathOperation currentOperation) throws CalculationException {
         if (currentOperation == null) {
-            throw new CalculationException(NO_SUCH_OPERATION_FOUND);
+            throw new UnsupportedOperationException(NO_SUCH_OPERATION_FOUND);
         }
 
         BigDecimal operationResult;
@@ -319,7 +319,7 @@ public class Calculator {
     private void updateLastNumberAfterUnary(MathOperation currentOperation) throws CalculationException {
         BigDecimal unaryArgument;
 
-        if (wasUnaryBefore || operation == null || !isNewNumber || expression.size() == 2) {
+        if (wasUnaryBefore || operation == null || !isNewNumber || expression.size() == 2 || expression.isEmpty()) {
             // if weren't or was only one binary operation before
             // current unary operation applies to the last entered number
             unaryArgument = lastNumber;

@@ -250,7 +250,7 @@
                                       <Insets top="5.0" />
                                   </padding>
                               </GridPane>
-                              <BorderPane id="memoryStorage" fx:id="memoryStorage" nodeOrientation="LEFT_TO_RIGHT" visible="false" StackPane.alignment="BOTTOM_RIGHT">
+                              <BorderPane id="memoryStorage" fx:id="memoryStoragePane" nodeOrientation="LEFT_TO_RIGHT" visible="false" StackPane.alignment="BOTTOM_RIGHT">
                                   <bottom>
                                       <Button id="storageClean" fx:id="storageClean" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="🗑" textAlignment="CENTER" BorderPane.alignment="BOTTOM_RIGHT">
                                           <font>

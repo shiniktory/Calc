@@ -91,7 +91,7 @@ public class TestView {
         T node = robot.lookup(query).query();
         assertNotNull(node);
         return node;
-    }
+}
 
     @Before
     public void setUp() {

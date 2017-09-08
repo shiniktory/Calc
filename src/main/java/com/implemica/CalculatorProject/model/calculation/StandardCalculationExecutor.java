@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static com.implemica.CalculatorProject.model.calculation.MathOperation.*;
+import static com.implemica.CalculatorProject.model.exception.ErrorMessage.DIVISION_BY_ZERO;
+import static com.implemica.CalculatorProject.model.exception.ErrorMessage.INVALID_INPUT;
+import static com.implemica.CalculatorProject.model.exception.ErrorMessage.RESULT_IS_UNDEFINED;
 import static com.implemica.CalculatorProject.model.validation.DataValidator.isZero;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ROUND_HALF_UP;
@@ -27,26 +30,9 @@ public class StandardCalculationExecutor implements CalculationExecutor {
             "first number is %s, second number is %s";
 
     /**
-     * The error message about division by zero occurs.
-     */
-    private static final String DIVISION_BY_ZERO_ERROR = "Cannot divide by zero";
-
-    /**
-     * An error message about situation when result is undefined.
-     * For example, division zero by zero.
-     */
-    private static final String RESULT_UNDEFINED_ERROR = "Result is undefined";
-
-    /**
      * The error message about such {@link MathOperation} not found.
      */
     private static final String NO_SUCH_OPERATION_ERROR = "No such operation";
-
-    /**
-     * The error message about invalid input that means an input {@link BigDecimal} number is not allowed for the current
-     * {@link MathOperation}. For example, negative number for {@link MathOperation#SQUARE_ROOT} operation.
-     */
-    private static final String INVALID_INPUT_ERROR = "Invalid input";
 
     /**
      * The value of first number used for calculations.
@@ -114,7 +100,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         } else if (operation == REVERSE) {
             result = reverse();
         } else {
-            throw new CalculationException(NO_SUCH_OPERATION_ERROR);
+            throw new UnsupportedOperationException(NO_SUCH_OPERATION_ERROR);
         }
 
         return result;
@@ -128,7 +114,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      */
     private void checkArgumentsAreValid() throws CalculationException {
         if (operation == null) {
-            throw new CalculationException(NO_SUCH_OPERATION_ERROR);
+            throw new UnsupportedOperationException(NO_SUCH_OPERATION_ERROR);
         }
 
         boolean isBinaryOperation = operation.isBinary();
@@ -141,7 +127,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
         }
 
         if (areArgumentsInvalid) {
-            throw new CalculationException(String.format(INVALID_ARGUMENTS_FOR_OPERATION, operation, firstNumber, secondNumber));
+            throw new IllegalArgumentException(String.format(INVALID_ARGUMENTS_FOR_OPERATION, operation, firstNumber, secondNumber));
         }
     }
 
@@ -180,11 +166,11 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      */
     private BigDecimal divide() throws CalculationException {
         if (isZero(firstNumber) && isZero(secondNumber)) {
-            throw new CalculationException(RESULT_UNDEFINED_ERROR);
+            throw new CalculationException(RESULT_IS_UNDEFINED);
         }
 
         if (isZero(secondNumber)) {
-            throw new CalculationException(DIVISION_BY_ZERO_ERROR);
+            throw new CalculationException(DIVISION_BY_ZERO);
         }
 
         return firstNumber.divide(secondNumber, SCALE, ROUND_HALF_UP);
@@ -217,7 +203,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      */
     private BigDecimal sqrt() throws CalculationException {
         if (firstNumber.compareTo(ZERO) < 0) {
-            throw new CalculationException(INVALID_INPUT_ERROR);
+            throw new CalculationException(INVALID_INPUT);
         }
 
         if (isZero(firstNumber)) {
@@ -269,7 +255,7 @@ public class StandardCalculationExecutor implements CalculationExecutor {
      */
     private BigDecimal reverse() throws CalculationException {
         if (isZero(firstNumber)) {
-            throw new CalculationException(DIVISION_BY_ZERO_ERROR);
+            throw new CalculationException(DIVISION_BY_ZERO);
         }
 
         return ONE.divide(firstNumber, SCALE, ROUND_HALF_UP);

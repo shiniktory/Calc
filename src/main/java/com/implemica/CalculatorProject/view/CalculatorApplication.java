@@ -384,6 +384,7 @@ public class CalculatorApplication extends Application {
             @Override
             public void handle(MouseEvent event) {
                 int clickCount = event.getClickCount();
+
                 if (clickCount == 2) {
                     setFullScreen();
                 }
@@ -740,7 +741,6 @@ public class CalculatorApplication extends Application {
                 // maximum y on screen
                 resizeDeltaY = currentEventPositionY - previousMouseEventPoint.getY();
             }
-
             newStagePositionY = currentStage.getY();
         }
 
@@ -756,7 +756,6 @@ public class CalculatorApplication extends Application {
         for (Node node : pane.getChildren()) {
             Button button = (Button) node;
             String buttonId = button.getId();
-
             double newFontSize = getFontSize(buttonId, getFontBoundIndex());
             setButtonFontSize(button, newFontSize);
         }
@@ -897,7 +896,6 @@ public class CalculatorApplication extends Application {
          * or null if coordinates are not at the borders
          */
         static ApplicationBorder getMousePosition(Point2D mouseEventPoint, Bounds applicationBounds) {
-
             // calculate distance from the event coordinates to application edges
             double distanceToTopEdge = mouseEventPoint.getY() - applicationBounds.getMinY();
             double distanceToLeftEdge = mouseEventPoint.getX() - applicationBounds.getMinX();

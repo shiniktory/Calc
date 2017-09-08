@@ -1107,7 +1107,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testInitWithWrongArgumentCount() {
+    public void testInitWithWrongArgumentCount() throws CalculationException {
         testInitForException(null, null, null);
         testInitForException(BigDecimal.ONE, null, null);
 
@@ -1121,12 +1121,12 @@ public class CalculatorTest {
         testInitForException(null, SQUARE_ROOT, BigDecimal.ONE);
     }
 
-    private void testInitForException(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) {
+    private void testInitForException(BigDecimal firstNumber, MathOperation operation, BigDecimal secondNumber) throws CalculationException {
         try {
             new StandardCalculationExecutor().calculate(firstNumber, operation, secondNumber);
             fail(format("Expected CalculationException with wrong arguments. Your operation is %s, first number is %s, " +
                     "second number is %s", operation, firstNumber, secondNumber));
-        } catch (CalculationException e) {
+        } catch (UnsupportedOperationException | IllegalArgumentException e) {
             // expected
         }
     }
@@ -1140,7 +1140,7 @@ public class CalculatorTest {
         WaitForAsyncUtils.waitForFxEvents();
         final Button button = buttons.get(buttonId);
         if (button == null) {
-            throw new IllegalArgumentException("Wrong button id. Your id is " + buttonId);
+            throw new IllegalArgumentException("Wrong button id: " + buttonId);
         }
         button.fire();
     }

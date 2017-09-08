@@ -8,12 +8,18 @@ package com.implemica.CalculatorProject.model.exception;
  */
 public class CalculationException extends Exception {
 
+    private ErrorMessage errorMessage;
+
     /**
-     * Constructs a new instance with the specified error message.
+     * Constructs a new instance with the specified error errorMessage.
      *
-     * @param message a message to describe an exception
+     * @param errorMessage a errorMessage to describe an exception
      */
-    public CalculationException(String message) {
-        super(message);
+    public CalculationException(ErrorMessage errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public ErrorMessage getErrorMessage() {
+        return errorMessage;
     }
 }

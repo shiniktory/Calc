@@ -130,7 +130,6 @@ public class OutputFormatter {
         if (isExponentFormattingNeed(number)) { // format with exponent
             setExponentSeparator(mathFormatWithExponent, number);
             formattedNumber = mathFormatWithExponent.format(number);
-
         } else { // format with rounding
             int maxFractionDigitsCount = getFractionDigitsCount(number);
             mathFormatWithRounding.setMaximumFractionDigits(maxFractionDigitsCount);
@@ -156,6 +155,7 @@ public class OutputFormatter {
         } else {
             stringValue = formatWithRoundingWithGroups(number);
         }
+
         return stringValue;
     }
 
@@ -166,8 +166,8 @@ public class OutputFormatter {
      * @param number a {@link BigDecimal} number to format
      * @return the string contains this formatted {@link BigDecimal} number
      */
-    public static String formatEnteredNumber(BigDecimal number, boolean isLastSymbolPoint) {
-        formatForEnteredNumber.setDecimalSeparatorAlwaysShown(isLastSymbolPoint);
+    public static String formatEnteredNumber(BigDecimal number, boolean isAppendPointNeed) {
+        formatForEnteredNumber.setDecimalSeparatorAlwaysShown(isAppendPointNeed);
         formatForEnteredNumber.setMinimumFractionDigits(number.scale());
 
         return formatForEnteredNumber.format(number);
@@ -182,6 +182,7 @@ public class OutputFormatter {
      */
     private static String formatToExponentialViewWithGroups(BigDecimal number) {
         setExponentSeparator(exponentialFormatWithGroups, number);
+
         return exponentialFormatWithGroups.format(number);
     }
 
@@ -227,6 +228,7 @@ public class OutputFormatter {
         roundingFormatWithGroups.setRoundingMode(roundingMode);
         int fractionalDigitsCount = getFractionDigitsCount(number);
         roundingFormatWithGroups.setMaximumFractionDigits(fractionalDigitsCount);
+
         return roundingFormatWithGroups.format(number);
     }
 
@@ -289,6 +291,7 @@ public class OutputFormatter {
     private static DecimalFormat getMathFormatWithExponent() {
         DecimalFormat format = getExponentialFormatWithGroups();
         format.setGroupingUsed(false);
+
         return format;
     }
 
@@ -305,6 +308,7 @@ public class OutputFormatter {
         DecimalFormatSymbols symbols = getDelimiters();
         format.setDecimalFormatSymbols(symbols);
         format.setDecimalSeparatorAlwaysShown(true);
+
         return format;
     }
 
@@ -318,6 +322,7 @@ public class OutputFormatter {
     private static DecimalFormat getMathFormatWithRounding() {
         DecimalFormat format = getRoundingFormatWithGroups();
         format.setGroupingUsed(false);
+
         return format;
     }
 
@@ -332,6 +337,7 @@ public class OutputFormatter {
         DecimalFormat format = new DecimalFormat();
         format.setRoundingMode(HALF_UP);
         format.setDecimalFormatSymbols(getDelimiters());
+
         return format;
     }
 
@@ -344,6 +350,7 @@ public class OutputFormatter {
         DecimalFormatSymbols delimiters = new DecimalFormatSymbols();
         delimiters.setDecimalSeparator(DECIMAL_SEPARATOR);
         delimiters.setGroupingSeparator(GROUP_SEPARATOR);
+
         return delimiters;
     }
 }
